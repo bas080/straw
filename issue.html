@@ -1,0 +1,584 @@
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪣</text></svg>">
+    <title>Issues</title>
+    <style>
+      article {
+        overflow: auto;
+      }
+      h1 + ul {
+        margin: 0;
+        padding: 0;
+      }
+      h1 + ul li {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem;
+        background-color: #00000021;
+        border-radius: 0.5rem;
+      }
+    </style>
+    <input id="search" placeholder="Search..."/>
+    <main>
+    <p>“Strive not to be a success, but rather to be of value.”
+    <cite>–Albert Einstein</cite>
+    </p>
+    
+<article class="issue">
+<p><a class="bookmark" id="__README_mz" href="#__README_mz">🔖 ./README.mz</a></p>
+<h1 id="issue">issue</h1>
+<p>Simple markdown files as issues.</p>
+<p>Use directories and (markdown) files to manage issues.</p>
+<h2 id="dependencies">Dependencies</h2>
+<p><code>bash bash pandoc --version # optional elinks --version # optional</code></p>
+<h2 id="usage">Usage</h2>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="__issue" href="#__issue">🔖 ./issue</a></p>
+<p>#!/usr/bin/env bashionista</p>
+<p>function parent_find () { local file=“$1”; local dir=“<span class="math inline">$2";  test -d "$</span>dir/<span class="math inline">$file" &amp;&amp; echo "$</span>dir” &amp;&amp; return 0; [ ‘/’ = “$dir” ] &amp;&amp; return 1; parent_find “<span class="math inline">$file" "$</span>(dirname”<span class="math inline">$dir")" }; ORIG_PWD="$</span>PWD" cd “<span class="math inline">$(parent_find issue "$</span>PWD”)/issue“; function issue_list () { { find <span class="math inline">1 : − − <em>t</em><em>y</em><em>p</em><em>e</em><em>f</em>||<em>f</em><em>i</em><em>n</em><em>d</em> * /</span>{1:-} -type f || find <em>/<span class="math inline">1 : − *  − <em>t</em><em>y</em><em>p</em><em>e</em><em>f</em>||<em>f</em><em>i</em><em>n</em><em>d</em> * /*</span>{1:-}</em> -type f } 2&gt; /dev/null }; function issue_ls () { issue_list”$@" }; function issue_status () { ls -1 }; function issue_markdown () { path="<span class="math inline">$1"  id="$</span>{path//[^[:alnum:]]/_}" printf ‘<a class="bookmark" id="%s" href="#%s">🔖 %s</a> ’ “<span class="math inline">$id" "$</span>id” “$path” cat “<span class="math inline">$1"; }; # Generates a complete site based on the issues and folders. function issue_site() {  build_dir='../.issue'  mkdir -p "$</span>build_dir”</p>
+{ echo ’
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css"> <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪣</text></svg>">
+<title>
+Issues
+</title>
+<style>
+      article {
+        overflow: auto;
+      }
+      h1 + ul {
+        margin: 0;
+        padding: 0;
+      }
+      h1 + ul li {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem;
+        background-color: #00000021;
+        border-radius: 0.5rem;
+      }
+    </style>
+<input id="search" placeholder="Search..."/>
+<main>
+<p>
+“Strive not to be a success, but rather to be of value.” <cite>–Albert Einstein</cite>
+</p>
+<p>’</p>
+issue_list “<span class="math inline">$@" | while read -r file; do  echo '&lt;article class="issue"&gt;'  issue_markdown "$</span>file” | pandoc - echo ’
+</article>
+<p>’ done</p>
+echo ’
+<p>
+“One has to kill a few of one’s natural selves to let the rest grow — a very painful slaughter of innocents.” <cite>–Henry Sidgwick</cite>
+</p>
+</main>
+<script>
+function search (inputElement) {
+  const issues = Array.from(document.getElementsByClassName('issue'))
+
+  const index = issues.map(issue => [issue, issue.textContent])
+
+  // Consider adding a better search.
+  function fuzzy (text, str) {
+    return text.includes(str)
+  }
+
+  console.log(issues)
+
+  inputElement.addEventListener('input', event => {
+    const { target: { value: search } } = event
+
+    console.log('search', search)
+    index.forEach(([elem, content]) => {
+
+      console.log(elem, content[0])
+
+      if (fuzzy(content, search)) {
+        delete elem.style.visibility
+      } else {
+        elem.style.visibility = 'hidden'
+      }
+    })
+  })
+}
+
+search(document.getElementById('search'))
+</script>
+<p>’ } | tee “$build_dir/index.html”</p>
+<p>} function issue_html () { issue_list “<span class="math inline">$@" | xargs -l issue markdown | pandoc - }; function issue_show () {  issue_list "$</span>@” | parallel -k -d ‘’ issue html | elinks –dump –dump-color-mode 1 | less -R }; function issue_edit () { $EDITOR <span class="math inline">$(issue_ls "$</span>@“) } function issue_init () { mkdir -p”<span class="math inline">$ORIG_PWD/issue/open" } function issue_pwd () {  pwd } function issue_open () {  mkdir -p open  # Test if title is defined  test -n "$</span><em>" || { echo -e ‘Please provide a title:$ issue open …<word>’ exit 1 } local filename="<span class="math inline">$(tr '[:upper:]' '[:lower:]' &lt;&lt;&lt; "$</span></em>" | tr -s ’ ’ ’_’).md"</p>
+<p>printf ‘# %s’ “<span class="math inline">$*" &gt; "open/$</span>filename”</p>
+<p><span class="math inline">$EDITOR "open/$</span>filename" } function issue_grep () { cd ./issue grep -ri “$@” }</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="__open_hello_world_md" href="#__open_hello_world_md">🔖 ./open/hello_world.md</a></p>
+<h1 id="hello-world">hello world</h1>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="__open_hello_worlawdawd_md" href="#__open_hello_worlawdawd_md">🔖 ./open/hello_worlawdawd.md</a></p>
+<h1 id="hello-worlawdawd">hello worlawdawd</h1>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="__issue_html" href="#__issue_html">🔖 ./issue.html</a></p>
+<pre><code>&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot; /&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.simplecss.org/simple.min.css&quot;&gt;
+&lt;link
+  rel=&quot;icon&quot;
+  href=&quot;data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%22.9em%22 font-size=%2290%22&gt;🪣&lt;/text&gt;&lt;/svg&gt;&quot;&gt;
+&lt;title&gt;Issues&lt;/title&gt;
+&lt;style&gt;
+  article {
+    overflow: auto;
+  }
+  h1 + ul {
+    margin: 0;
+    padding: 0;
+  }
+  h1 + ul li {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    margin: 0.25rem;
+    background-color: #00000021;
+    border-radius: 0.5rem;
+  }
+&lt;/style&gt;
+&lt;input id=&quot;search&quot; placeholder=&quot;Search...&quot;/&gt;
+&lt;main&gt;
+&lt;p&gt;“Strive not to be a success, but rather to be of value.”
+&lt;cite&gt;–Albert Einstein&lt;/cite&gt;
+&lt;/p&gt;</code></pre>
+<article class="issue">
+<p>
+<a class="bookmark" id="__README_mz" href="#__README_mz">🔖 ./README.mz</a>
+</p>
+<h1 id="issue">
+issue
+</h1>
+<p>
+Simple markdown files as issues.
+</p>
+<p>
+Use directories and (markdown) files to manage issues.
+</p>
+<h2 id="dependencies">
+Dependencies
+</h2>
+<p>
+<code>bash bash pandoc –version # optional elinks –version # optional</code>
+</p>
+<h2 id="usage">
+Usage
+</h2>
+</article>
+<article class="issue">
+<p>
+<a class="bookmark" id="__issue" href="#__issue">🔖 ./issue</a>
+</p>
+<p>
+#!/usr/bin/env bashionista
+</p>
+<p>
+function parent_find () { local file=“$1”; local dir=“<span class="math inline"><span class="math inline">$2"; test -d "$</span></span>dir/<span class="math inline"><span class="math inline">$file" &amp;amp;&amp;amp; echo "$</span></span>dir” &amp;&amp; return 0; [ ‘/’ = “$dir” ] &amp;&amp; return 1; parent_find “<span class="math inline"><span class="math inline">$file" "$</span></span>(dirname”<span class="math inline"><span class="math inline">$dir")" }; ORIG_PWD="$</span></span>PWD" cd “<span class="math inline"><span class="math inline">$(parent_find issue "$</span></span>PWD”)/issue“; function issue_list () { { find <span class="math inline">1 : − − <em>t</em><em>y</em><em>p</em><em>e</em><em>f</em>||<em>f</em><em>i</em><em>n</em><em>d</em> <em> /</span>{1:-} -type f || find <em>/<span class="math inline">1 : − </em>  − <em>t</em><em>y</em><em>p</em><em>e</em><em>f</em>||<em>f</em><em>i</em><em>n</em><em>d</em> <em> /</em></span>{1:-}</em> -type f } 2&gt; /dev/null }; function issue_ls () { issue_list”$@" }; function issue_status () { ls -1 }; function issue_markdown () { path="<span class="math inline"><span class="math inline">$1" id="$</span></span>{path//[^[:alnum:]]/_}" printf ‘<a class="bookmark" id="%s" href="#%s">🔖 %s</a>’ “<span class="math inline"><span class="math inline">$id" "$</span></span>id” “$path” cat “<span class="math inline"><span class="math inline">$1"; }; # Generates a complete site based on the issues and folders. function issue_site() { build_dir='../.issue' mkdir -p "$</span></span>build_dir”
+</p>
+{ echo ’
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css"> <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪣</text></svg>">
+<title>
+Issues
+</title>
+<style>
+      article {
+        overflow: auto;
+      }
+      h1 + ul {
+        margin: 0;
+        padding: 0;
+      }
+      h1 + ul li {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem;
+        background-color: #00000021;
+        border-radius: 0.5rem;
+      }
+    </style>
+<input id="search" placeholder="Search..."/>
+<main>
+<p>
+“Strive not to be a success, but rather to be of value.” <cite>–Albert Einstein</cite>
+</p>
+<p>
+’
+</p>
+issue_list “<span class="math inline"><span class="math inline">$@" | while read -r file; do echo '&amp;lt;article class="issue"&amp;gt;' issue_markdown "$</span></span>file” | pandoc - echo ’
+</article>
+<p>
+’ done
+</p>
+echo ’
+<p>
+“One has to kill a few of one’s natural selves to let the rest grow — a very painful slaughter of innocents.” <cite>–Henry Sidgwick</cite>
+</p>
+</main>
+<script>
+function search (inputElement) {
+  const issues = Array.from(document.getElementsByClassName('issue'))
+
+  const index = issues.map(issue => [issue, issue.textContent])
+
+  // Consider adding a better search.
+  function fuzzy (text, str) {
+    return text.includes(str)
+  }
+
+  console.log(issues)
+
+  inputElement.addEventListener('input', event => {
+    const { target: { value: search } } = event
+
+    console.log('search', search)
+    index.forEach(([elem, content]) => {
+
+      console.log(elem, content[0])
+
+      if (fuzzy(content, search)) {
+        delete elem.style.visibility
+      } else {
+        elem.style.visibility = 'hidden'
+      }
+    })
+  })
+}
+
+search(document.getElementById('search'))
+</script>
+<p>
+’ } | tee “<span class="math inline">$build_dir/index.html”&lt;/p&gt; &lt;p&gt;} function issue_html () { issue_list “&lt;span class="math inline"&gt;$</span>@” | xargs -l issue markdown | pandoc - }; function issue_show () { issue_list “$</span>@” | parallel -k -d ‘’ issue html | elinks –dump –dump-color-mode 1 | less -R }; function issue_edit () { <span class="math inline">$EDITOR &lt;span class="math inline"&gt;$</span>(issue_ls “<span class="math inline">$&lt;/span&gt;@“) } function issue_init () { mkdir -p”&lt;span class="math inline"&gt;$</span>ORIG_PWD/issue/open” } function issue_pwd () { pwd } function issue_open () { mkdir -p open # Test if title is defined test -n “<span class="math inline">$&lt;/span&gt;&lt;em&gt;" || { echo -e ‘Please provide a title:$</span> issue open …<word>’ exit 1 } local filename=”<span class="math inline"><span class="math inline">$(tr '[:upper:]' '[:lower:]' &amp;lt;&amp;lt;&amp;lt; "$</span></span></em>" | tr -s ’ ’ ’_’).md"
+</p>
+<p>
+printf ‘# %s’ “<span class="math inline"><span class="math inline">$*" &amp;gt; "open/$</span></span>filename”
+</p>
+<p>
+<span class="math inline"><span class="math inline">$EDITOR "open/$</span></span>filename" } function issue_grep () { cd ./issue grep -ri “$@” }
+</p>
+</article>
+<article class="issue">
+<p>
+<a class="bookmark" id="__open_hello_world_md" href="#__open_hello_world_md">🔖 ./open/hello_world.md</a>
+</p>
+<h1 id="hello-world">
+hello world
+</h1>
+</article>
+<article class="issue">
+<p>
+<a class="bookmark" id="__open_hello_worlawdawd_md" href="#__open_hello_worlawdawd_md">🔖 ./open/hello_worlawdawd.md</a>
+</p>
+<h1 id="hello-worlawdawd">
+hello worlawdawd
+</h1>
+</article>
+<article class="issue">
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_pre_applypatch_sample" href="#___git_hooks_pre_applypatch_sample">🔖 ./.git/hooks/pre-applypatch.sample</a></p>
+<p>#!/bin/sh # # An example hook script to verify what is about to be committed # by applypatch from an e-mail message. # # The hook should exit with non-zero status after issuing an # appropriate message if it wants to stop the commit. # # To enable this hook, rename this file to “pre-applypatch”.</p>
+<p>. git-sh-setup precommit=“<span class="math inline">$(git rev-parse --git-path hooks/pre-commit)" test -x "$</span>precommit” &amp;&amp; exec “$precommit” <span class="math inline">${1+"$</span>@"} :</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_commit_msg_sample" href="#___git_hooks_commit_msg_sample">🔖 ./.git/hooks/commit-msg.sample</a></p>
+<p>#!/bin/sh # # An example hook script to check the commit log message. # Called by “git commit” with one argument, the name of the file # that has the commit message. The hook should exit with non-zero # status after issuing an appropriate message if it wants to stop the # commit. The hook is allowed to edit the commit message file. # # To enable this hook, rename this file to “commit-msg”.</p>
+<h1 id="uncomment-the-below-to-add-a-signed-off-by-line-to-the-message.">Uncomment the below to add a Signed-off-by line to the message.</h1>
+<h1 id="doing-this-in-a-hook-is-a-bad-idea-in-general-but-the-prepare-commit-msg">Doing this in a hook is a bad idea in general, but the prepare-commit-msg</h1>
+<h1 id="hook-is-more-suited-to-it.">hook is more suited to it.</h1>
+<h1 id="section"></h1>
+<h1 id="sobgit-var-git_author_ident-sed--n-s..signed-off-by-1p">SOB=<span class="math inline">$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*&gt;\).*$</span>/Signed-off-by: \1/p’)</h1>
+<h1 id="grep--qs-sob-1-echo-sob-1">grep -qs “^$SOB” “<span class="math inline">$1" || echo "$</span>SOB” &gt;&gt; “$1”</h1>
+<h1 id="this-example-catches-duplicate-signed-off-by-lines.">This example catches duplicate Signed-off-by lines.</h1>
+<p>test "" = “$(grep ‘^Signed-off-by:’”$1" | sort | uniq -c | sed -e ’/<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>*1<a href="#section"></a>/d’)" || { echo &gt;&amp;2 Duplicate Signed-off-by lines. exit 1 }</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p> <a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_update_sample" href="#___git_hooks_update_sample">🔖 ./.git/hooks/update.sample</a></p>
+<p>#!/bin/sh # # An example hook script to block unannotated tags from entering. # Called by “git receive-pack” with arguments: refname sha1-old sha1-new # # To enable this hook, rename this file to “update”. # # Config # —— # hooks.allowunannotated # This boolean sets whether unannotated tags will be allowed into the # repository. By default they won’t be. # hooks.allowdeletetag # This boolean sets whether deleting tags will be allowed in the # repository. By default they won’t be. # hooks.allowmodifytag # This boolean sets whether a tag may be modified after creation. By default # it won’t be. # hooks.allowdeletebranch # This boolean sets whether deleting branches will be allowed in the # repository. By default they won’t be. # hooks.denycreatebranch # This boolean sets whether remotely creating branches will be denied # in the repository. By default this is allowed. #</p>
+<h1 id="command-line">— Command line</h1>
+<p>refname=“$1” oldrev=“$2” newrev=“$3”</p>
+<h1 id="safety-check">— Safety check</h1>
+<p>if [ -z “$GIT_DIR” ]; then echo “Don’t run this script from the command line.” &gt;&amp;2 echo " (if you want, you could supply GIT_DIR then run" &gt;&amp;2 echo " $0 <ref> <oldrev> <newrev>)" &gt;&amp;2 exit 1 fi</p>
+<p>if [ -z “<span class="math inline">$refname" -o -z "$</span>oldrev” -o -z “$newrev” ]; then echo “usage: $0 <ref> <oldrev> <newrev>” &gt;&amp;2 exit 1 fi</p>
+<h1 id="config">— Config</h1>
+<p>allowunannotated=<span class="math inline">(<em>g</em><em>i</em><em>t</em><em>c</em><em>o</em><em>n</em><em>f</em><em>i</em><em>g</em> −  − <em>b</em><em>o</em><em>o</em><em>l</em><em>h</em><em>o</em><em>o</em><em>k</em><em>s</em>.<em>a</em><em>l</em><em>l</em><em>o</em><em>w</em><em>u</em><em>n</em><em>a</em><em>n</em><em>n</em><em>o</em><em>t</em><em>a</em><em>t</em><em>e</em><em>d</em>)<em>a</em><em>l</em><em>l</em><em>o</em><em>w</em><em>d</em><em>e</em><em>l</em><em>e</em><em>t</em><em>e</em><em>b</em><em>r</em><em>a</em><em>n</em><em>c</em><em>h</em>=</span>(git config –bool hooks.allowdeletebranch) denycreatebranch=<span class="math inline">(<em>g</em><em>i</em><em>t</em><em>c</em><em>o</em><em>n</em><em>f</em><em>i</em><em>g</em> −  − <em>b</em><em>o</em><em>o</em><em>l</em><em>h</em><em>o</em><em>o</em><em>k</em><em>s</em>.<em>d</em><em>e</em><em>n</em><em>y</em><em>c</em><em>r</em><em>e</em><em>a</em><em>t</em><em>e</em><em>b</em><em>r</em><em>a</em><em>n</em><em>c</em><em>h</em>)<em>a</em><em>l</em><em>l</em><em>o</em><em>w</em><em>d</em><em>e</em><em>l</em><em>e</em><em>t</em><em>e</em><em>t</em><em>a</em><em>g</em>=</span>(git config –bool hooks.allowdeletetag) allowmodifytag=$(git config –bool hooks.allowmodifytag)</p>
+<h1 id="check-for-no-description">check for no description</h1>
+<p>projectdesc=<span class="math inline">$(sed -e '1q' "$</span>GIT_DIR/description“) case”$projectdesc" in “Unnamed repository”* | "“) echo”*** Project description file hasn’t been set" &gt;&amp;2 exit 1 ;; esac</p>
+<h1 id="check-types">— Check types</h1>
+<h1 id="if-newrev-is-0000...0000-its-a-commit-to-delete-a-ref.-zero0000000000000000000000000000000000000000-if-newrev-zero-then-newrev_typedelete-else-newrev_typegit-cat-file--t-newrev">if <span class="math inline">$newrev is 0000...0000, it's a commit to delete a ref. zero="0000000000000000000000000000000000000000" if [ "$</span>newrev" = "<span class="math inline">$zero" ]; then  newrev_type=delete else  newrev_type=$</span>(git cat-file -t $newrev)</h1>
+<p>fi</p>
+<p>case “<span class="math inline">$refname","$</span>newrev_type” in refs/tags/<em>,commit) # un-annotated tag short_refname=<span class="math inline">${refname##refs/tags/}  if [ "$</span>allowunannotated" != “true” ]; then echo “*** The un-annotated tag, <span class="math inline">$short_refname, is not allowed in this repository" &gt;&amp;2  echo "*** Use 'git tag [ -a | -s ]' for tags you want to propagate." &gt;&amp;2  exit 1  fi  ;;  refs/tags/*,delete)  # delete tag  if [ "$</span>allowdeletetag” != “true” ]; then echo “*** Deleting a tag is not allowed in this repository” &gt;&amp;2 exit 1 fi ;; refs/tags/</em>,tag) # annotated tag if [ “$allowmodifytag” != “true” ] &amp;&amp; git rev-parse <span class="math inline">$refname &gt; /dev/null 2&gt;&amp;1  then  echo "*** Tag '$</span>refname’ already exists." &gt;&amp;2 echo “*** Modifying a tag is not allowed in this repository.” &gt;&amp;2 exit 1 fi ;; refs/heads/<em>,commit) # branch if [ “<span class="math inline">$oldrev" = "$</span>zero” -a “$denycreatebranch” = “true” ]; then echo “*** Creating a branch is not allowed in this repository” &gt;&amp;2 exit 1 fi ;; refs/heads/</em>,delete) # delete branch if [ “$allowdeletebranch” != “true” ]; then echo “*** Deleting a branch is not allowed in this repository” &gt;&amp;2 exit 1 fi ;; refs/remotes/<em>,commit) # tracking branch ;; refs/remotes/</em>,delete) # delete tracking branch if [ “$allowdeletebranch” != “true” ]; then echo “*** Deleting a tracking branch is not allowed in this repository” &gt;&amp;2 exit 1 fi ;; *) # Anything else (is there anything else?) echo “*** Update hook: unknown type of update to ref $refname of type $newrev_type” &gt;&amp;2 exit 1 ;; esac</p>
+<h1 id="finished">— Finished</h1>
+<p>exit 0</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_post_update_sample" href="#___git_hooks_post_update_sample">🔖 ./.git/hooks/post-update.sample</a></p>
+<p>#!/bin/sh # # An example hook script to prepare a packed repository for use over # dumb transports. # # To enable this hook, rename this file to “post-update”.</p>
+<p>exec git update-server-info</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_fsmonitor_watchman_sample" href="#___git_hooks_fsmonitor_watchman_sample">🔖 ./.git/hooks/fsmonitor-watchman.sample</a></p>
+<p>#!/usr/bin/perl</p>
+<p>use strict; use warnings; use IPC::Open2;</p>
+<h1 id="an-example-hook-script-to-integrate-watchman">An example hook script to integrate Watchman</h1>
+<h1 id="httpsfacebook.github.iowatchman-with-git-to-speed-up-detecting">(https://facebook.github.io/watchman/) with git to speed up detecting</h1>
+<h1 id="new-and-modified-files.">new and modified files.</h1>
+<h1 id="section"></h1>
+<h1 id="the-hook-is-passed-a-version-currently-1-and-a-time-in-nanoseconds">The hook is passed a version (currently 1) and a time in nanoseconds</h1>
+<h1 id="formatted-as-a-string-and-outputs-to-stdout-all-files-that-have-been">formatted as a string and outputs to stdout all files that have been</h1>
+<h1 id="modified-since-the-given-time.-paths-must-be-relative-to-the-root-of">modified since the given time. Paths must be relative to the root of</h1>
+<h1 id="the-working-tree-and-separated-by-a-single-nul.">the working tree and separated by a single NUL.</h1>
+<h1 id="section-1"></h1>
+<h1 id="to-enable-this-hook-rename-this-file-to-query-watchman-and-set">To enable this hook, rename this file to “query-watchman” and set</h1>
+<h1 id="git-config-core.fsmonitor-.githooksquery-watchman">‘git config core.fsmonitor .git/hooks/query-watchman’</h1>
+<h1 id="section-2"></h1>
+<p>my ($version, $time) = <span class="citation" data-cites="ARGV">@ARGV</span>;</p>
+<h1 id="check-the-hook-interface-version">Check the hook interface version</h1>
+<p>if ($version == 1) { # convert nanoseconds to seconds # subtract one second to make sure watchman will return all changes <span class="math inline"><em>t</em><em>i</em><em>m</em><em>e</em> = <em>i</em><em>n</em><em>t</em>(</span>time / 1000000000) - 1; } else { die “Unsupported query-fsmonitor hook version ‘$version’.” . “Falling back to scanning…”; }</p>
+<p>my <span class="math inline"><em>g</em><em>i</em><em>t</em><sub><em>w</em></sub><em>o</em><em>r</em><em>k</em><sub><em>t</em></sub><em>r</em><em>e</em><em>e</em>; <em>i</em><em>f</em>(</span>^O =~ ‘msys’ || $^O =~ ‘cygwin’) { $git_work_tree = Win32::GetCwd(); $git_work_tree =~ tr/\///; } else { require Cwd; $git_work_tree = Cwd::cwd(); }</p>
+<p>my $retry = 1;</p>
+<p>launch_watchman();</p>
+<p>sub launch_watchman {</p>
+<pre><code>my $pid = open2(\*CHLD_OUT, \*CHLD_IN, &#39;watchman -j --no-pretty&#39;)
+    or die &quot;open2() failed: $!\n&quot; .
+    &quot;Falling back to scanning...\n&quot;;
+
+# In the query expression below we&#39;re asking for names of files that
+# changed since $time but were not transient (ie created after
+# $time but no longer exist).
+#
+# To accomplish this, we&#39;re using the &quot;since&quot; generator to use the
+# recency index to select candidate nodes and &quot;fields&quot; to limit the
+# output to file names only.
+
+my $query = &lt;&lt;&quot; END&quot;;
+    [&quot;query&quot;, &quot;$git_work_tree&quot;, {
+        &quot;since&quot;: $time,
+        &quot;fields&quot;: [&quot;name&quot;]
+    }]
+END
+
+print CHLD_IN $query;
+close CHLD_IN;
+my $response = do {local $/; &lt;CHLD_OUT&gt;};
+
+die &quot;Watchman: command returned no output.\n&quot; .
+    &quot;Falling back to scanning...\n&quot; if $response eq &quot;&quot;;
+die &quot;Watchman: command returned invalid output: $response\n&quot; .
+    &quot;Falling back to scanning...\n&quot; unless $response =~ /^\{/;
+
+my $json_pkg;
+eval {
+    require JSON::XS;
+    $json_pkg = &quot;JSON::XS&quot;;
+    1;
+} or do {
+    require JSON::PP;
+    $json_pkg = &quot;JSON::PP&quot;;
+};
+
+my $o = $json_pkg-&gt;new-&gt;utf8-&gt;decode($response);
+
+if ($retry &gt; 0 and $o-&gt;{error} and $o-&gt;{error} =~ m/unable to resolve root .* directory (.*) is not watched/) {
+    print STDERR &quot;Adding &#39;$git_work_tree&#39; to watchman&#39;s watch list.\n&quot;;
+    $retry--;
+    qx/watchman watch &quot;$git_work_tree&quot;/;
+    die &quot;Failed to make watchman watch &#39;$git_work_tree&#39;.\n&quot; .
+        &quot;Falling back to scanning...\n&quot; if $? != 0;
+
+    # Watchman will always return all files on the first query so
+    # return the fast &quot;everything is dirty&quot; flag to git and do the
+    # Watchman query just to get it over with now so we won&#39;t pay
+    # the cost in git to look up each individual file.
+    print &quot;/\0&quot;;
+    eval { launch_watchman() };
+    exit 0;
+}
+
+die &quot;Watchman: $o-&gt;{error}.\n&quot; .
+    &quot;Falling back to scanning...\n&quot; if $o-&gt;{error};
+
+binmode STDOUT, &quot;:utf8&quot;;
+local $, = &quot;\0&quot;;
+print @{$o-&gt;{files}};</code></pre>
+<p>}</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_pre_commit_sample" href="#___git_hooks_pre_commit_sample">🔖 ./.git/hooks/pre-commit.sample</a></p>
+<p>#!/bin/sh # # An example hook script to verify what is about to be committed. # Called by “git commit” with no arguments. The hook should # exit with non-zero status after issuing an appropriate message if # it wants to stop the commit. # # To enable this hook, rename this file to “pre-commit”.</p>
+<p>if git rev-parse –verify HEAD &gt;/dev/null 2&gt;&amp;1 then against=HEAD else # Initial commit: diff against an empty tree object against=$(git hash-object -t tree /dev/null) fi</p>
+<h1 id="if-you-want-to-allow-non-ascii-filenames-set-this-variable-to-true.">If you want to allow non-ASCII filenames set this variable to true.</h1>
+<p>allownonascii=$(git config –bool hooks.allownonascii)</p>
+<h1 id="redirect-output-to-stderr.">Redirect output to stderr.</h1>
+<p>exec 1&gt;&amp;2</p>
+<h1 id="cross-platform-projects-tend-to-avoid-non-ascii-filenames-prevent">Cross platform projects tend to avoid non-ASCII filenames; prevent</h1>
+<h1 id="them-from-being-added-to-the-repository.-we-exploit-the-fact-that-the">them from being added to the repository. We exploit the fact that the</h1>
+<h1 id="printable-range-starts-at-the-space-character-and-ends-with-tilde.">printable range starts at the space character and ends with tilde.</h1>
+<p>if [ “$allownonascii” != “true” ] &amp;&amp; # Note that the use of brackets around a tr range is ok here, (it’s # even required, for portability to Solaris 10’s /usr/bin/tr), since # the square bracket bytes happen to fall in the designated range. test $(git diff –cached –name-only –diff-filter=A -z $against | LC_ALL=C tr -d ‘[ -~]\0’ | wc -c) != 0 then cat &lt;&lt; Error: Attempt to add a non-ASCII file name.</p>
+<p>This can cause problems if you want to work with people on other platforms.</p>
+<p>To be portable it is advisable to rename the file.</p>
+<p>If you know what you are doing you can disable this check using:</p>
+<p>git config hooks.allownonascii true EOF exit 1 fi</p>
+<h1 id="if-there-are-whitespace-errors-print-the-offending-file-names-and-fail.">If there are whitespace errors, print the offending file names and fail.</h1>
+<p>exec git diff-index –check –cached $against –</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_prepare_commit_msg_sample" href="#___git_hooks_prepare_commit_msg_sample">🔖 ./.git/hooks/prepare-commit-msg.sample</a></p>
+<p>#!/bin/sh # # An example hook script to prepare the commit log message. # Called by “git commit” with the name of the file that has the # commit message, followed by the description of the commit # message’s source. The hook’s purpose is to edit the commit # message file. If the hook fails with a non-zero status, # the commit is aborted. # # To enable this hook, rename this file to “prepare-commit-msg”.</p>
+<h1 id="this-hook-includes-three-examples.-the-first-one-removes-the">This hook includes three examples. The first one removes the</h1>
+<h1 id="please-enter-the-commit-message-help-message.">“# Please enter the commit message…” help message.</h1>
+<h1 id="section"></h1>
+<h1 id="the-second-includes-the-output-of-git-diff-name-status--r">The second includes the output of “git diff –name-status -r”</h1>
+<h1 id="into-the-message-just-before-the-git-status-output.-it-is">into the message, just before the “git status” output. It is</h1>
+<h1 id="commented-because-it-doesnt-cope-with-amend-or-with-squashed">commented because it doesn’t cope with –amend or with squashed</h1>
+<h1 id="commits.">commits.</h1>
+<h1 id="section-1"></h1>
+<h1 id="the-third-example-adds-a-signed-off-by-line-to-the-message-that-can">The third example adds a Signed-off-by line to the message, that can</h1>
+<h1 id="still-be-edited.-this-is-rarely-a-good-idea.">still be edited. This is rarely a good idea.</h1>
+<p>COMMIT_MSG_FILE=$1 COMMIT_SOURCE=$2 SHA1=$3</p>
+<p>/usr/bin/perl -i.bak -ne ’print unless(m/^. Please enter the commit message/..m/^#<span class="math inline">$/)' "$</span>COMMIT_MSG_FILE"</p>
+<h1 id="case-commit_sourcesha1-in">case “<span class="math inline"><em>C</em><em>O</em><em>M</em><em>M</em><em>I</em><em>T</em><sub><em>S</em></sub><em>O</em><em>U</em><em>R</em><em>C</em><em>E</em>,</span>SHA1” in</h1>
+<h1 id="template">,|template,)</h1>
+<h1 id="usrbinperl--i.bak--pe">/usr/bin/perl -i.bak -pe ’</h1>
+<h1 id="print-.-git-diff---cached---name-status--r">print “” . <code>git diff --cached --name-status -r</code></h1>
+<h1 id="if-first-0-commit_msg_file">if /^#/ &amp;&amp; <span class="math inline">$first++ == 0' "$</span>COMMIT_MSG_FILE" ;;</h1>
+<h1 id="esac">*) ;; # esac</h1>
+<h1 id="sobgit-var-git_committer_ident-sed--n-s..signed-off-by-1p">SOB=<span class="math inline">$(git var GIT_COMMITTER_IDENT | sed -n 's/^\(.*&gt;\).*$</span>/Signed-off-by: \1/p’)</h1>
+<h1 id="git-interpret-trailers-in-place-trailer-sob-commit_msg_file">git interpret-trailers –in-place –trailer “<span class="math inline">$SOB" "$</span>COMMIT_MSG_FILE”</h1>
+<h1 id="if-test--z-commit_source-then-usrbinperl--i.bak--pe-print-n-if-first_linecommit_msg_file">if test -z “<span class="math inline">$COMMIT_SOURCE" # then # /usr/bin/perl -i.bak -pe 'print "\n" if !$</span>first_line++’”$COMMIT_MSG_FILE"</h1>
+<h1 id="fi">fi</h1>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_pre_receive_sample" href="#___git_hooks_pre_receive_sample">🔖 ./.git/hooks/pre-receive.sample</a></p>
+<p>#!/bin/sh # # An example hook script to make use of push options. # The example simply echoes all push options that start with ‘echoback=’ # and rejects all pushes when the “reject” push option is used. # # To enable this hook, rename this file to “pre-receive”.</p>
+<p>if test -n “<span class="math inline">$GIT_PUSH_OPTION_COUNT" then  i=0  while test "$</span>i” -lt “<span class="math inline">$GIT_PUSH_OPTION_COUNT"  do  eval "value=\$GIT_PUSH_OPTION_$</span>i” case “$value” in echoback=*) echo "echo from the pre-receive-hook: <span class="math inline">${value#*=}" &gt;&amp;2  ;;  reject)  exit 1  esac  i=$</span>((i + 1)) done fi</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_pre_rebase_sample" href="#___git_hooks_pre_rebase_sample">🔖 ./.git/hooks/pre-rebase.sample</a></p>
+<p>#!/bin/sh # # Copyright (c) 2006, 2008 Junio C Hamano # # The “pre-rebase” hook is run just before “git rebase” starts doing # its job, and can prevent the command from running by exiting with # non-zero status. # # The hook is called with the following parameters: # # $1 – the upstream the series was forked from. # $2 – the branch being rebased (or empty when rebasing the current branch). # # This sample shows how to prevent topic branches that are already # merged to ‘next’ branch from getting rebased, because allowing it # would result in rebasing already published history.</p>
+<p>publish=next basebranch=“<span class="math inline">$1" if test "$</span>#” = 2 then topic=“refs/heads/$2” else topic=<code>git symbolic-ref HEAD</code> || exit 0 ;# we do not interrupt rebasing detached HEAD fi</p>
+<p>case “$topic” in refs/heads/??/<em>) ;; </em>) exit 0 ;# we do not interrupt others. ;; esac</p>
+<h1 id="now-we-are-dealing-with-a-topic-branch-being-rebased">Now we are dealing with a topic branch being rebased</h1>
+<h1 id="on-top-of-master.-is-it-ok-to-rebase-it">on top of master. Is it OK to rebase it?</h1>
+<h1 id="does-the-topic-really-exist">Does the topic really exist?</h1>
+<p>git show-ref -q “$topic” || { echo &gt;&amp;2 “No such branch $topic” exit 1 }</p>
+<h1 id="is-topic-fully-merged-to-master">Is topic fully merged to master?</h1>
+<p>not_in_master=<code>git rev-list --pretty=oneline ^master "$topic"</code> if test -z “<span class="math inline">$not_in_master" then  echo &gt;&amp;2 "$</span>topic is fully merged to master; better remove it.” exit 1 ;# we could allow it, but there is no point. fi</p>
+<h1 id="is-topic-ever-merged-to-next-if-so-you-should-not-be-rebasing-it.">Is topic ever merged to next? If so you should not be rebasing it.</h1>
+<p>only_next_1=<code>git rev-list ^master "^$topic" ${publish} | sort</code> only_next_2=<code>git rev-list ^master           ${publish} | sort</code> if test “<span class="math inline">$only_next_1" = "$</span>only_next_2” then not_in_topic=<code>git rev-list "^$topic" master</code> if test -z “<span class="math inline">$not_in_topic"  then  echo &gt;&amp;2 "$</span>topic is already up to date with master” exit 1 ;# we could allow it, but there is no point. else exit 0 fi else not_in_next=<code>git rev-list --pretty=oneline ^${publish} "$topic"</code> /usr/bin/perl -e ’ my $topic = $ARGV[0]; my $msg = “* $topic has commits already merged to public branch:”; my (%not_in_next) = map { /^([0-9a-f]+) /; ($1 =&gt; 1); } split(//, $ARGV[1]); for my <span class="math inline">$elem (map {  /^([0-9a-f]+) (.*)$</span>/; [$1 =&gt; $2]; } split(//, $ARGV[2])) { if (!exists <span class="math inline">$not_in_next{$</span>elem-&gt;[0]}) { if ($msg) { print STDERR $msg; undef $msg; } print STDERR " <span class="math inline">$elem-&gt;[1]\n";  }  }  ' "$</span>topic" “<span class="math inline">$not_in_next" "$</span>not_in_master” exit 1 fi</p>
+<p>&lt;&lt;_END</p>
+<p>This sample hook safeguards topic branches that have been published from being rewound.</p>
+<p>The workflow assumed here is:</p>
+<ul>
+<li><p>Once a topic branch forks from “master”, “master” is never merged into it again (either directly or indirectly).</p></li>
+<li><p>Once a topic branch is fully cooked and merged into “master”, it is deleted. If you need to build on top of it to correct earlier mistakes, a new topic branch is created by forking at the tip of the “master”. This is not strictly necessary, but it makes it easier to keep your history simple.</p></li>
+<li><p>Whenever you need to test or publish your changes to topic branches, merge them into “next” branch.</p></li>
+</ul>
+<p>The script, being an example, hardcodes the publish branch name to be “next”, but it is trivial to make it configurable via $GIT_DIR/config mechanism.</p>
+<p>With this workflow, you would want to know:</p>
+<ol type="1">
+<li><p>… if a topic branch has ever been merged to “next”. Young topic branches can have stupid mistakes you would rather clean up before publishing, and things that have not been merged into other branches can be easily rebased without affecting other people. But once it is published, you would not want to rewind it.</p></li>
+<li><p>… if a topic branch has been fully merged to “master”. Then you can delete it. More importantly, you should not build on top of it – other people may already want to change things related to the topic as patches against your “master”, so if you need further changes, it is better to fork the topic (perhaps with the same name) afresh from the tip of “master”.</p></li>
+</ol>
+<p>Let’s look at this example:</p>
+<pre><code>       o---o---o---o---o---o---o---o---o---o &quot;next&quot;
+      /       /           /           /
+     /   a---a---b A     /           /
+    /   /               /           /
+       /   /   c---c---c---c B         /
+      /   /   /             \         /
+     /   /   /   b---b C     \       /
+    /   /   /   /             \     /
+---o---o---o---o---o---o---o---o---o---o---o &quot;master&quot;</code></pre>
+<p>A, B and C are topic branches.</p>
+<ul>
+<li><p>A has one fix since it was merged up to “next”.</p></li>
+<li><p>B has finished. It has been fully merged up to “master” and “next”, and is ready to be deleted.</p></li>
+<li><p>C has not merged to “next” at all.</p></li>
+</ul>
+<p>We would want to allow C to be rebased, refuse A, and encourage B to be deleted.</p>
+<p>To compute (1):</p>
+<pre><code>git rev-list ^master ^topic next
+git rev-list ^master        next
+
+if these match, topic has not merged in next at all.</code></pre>
+<p>To compute (2):</p>
+<pre><code>git rev-list master..topic
+
+if this is empty, it is fully merged to &quot;master&quot;.</code></pre>
+<p>DOC_END</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_pre_merge_commit_sample" href="#___git_hooks_pre_merge_commit_sample">🔖 ./.git/hooks/pre-merge-commit.sample</a></p>
+<p>#!/bin/sh # # An example hook script to verify what is about to be committed. # Called by “git merge” with no arguments. The hook should # exit with non-zero status after issuing an appropriate message to # stderr if it wants to stop the merge commit. # # To enable this hook, rename this file to “pre-merge-commit”.</p>
+<p>. git-sh-setup test -x “<span class="math inline">$GIT_DIR/hooks/pre-commit" &amp;&amp;  exec "$</span>GIT_DIR/hooks/pre-commit” :</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_pre_push_sample" href="#___git_hooks_pre_push_sample">🔖 ./.git/hooks/pre-push.sample</a></p>
+<p>#!/bin/sh</p>
+<h1 id="an-example-hook-script-to-verify-what-is-about-to-be-pushed.-called-by-git-push-after-it-has-checked-the-remote-status-but-before-anything-has-been">An example hook script to verify what is about to be pushed. Called by “git # push” after it has checked the remote status, but before anything has been</h1>
+<h1 id="pushed.-if-this-script-exits-with-a-non-zero-status-nothing-will-be-pushed.">pushed. If this script exits with a non-zero status nothing will be pushed.</h1>
+<h1 id="section"></h1>
+<h1 id="this-hook-is-called-with-the-following-parameters">This hook is called with the following parameters:</h1>
+<h1 id="section-1"></h1>
+<h1 id="name-of-the-remote-to-which-the-push-is-being-done">$1 – Name of the remote to which the push is being done</h1>
+<h1 id="url-to-which-the-push-is-being-done">$2 – URL to which the push is being done</h1>
+<h1 id="section-2"></h1>
+<h1 id="if-pushing-without-using-a-named-remote-those-arguments-will-be-equal.">If pushing without using a named remote those arguments will be equal.</h1>
+<h1 id="section-3"></h1>
+<h1 id="information-about-the-commits-which-are-being-pushed-is-supplied-as-lines-to">Information about the commits which are being pushed is supplied as lines to</h1>
+<h1 id="the-standard-input-in-the-form">the standard input in the form:</h1>
+<h1 id="section-4"></h1>
+<h1 id="section-5"><local ref> <local sha1> <remote ref> <remote sha1></h1>
+<h1 id="section-6"></h1>
+<h1 id="this-sample-shows-how-to-prevent-push-of-commits-where-the-log-message-starts">This sample shows how to prevent push of commits where the log message starts</h1>
+<h1 id="with-wip-work-in-progress.">with “WIP” (work in progress).</h1>
+<p>remote=“$1” url=“$2”</p>
+<p>z40=0000000000000000000000000000000000000000</p>
+<p>while read local_ref local_sha remote_ref remote_sha do if [ “$local_sha” = $z40 ] then # Handle delete : else if [ “$remote_sha” = $z40 ] then # New branch, examine all commits range=“<span class="math inline">$local_sha"  else  # Update to existing branch, examine new commits  range="$</span>remote_sha..$local_sha” fi</p>
+<pre><code>    # Check for WIP commit
+    commit=`git rev-list -n 1 --grep &#39;^WIP&#39; &quot;$range&quot;`
+    if [ -n &quot;$commit&quot; ]
+    then
+        echo &gt;&amp;2 &quot;Found WIP commit in $local_ref, not pushing&quot;
+        exit 1
+    fi
+fi</code></pre>
+<p>done</p>
+<p>exit 0</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_hooks_applypatch_msg_sample" href="#___git_hooks_applypatch_msg_sample">🔖 ./.git/hooks/applypatch-msg.sample</a></p>
+<p>#!/bin/sh # # An example hook script to check the commit log message taken by # applypatch from an e-mail message. # # The hook should exit with non-zero status after issuing an # appropriate message if it wants to stop the commit. The hook is # allowed to edit the commit message file. # # To enable this hook, rename this file to “applypatch-msg”.</p>
+<p>. git-sh-setup commitmsg=“<span class="math inline">$(git rev-parse --git-path hooks/commit-msg)" test -x "$</span>commitmsg” &amp;&amp; exec “$commitmsg” <span class="math inline">${1+"$</span>@"} :</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_FETCH_HEAD" href="#___git_FETCH_HEAD">🔖 ./.git/FETCH_HEAD</a></p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_description" href="#___git_description">🔖 ./.git/description</a></p>
+<p>Unnamed repository; edit this file ‘description’ to name the repository.</p>
+</article>
+<article class="issue">
+<p><a class="bookmark" id="___git_config" href="#___git_config">🔖 ./.git/config</a></p>
+<p>[core] repositoryformatversion = 0 filemode = true bare = false logallrefupdates = true</p>
+</article>
+<article class="issue">
