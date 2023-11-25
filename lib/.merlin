@@ -1,0 +1,4 @@
+EXCLUDE_QUERY_DIR
+B ../_build/default/lib/.issue.objs/byte
+S .
+FLG -open Issue -w -40

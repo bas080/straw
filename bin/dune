@@ -1,0 +1,9 @@
+(executable
+ (public_name issue)
+ (name main)
+ (libraries issue))
+
+;; set O2 for a release build
+(env
+ (release
+   (ocamlopt_flags (:standard -O2))))
