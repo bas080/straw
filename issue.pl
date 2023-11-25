@@ -306,13 +306,9 @@ sub lanes_list {
   find(sub {
       # Check if the current item is a directory and not equal to the top-level directory
       if (-d $_ && $_ ne $directory && $_ ne '.') {
-          # Get the relative path of the directory
-          my $relative_path = File::Spec->abs2rel($File::Find::name, $directory);
-
-          # Add the relative directory path to the array
-          push @directories, $relative_path;
+        push @directories, $File::Find::name;
       }
-  }, $directory);
+    }, $directory);
 
   # Define the callback function for find
   return @directories;
