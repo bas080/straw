@@ -70,21 +70,27 @@ use warnings;
 
 use Cwd;
 use File::Find;
-use File::Path;
+use File::Path qw(make_path);
 use File::Spec;
 use Getopt::Long;
-use File::Path qw(make_path);
 use File::Temp;
 use File::Copy;
 use File::Basename;
 
+# Helper function to create a safe filename
+sub safe_filename {
+    my $title = shift;
+    $title =~ s/[^\w.-]/_/g;
+    lc $title;
+}
+
 sub print_html_issues {
   use Text::Markdown 'markdown';
 
-  my @_lanes_list = lanes_list();
+  my @lanes_list = lanes_list();
   my $parent_directory = issue_dir();
 
-  for my $open_directory (@_lanes_list) {
+  for my $open_directory (@lanes_list) {
     my $directory_name = basename($open_directory);
 
     opendir(my $dh, $open_directory) or die "Cannot open directory $open_directory: $!";
@@ -132,7 +138,7 @@ sub print_html_issues {
 }
 
 sub print_html_issues_with_template {
-    my $template_path = "/home/ant/projects/issue/template.html";
+    my $template_path = parent_dir() . '/template.html';
 
     # Read the content of the template file
     open my $fh, '<', $template_path or die "Cannot open file $template_path: $!";
@@ -152,11 +158,32 @@ sub print_html_issues_with_template {
     print $after_issues;
 }
 
+sub find_parent_directory_with_file {
+    my ($start_directory, $target_file) = @_;
+
+    # Get the absolute path of the input directory
+    my $absolute_path = File::Spec->rel2abs($start_directory);
+
+    # Iterate through each parent directory
+    while (length($absolute_path) > 1) {  # Stop when we reach the root directory
+        # Check if the target file exists in the current directory
+        my $target_path = File::Spec->catfile($absolute_path, $target_file);
+        return $absolute_path if -d $target_path;
+
+        # Move up one level in the directory structure
+        my @dirs = File::Spec->splitdir($absolute_path);
+        $absolute_path = File::Spec->catdir(@dirs[0 .. $#dirs - 1]);
+    }
+
+    # If we reach here, the file was not found in any parent directory
+    return undef;
+}
+
 sub parent_dir {
   my $start_directory = getcwd();
   my $target_file = 'issue';
 
-  return find_parent_directory_with_file($start_directory, $target_file);
+  find_parent_directory_with_file($start_directory, $target_file);
 }
 
 sub open_issue {
@@ -180,7 +207,6 @@ sub open_issue {
 
     # Extract the title from the contents (first line)
     my ($issue_title) = $issue_content =~ /^([^\n]+)/;
-
     if (!$issue_title) {
       print "Cannot create an issue without a title.\n";
       exit 1;
@@ -218,7 +244,7 @@ sub open_issue {
 
 sub issue_dir {
   my $dir = parent_dir();
-  return "$dir/issue";
+  "$dir/issue";
 }
 
 sub dir {
@@ -235,6 +261,16 @@ sub edit {
     print "Executing 'edit' subcommand\n";
 }
 
+sub mkdir_p {
+    my $base_directory = shift;
+
+    foreach my $subdir (@_) {
+        my $subdir_path = File::Spec->catdir($base_directory, split('/', $subdir));
+        make_path($subdir_path) if !-e $subdir_path;
+        print "Created\t$subdir_path\n"
+    }
+}
+
 sub init {
   my $start_directory = getcwd();
   print "In\t$start_directory\n";
@@ -245,7 +281,7 @@ sub list {
   my $root_directory = issue_dir();
 
   # Subroutine to process each file
-  sub process_file {
+  my $process_file = sub {
       my $file = $File::Find::name;
 
       return if -d $file;
@@ -253,10 +289,10 @@ sub list {
       return unless $file =~ /\.md$/i;
 
       print "$file\n";
-  }
+  };
 
   # Traverse the directory and its subdirectories
-  find(\&process_file, $root_directory);
+  find($process_file, $root_directory);
 }
 
 sub lanes_list {
@@ -266,7 +302,7 @@ sub lanes_list {
     my @directories = grep { -d $_ } glob("$root_directory/*");
 
     # Return the absolute paths of directories
-    return map { File::Spec->rel2abs($_) } @directories;
+    map { File::Spec->rel2abs($_) } @directories;
 }
 
 sub lanes {
@@ -301,25 +337,44 @@ sub status {
   closedir($dh);
 }
 
+sub is_valid_commit_message {
+    my $commit_message = shift;
+
+    # Split the commit message into lines
+    my @lines = split /\n/, $commit_message;
+
+    # Check if the first line is defined (not empty)
+    defined $lines[0];
+}
+
+sub is_valid_commit_message_from_file {
+    my $file_path = shift;
+
+    # Read the content of the file
+    open my $fh, '<', $file_path or die "Cannot open file '$file_path' for reading: $!";
+    my $commit_message = do { local $/; <$fh> };
+    close $fh;
+
+    # Call the original function with the content of the file
+    is_valid_commit_message($commit_message);
+}
+
 sub validate {
   my $root_directory = issue_dir();
-  our $exit_code = 0;
+  my $exit_code = 0;
 
-  find(
-    sub {
-      return if -d $_ || $_ !~ /\.md$/i;
+  find(sub {
+    return if -d $_ || $_ !~ /\.md$/i;
 
-      my $absolute_path = File::Spec->rel2abs($_);
+    my $absolute_path = File::Spec->rel2abs($_);
 
-      if (is_valid_commit_message_from_file($_)) {
-        print "valid\t$absolute_path\n";
-      } else {
-        print "invalid\t$absolute_path\n";
-        $exit_code = 1;
-      }
-    },
-    $root_directory
-  );
+    if (is_valid_commit_message_from_file($_)) {
+      print "valid\t$absolute_path\n";
+    } else {
+      print "invalid\t$absolute_path\n";
+      $exit_code = 1;
+    }
+  }, $root_directory);
 
   exit $exit_code;
 }
@@ -370,65 +425,3 @@ unless ($subcommand && $subcommands{$subcommand}) {
 
 # Execute the selected subcommand
 $subcommands{$subcommand}->();
-sub find_parent_directory_with_file {
-    my ($start_directory, $target_file) = @_;
-
-    # Get the absolute path of the input directory
-    my $absolute_path = File::Spec->rel2abs($start_directory);
-
-    # Iterate through each parent directory
-    while (length($absolute_path) > 1) {  # Stop when we reach the root directory
-        # Check if the target file exists in the current directory
-        my $target_path = File::Spec->catfile($absolute_path, $target_file);
-        return $absolute_path if -d $target_path;
-
-        # Move up one level in the directory structure
-        my @dirs = File::Spec->splitdir($absolute_path);
-        $absolute_path = File::Spec->catdir(@dirs[0 .. $#dirs - 1]);
-    }
-
-    # If we reach here, the file was not found in any parent directory
-    return undef;
-}
-
-sub is_valid_commit_message {
-    my $commit_message = shift;
-
-    # Split the commit message into lines
-    my @lines = split /\n/, $commit_message;
-
-    # Check if the first line is defined (not empty)
-    return defined $lines[0];
-}
-
-sub is_valid_commit_message_from_file {
-    my $file_path = shift;
-
-    # Read the content of the file
-    open my $fh, '<', $file_path or die "Cannot open file '$file_path' for reading: $!";
-    my $commit_message = do { local $/; <$fh> };
-    close $fh;
-
-    # Call the original function with the content of the file
-    return is_valid_commit_message($commit_message);
-}
-
-
-
-sub mkdir_p {
-    my $base_directory = shift;
-
-    foreach my $subdir (@_) {
-        my $subdir_path = File::Spec->catdir($base_directory, split('/', $subdir));
-        make_path($subdir_path) if !-e $subdir_path;
-        print "Created\t$subdir_path\n"
-    }
-}
-
-# Helper function to create a safe filename
-sub safe_filename {
-    my $title = shift;
-    $title =~ s/[^\w.-]/_/g;
-    return lc $title;
-}
-
