@@ -37,7 +37,7 @@ directories related to a project.
 
     Open an issue file for editing. If the file is saved, it is stored in the 'issue/open' directory with a unique filename based on the issue title.
 
-=item lanes
+=item categories
 
     List absolute paths of all subdirectories in the 'issue' directory.
 
@@ -296,16 +296,29 @@ sub list {
 }
 
 sub lanes_list {
-    my $root_directory = issue_dir();
+  # Specify the directory you want to search
+  my $directory = issue_dir();
 
-    # Use glob to get a list of directories
-    my @directories = grep { -d $_ } glob("$root_directory/*");
+  # Array to store the list of directories
+  my @directories;
 
-    # Return the absolute paths of directories
-    map { File::Spec->rel2abs($_) } @directories;
+  # Use the find function from File::Find
+  find(sub {
+      # Check if the current item is a directory and not equal to the top-level directory
+      if (-d $_ && $_ ne $directory && $_ ne '.') {
+          # Get the relative path of the directory
+          my $relative_path = File::Spec->abs2rel($File::Find::name, $directory);
+
+          # Add the relative directory path to the array
+          push @directories, $relative_path;
+      }
+  }, $directory);
+
+  # Define the callback function for find
+  return @directories;
 }
 
-sub lanes {
+sub categories {
   print "$_\n" for lanes_list()
 }
 
@@ -400,7 +413,7 @@ sub display_help {
 # Define the available subcommands
 my %subcommands = (
     'html'     => \&print_html_issues_with_template,
-    'lanes'    => \&lanes,
+    'categories'    => \&categories,
     'validate' => \&validate,
     'edit'     => \&edit,
     'init'     => \&init,
