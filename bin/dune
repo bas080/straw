@@ -1,7 +1,7 @@
 (executable
  (public_name issue)
  (name main)
- (libraries issue))
+ (libraries issue omd))
 
 ;; set O2 for a release build
 (env

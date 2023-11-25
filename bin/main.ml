@@ -51,8 +51,8 @@ let file_to_html file =
 
 let to_html root =
   traverse_directory root
-    |> List.map (file_to_html |> wrap_in_article)
-    |> List.join "\n\n\n"
+    |> List.map (fun x -> x |> file_to_html |> wrap_in_article)
+    |> String.concat "\n\n\n"
 
 let list root =
   traverse_directory root
@@ -62,4 +62,5 @@ let list root =
     )
   |> List.iter(fun file -> print_endline file)
 
-let () = issue_dir () |> to_html
+(* ENTRYPOINT *)
+let () = issue_dir () |> to_html |> print_endline
