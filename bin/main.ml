@@ -70,18 +70,17 @@ let to_html root =
 let list root =
   traverse_directory root
   |> List.filter(fun file ->
-      let extension = file |> Filename.extension |> String.lowercase_ascii
-      in String.equal extension ".md"
+      file |> Filename.extension |> String.lowercase_ascii |> String.equal ".md"
     )
   |> List.iter(fun file -> print_endline file)
 
 let safe_filename filename = 
-  let r = Str.regexp "[^A-Za-z.-]" in
+  let r = Str.regexp "[^A-Za-z0-9.-]" in
   Str.global_replace r "_" filename
 
-let mkdir_p path = Sys.command (Printf.sprintf "mkdir -p %s" path)
+let mkdir_p path = Sys.command (Printf.sprintf "mkdir -p \"%s\"" path)
 
-let move from to' = Sys.command (Printf.sprintf "mv %s %s" from to')
+let move from to' = Sys.command (Printf.sprintf "mv \"%s\" \"%s\"" from to')
 
 let open_file_with_editor path =
   let editor = Option.value ~default:"vi" (getenv "EDITOR") in
