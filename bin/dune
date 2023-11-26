@@ -4,6 +4,8 @@
  (libraries 
   ;; app library
   issue
+  ;; stdlib
+  core
   ;; regex
   str 
   ;; markdown
