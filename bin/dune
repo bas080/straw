@@ -6,6 +6,8 @@
   issue
   ;; regex
   str 
+  ;; FS operations, supports windows too
+  unix
   ;; markdown
   omd))
 

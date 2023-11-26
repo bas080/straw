@@ -78,9 +78,24 @@ let safe_filename filename =
   let r = Str.regexp "[^A-Za-z0-9.-]" in
   Str.global_replace r "_" filename
 
-let mkdir_p path = Sys.command (Printf.sprintf "mkdir -p \"%s\"" path)
+(* FIXME: isn't cross platform compatible, Filename.dir_sep is a string
+   so I can't use String.split_on_char *)
+let path_split = String.split_on_char '/'
 
-let move from to' = Sys.command (Printf.sprintf "mv \"%s\" \"%s\"" from to')
+let rec mkdir_p path = 
+  let open Unix in
+  try
+    mkdir path 0o777
+  with
+  | Unix_error (EEXIST, _, _) -> ()
+  | Unix_error (ENOENT, _, _) ->
+    let parent = Filename.dirname path in
+    if parent <> path then (
+      mkdir_p parent;
+    )
+  | _ -> failwith ("Failed to create directory " ^ path)
+
+let move from to' = Sys.rename from to'
 
 let open_file_with_editor path =
   let editor = Option.value ~default:"vi" (getenv "EDITOR") in
