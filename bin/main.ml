@@ -83,17 +83,12 @@ let safe_filename filename =
 let path_split = String.split_on_char '/'
 
 let rec mkdir_p path = 
-  let open Unix in
-  try
-    mkdir path 0o777
-  with
-  | Unix_error (EEXIST, _, _) -> ()
-  | Unix_error (ENOENT, _, _) ->
-    let parent = Filename.dirname path in
-    if parent <> path then (
-      mkdir_p parent;
-    )
-  | _ -> failwith ("Failed to create directory " ^ path)
+  if not (Sys.file_exists path) then begin
+    if String.length path > 0 then begin
+      mkdir_p (Filename.dirname path)
+    end;
+    Sys.mkdir path 0o777
+  end
 
 let move from to' = Sys.rename from to'
 
