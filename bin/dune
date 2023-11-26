@@ -1,7 +1,13 @@
 (executable
  (public_name issue)
  (name main)
- (libraries issue omd))
+ (libraries 
+  ;; app library
+  issue
+  ;; regex
+  str 
+  ;; markdown
+  omd))
 
 ;; set O2 for a release build
 (env
