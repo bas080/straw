@@ -84,8 +84,9 @@ let path_split = String.split_on_char '/'
 
 let rec mkdir_p path = 
   if not (Sys.file_exists path) then begin
-    if String.length path > 0 then begin
-      mkdir_p (Filename.dirname path)
+    let parent = Filename.dirname path in
+    if path <> parent then begin
+      mkdir_p parent
     end;
     Sys.mkdir path 0o777
   end
