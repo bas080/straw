@@ -71,7 +71,7 @@ let move from to' = Core_unix.rename ~src:from ~dst:to'
 let open_file_with_editor path =
   let editor = Core.Sys.getenv("EDITOR") |> Option.value ~default:"vi" in
   (* open the temporary file with the default editor *)
-  Printf.sprintf "%s '%s'" editor path
+  Printf.sprintf "%s %s" editor (Filename.quote path)
   |> Sys.command
   |> ignore
 
