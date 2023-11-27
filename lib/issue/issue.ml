@@ -55,7 +55,7 @@ let lines_of_file path =
 let is_md_file path = 
   Filename.split_extension path
   |> Tuple2.get2
-  |> Option.for_all ~f:(fun ext -> ext |> String.lowercase |> String.equal ".md")
+  |> Option.for_all ~f:(fun ext -> ext |> String.lowercase |> String.equal "md")
 
 let list root =
   traverse_directory root
