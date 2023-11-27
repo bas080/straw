@@ -71,7 +71,7 @@ let move from to' = Core_unix.rename ~src:from ~dst:to'
 let open_file_with_editor path =
   let editor = Core.Sys.getenv("EDITOR") |> Option.value ~default:"vi" in
   (* open the temporary file with the default editor *)
-  Printf.sprintf "%s %s" editor (Filename.quote path)
+  sprintf "%s %s" editor (Filename.quote path)
   |> Sys.command
   |> ignore
 
@@ -82,7 +82,7 @@ let find_unique_filename path =
   let search = ref path in
   while Sys.file_exists_exn !search do
     print_endline ("Possible duplicate issue found:\t" ^ !search);
-    let replacement = Printf.sprintf "_%i.md" !counter in
+    let replacement = sprintf "_%i.md" !counter in
     search := Str.replace_first r replacement path;
     counter := !counter + 1;
   done;
@@ -100,15 +100,15 @@ let open_issue () =
   (* TODO: add same regex check as in perl *)
   match List.hd lines with
   | Some title -> 
-      let title = title |> String.strip in
+      let title = String.strip title in
       let issue_file = (safe_filename title) ^ ".md" in
       let path = Filename.concat open_dir issue_file in
       (* check for filename conflicts and find a unique filename *)
       let unique_path = find_unique_filename path in
-      Printf.printf "Moving %s to %s.\n" tmpfile unique_path;
+      printf "Moving %s to %s.\n" tmpfile unique_path;
       (* TODO: error handling *)
       ignore (move tmpfile unique_path);
-      Printf.printf "Issue saved at: %s\n" unique_path;
+      printf "Issue saved at: %s\n" unique_path;
   | None -> 
     print_endline "No changes were saved.";
     (* cleanup empty tempfile *)

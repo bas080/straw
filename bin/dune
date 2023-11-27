@@ -2,7 +2,10 @@
  (public_name issue)
  (name main)
  (libraries 
-  issue))
+  issue
+  core
+  ;; CLI argument parsing
+  core_unix.command_unix))
 
 ;; set O2 for a release build
 (env
