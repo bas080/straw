@@ -2,18 +2,7 @@
  (public_name issue)
  (name main)
  (libraries 
-  ;; app library
-  issue
-  ;; stdlib
-  core
-  ;; unix support
-  core_unix
-  core_unix.sys_unix
-  core_unix.filename_unix
-  ;; regex
-  str 
-  ;; markdown
-  omd))
+  issue))
 
 ;; set O2 for a release build
 (env
