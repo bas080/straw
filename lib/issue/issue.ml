@@ -117,4 +117,22 @@ let open_issue () =
     (* exit with non-standard exit code *)
     exit 1
 
-let dir () = print_endline (parent_dir ())
+let edit _root = ()
+let search _root = ()
+
+let count_files path = 
+  traverse_directory path
+  |> List.filter ~f:(
+    fun file -> (Sys.is_file_exn file) && (is_md_file file)
+  )
+  |> List.length
+
+let status () = 
+  let root = issue_dir () in
+  Sys.ls_dir root
+  |> List.map ~f:(fun dir -> (dir, count_files (Filename.concat root dir)))
+  |> List.iter ~f:(fun (dir, count) -> printf "%s\t%i\n" dir count)
+let show _root = ()
+
+let validate _root = ()
+let html _root = ()
