@@ -112,7 +112,9 @@ let open_issue () =
   | None -> 
     print_endline "No changes were saved.";
     (* cleanup empty tempfile *)
-    Sys.remove tmpfile
+    Sys.remove tmpfile;
+    (* exit with non-standard exit code *)
+    exit 1
 
 (* ENTRYPOINT *)
 (* let () = issue_dir () |> to_html |> print_endline *)
