@@ -13,13 +13,23 @@ let list_cmd =
     Command.Spec.empty
     (fun () -> list (issue_dir ()))
 
+let dir_cmd = 
+  Command.basic_spec
+    ~summary:"show the current issue directory"
+    Command.Spec.empty
+    (fun () -> dir ())
+
 let readme () = "TODO"
 
 let command = 
   Command.group
     ~summary:"Issue management from the CLI"
     ~readme:readme
-    ["open", open_cmd; "list", list_cmd]
+    [
+      "open", open_cmd; 
+      "list", list_cmd; "ls", list_cmd;
+      "dir", dir_cmd;
+    ]
 
 (* ENTRYPOINT *)
 (* let () = issue_dir () |> to_html |> print_endline *)

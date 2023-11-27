@@ -2,6 +2,7 @@ open Core
 module Unix = Core_unix
 module Sys = Sys_unix
 
+(* FIXME: what if we don't find it? *)
 let rec find_parent_directory_with_file target_file start_dir =
   let target_file = Filename.concat start_dir target_file
   in
@@ -115,3 +116,5 @@ let open_issue () =
     Sys.remove tmpfile;
     (* exit with non-standard exit code *)
     exit 1
+
+let dir () = print_endline (parent_dir ())
