@@ -18,7 +18,6 @@ let parent_dir () =
   in let target = "issue"
   in find_parent_directory_with_file target start
 
-(* TODO: use path handler *)
 let issue_dir () =
   let dir = parent_dir ()
   in Filename.concat dir "issue"
@@ -34,32 +33,33 @@ let rec traverse_directory path =
   else
     [path]
 
-let wrap_in_article issue_html =
-  "<article>" ^ issue_html ^ "</article>"
+(* let wrap_in_article issue_html =
+  "<article>" ^ issue_html ^ "</article>" *)
 
-let read_entire_file path =
-  In_channel.with_file path ~f:In_channel.input_all
+(* let read_entire_file path =
+  In_channel.with_file path ~f:In_channel.input_all *)
 
 let lines_of_file path =
   In_channel.with_file path ~f:In_channel.input_lines
 
-let file_to_html file =
+(* let file_to_html file =
   read_entire_file file
   |> Omd.of_string
-  |> Omd.to_html
+  |> Omd.to_html *)
 
-let to_html root =
+(* let to_html root =
   traverse_directory root
   |> List.map ~f:(fun x -> x |> file_to_html |> wrap_in_article)
-  |> String.concat ~sep:"\n\n\n"
+  |> String.concat ~sep:"\n\n\n" *)
+
+let is_md_file path = 
+  Filename.split_extension path
+  |> Tuple2.get2
+  |> Option.for_all ~f:(fun ext -> ext |> String.lowercase |> String.equal ".md")
 
 let list root =
   traverse_directory root
-  |> List.filter ~f:(fun file ->
-      Filename.split_extension file
-      |> Tuple2.get2
-      |> Option.for_all ~f:(fun ext -> ext |> String.lowercase |> String.equal ".md")
-    )
+  |> List.filter ~f:is_md_file
   |> List.iter ~f:(fun file -> print_endline file)
 
 let safe_filename filename = 
@@ -101,7 +101,7 @@ let open_issue () =
   match List.hd lines with
   | Some title -> 
       let title = title |> String.strip in
-      let issue_file = (title |> safe_filename) ^ ".md" in
+      let issue_file = (safe_filename title) ^ ".md" in
       let path = Filename.concat open_dir issue_file in
       (* check for filename conflicts and find a unique filename *)
       let unique_path = find_unique_filename path in
