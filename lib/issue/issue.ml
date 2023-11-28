@@ -2,20 +2,13 @@ open Core
 module Unix = Core_unix
 module Sys = Sys_unix
 
-(* type issue = {
-  title: string option;
-  path: string;
-}
+let safe_filename filename = 
+  let r = Str.regexp "[^A-Za-z0-9.-]" in
+  Str.global_replace r "_" filename
 
-let create_issue path = 
-  let title_opt = In_channel.with_file path ~f:In_channel.input_line in
-  {
-    title = title_opt;
-    path = path;
-  }
-
-let to_markdown issue =
-  () *)
+let issue_filename title =
+  let filename = title |> String.strip |> safe_filename in
+  filename ^ ".md"
 
 (* FIXME: what if we don't find it? *)
 let rec find_parent_directory_with_file target_file start_dir =
@@ -39,21 +32,7 @@ let issue_dir () =
   in Filename.concat dir "issue"
 
 let absolute_to_relative root target =
-  let root = Filename_unix.realpath root in
-  let target = Filename_unix.realpath target in
-  let rec find_common_prefix parts1 parts2 =
-    match parts1, parts2 with
-    | x :: xs, y :: ys when String.equal x y -> find_common_prefix xs ys
-    | _ -> parts1, parts2
-  in
-  let root_parts = Filename.parts root in
-  let target_parts = Filename.parts target in
-  let remaining_root, remaining_target = 
-    find_common_prefix root_parts target_parts
-  in
-  let go_up = List.map ~f:(fun _ -> "..") remaining_root in
-  let relative_parts = go_up @ remaining_target in
-  String.concat ~sep:Filename.dir_sep relative_parts
+  Filename.of_absolute_exn target ~relative_to:root
 
 let rec traverse_directory path =
   if Sys.is_directory_exn path then
@@ -114,10 +93,6 @@ let list root =
   |> List.filter ~f:is_md_file
   |> List.iter ~f:(fun file -> print_endline file)
 
-let safe_filename filename = 
-  let r = Str.regexp "[^A-Za-z0-9.-]" in
-  Str.global_replace r "_" filename
-
 let move from to' = Core_unix.rename ~src:from ~dst:to'
 
 let open_file_with_editor path =
@@ -139,10 +114,6 @@ let find_unique_filename path =
     counter := !counter + 1;
   done;
   !search
-
-let issue_filename str =
-  let title = String.strip str in
-  (safe_filename title) ^ ".md"
 
 let open_issue () = 
   (* will create the file *)
