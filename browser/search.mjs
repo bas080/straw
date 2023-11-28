@@ -30,7 +30,7 @@ const register = (onState) => {
     };
 
     // render
-    render(searchTemplate(state), document.getElementById("lit-app"));
+    render(searchTemplate(state), document.getElementById("issue-search"));
 
     // communicate the tokens outside of this module.
     return state;
@@ -69,7 +69,7 @@ const searchTokenItem = (state, token, index, tokens) => {
       value="${token}"
       @click="${partial(onTokenRemove, index)}"
     >
-      ${tokenIcon(token)} ${token}
+      ${tokenIcon(token[0])} ${token}
       <span class="badge badge-primary">${count}</span>
     </button>
   </li>`;
@@ -79,6 +79,8 @@ const searchTemplate = (state) => {
   const { onQueryChange, tokens } = state;
 
   return html`<input
+      placeholder="terms..."
+      id="issue-search-input"
       .value="${state.query}"
       @input=${targetValue(onQueryChange)}
     />
