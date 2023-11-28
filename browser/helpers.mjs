@@ -20,8 +20,10 @@ const complement =
 
 const notEquals = complement(equals);
 const isNotEmpty = complement(isEmpty);
+const byKey = (object, defaultTo) => (key) => object[key] || defaultTo;
 
 export {
+  byKey,
   tail,
   notEquals,
   isEmpty,
