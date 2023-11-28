@@ -1,5 +1,5 @@
 open Core
-open Issue
+open Issue_lib.Cli
 
 let working_on_it cmd = printf "Executing '%s' subcommand\n" cmd
 

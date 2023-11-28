@@ -1,5 +1,5 @@
 (library
- (name issue)
+ (name issue_lib)
  (libraries
   ;; stdlib
   core

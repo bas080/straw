@@ -2,12 +2,8 @@ open Core
 module Unix = Core_unix
 module Sys = Sys_unix
 
-let safe_filename filename =
-  let r = Str.regexp "[^A-Za-z0-9.-]" in
-  Str.global_replace r "_" filename
-
-let issue_filename title =
-  let filename = title |> String.strip |> safe_filename in
+let issue_filename_str str =
+  let filename = str |> String.strip |> Fs.safe_filename in
   filename ^ ".md"
 
 (* FIXME: what if we don't find it? *)
@@ -29,13 +25,6 @@ let issue_dir () =
 
 let absolute_to_relative root target =
   Filename.of_absolute_exn target ~relative_to:root
-
-let rec traverse_directory path =
-  if Sys.is_directory_exn path then
-    Sys.readdir path |> Array.to_list
-    |> List.concat_map ~f:(fun file ->
-           Filename.concat path file |> traverse_directory)
-  else [ path ]
 
 let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
 
@@ -70,12 +59,8 @@ let file_to_html file = read_entire_file file |> Omd.of_string |> Omd.to_html
    |> List.map ~f:(fun x -> x |> file_to_html |> wrap_in_article)
    |> String.concat ~sep:"\n\n\n" *)
 
-let is_md_file path =
-  Filename.split_extension path
-  |> Tuple2.get2
-  |> Option.for_all ~f:(fun ext -> ext |> String.lowercase |> String.equal "md")
-
 let list root =
+  let open Fs in
   traverse_directory root |> List.filter ~f:is_md_file
   |> List.iter ~f:(fun file -> print_endline file)
 
@@ -111,7 +96,7 @@ let open_issue () =
   (* TODO: add same regex check as in perl *)
   match List.hd lines with
   | Some title ->
-      let issue_file = issue_filename title in
+      let issue_file = issue_filename_str title in
       let path = Filename.concat open_dir issue_file in
       (* check for filename conflicts and find a unique filename *)
       let unique_path = find_unique_filename path in
@@ -141,6 +126,7 @@ let categories root =
   |> List.filter ~f:Sys.is_directory_exn
 
 let md_files path =
+  let open Fs in
   traverse_directory path
   |> List.filter ~f:(fun file -> Sys.is_file_exn file && is_md_file file)
 
@@ -169,7 +155,7 @@ let print_html_issues () =
          let title =
            lines |> List.hd
            |> Option.value ~default:"Untitled Issue"
-           |> issue_filename
+           |> issue_filename_str
          in
          let md = file_to_html file in
          wrap_issue_link title (absolute_to_relative root file) ^ md
@@ -195,6 +181,7 @@ let is_valid_commit_message_from_file file =
 let validate () =
   let root = issue_dir () in
   let exit_code = ref 0 in
+  let open Fs in
   traverse_directory root |> List.filter ~f:is_md_file
   |> List.iter ~f:(fun file ->
          if is_valid_commit_message_from_file file then
