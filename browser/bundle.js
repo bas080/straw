@@ -1,4 +1,20 @@
 (() => {
+  // helpers.mjs
+  var partial = (fn, ...args) => fn.bind(null, ...args);
+  var isEmpty = (x2) => x2.length === 0;
+  var isOdd = (x2) => x2 % 2 === 1;
+  var excludeIndex = (index, array) => {
+    const result = Array.prototype.slice.call(array, 0);
+    result.splice(index, 1);
+    return result;
+  };
+  var equals = (a2, b2) => a2 === b2;
+  var tail = ([, ...tail2]) => tail2;
+  var complement = (fn) => (...args) => !fn(...args);
+  var notEquals = complement(equals);
+  var isNotEmpty = complement(isEmpty);
+  var byKey = (object, defaultTo) => (key) => object[key] || defaultTo;
+
   // node_modules/lit-html/lit-html.js
   var t = globalThis;
   var i = t.trustedTypes;
@@ -267,30 +283,13 @@
     return h2._$AI(t2), h2;
   };
 
-  // helpers.mjs
-  var partial = (fn, ...args) => fn.bind(null, ...args);
-  var isEmpty = (x2) => x2.length === 0;
-  var isOdd = (x2) => x2 % 2 === 1;
-  var excludeIndex = (index, array) => {
-    const result = Array.prototype.slice.call(array, 0);
-    result.splice(index, 1);
-    return result;
-  };
-  var equals = (a2, b2) => a2 === b2;
-  var tail = ([, ...tail2]) => tail2;
-  var complement = (fn) => (...args) => !fn(...args);
-  var notEquals = complement(equals);
-  var isNotEmpty = complement(isEmpty);
-  var byKey = (object, defaultTo) => (key) => object[key] || defaultTo;
-
   // search.mjs
   var targetValue = (fn) => ({ target: { value } }, ...args) => fn(value, ...args);
   var register = (onState2) => {
     onState2((state2, push) => {
-      const { query } = state2;
-      state2.onQueryChange = (query2) => {
+      state2.onQueryChange = (query) => {
         push((state3) => {
-          state3.query = query2;
+          state3.query = query;
           return state3;
         });
       };
