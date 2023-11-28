@@ -167,8 +167,6 @@ let status () =
   |> List.iter ~f:(fun (dir, count) -> printf "%s\t%i\n" dir count)
 let show _root = ()
 
-let validate _root = ()
-
 let split_on_issues content =
   let r = Str.regexp "<!--issues-->" in
   match Str.bounded_split r content 2 with
@@ -204,3 +202,22 @@ let html () =
     print_string after;
   | None ->
     print_endline "No issues found."
+
+let is_valid_commit_message_from_file file =
+  let lines = lines_of_file file in
+  Option.is_some (List.hd lines)
+
+let validate () = 
+  let root = issue_dir () in
+  let exit_code = ref 0 in
+  traverse_directory root
+  |> List.filter ~f:is_md_file
+  |> List.iter ~f:(fun file ->
+    if is_valid_commit_message_from_file file then
+      printf "valid\t%s\n" file
+    else (
+      printf "invalid\t%s\n" file;
+      exit_code := 1
+    )
+  );
+  exit !exit_code

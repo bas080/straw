@@ -46,6 +46,12 @@ let html_cmd =
     Command.Spec.empty
     (fun () -> html ())
 
+let validate_cmd =
+  Command.basic_spec
+    ~summary:"check issues are valid"
+    Command.Spec.empty
+    (fun () -> validate ())
+
 let readme () = "TODO"
 
 let command = 
@@ -60,6 +66,7 @@ let command =
       "search", search_cmd;
       "status", status_cmd;
       "html", html_cmd;
+      "validate", validate_cmd;
     ]
 
 (* ENTRYPOINT *)
