@@ -297,7 +297,7 @@
       state2.onTokenRemove = (index) => {
         state2.onQueryChange(excludeIndex(index, state2.tokens).join(" "));
       };
-      j(searchTemplate(state2), document.getElementById("lit-app"));
+      j(searchTemplate(state2), document.getElementById("issue-search"));
       return state2;
     });
   };
@@ -320,7 +320,7 @@
       value="${token}"
       @click="${partial(onTokenRemove, index)}"
     >
-      ${tokenIcon(token)} ${token}
+      ${tokenIcon(token[0])} ${token}
       <span class="badge badge-primary">${count}</span>
     </button>
   </li>`;
@@ -328,6 +328,8 @@
   var searchTemplate = (state2) => {
     const { onQueryChange, tokens } = state2;
     return x`<input
+      placeholder="terms..."
+      id="issue-search-input"
       .value="${state2.query}"
       @input=${targetValue(onQueryChange)}
     />

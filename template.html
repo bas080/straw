@@ -23,8 +23,8 @@
 
 <main>
 
-  <label for="search">Search</label>
-  <div id="lit-app"></div>
+  <label for="issue-search-input">Search</label>
+  <div id="issue-search"></div>
   <details>
     <summary>Search cheatsheet</summary>
     <dl>
@@ -706,6 +706,23 @@ register function.</li>
 <!-- How cool is this -->
 <style>
 
+label {
+  font-size: 1.2em;
+  opacity: 0.8;
+}
+
+#issue-search {
+  border: 1px solid var(--border);
+  border-radius: var(--standard-border-radius);
+  background-color: var(--accent-bg);
+  padding: min(1em, 4vw);
+  margin: 1em 0;
+}
+
+#issue-search ul {
+  margin: min(1em, 4vw) 0 0 0;
+}
+
 .badge {
   font-size: 0.8em;
   padding: 0 0.5ex;
@@ -733,7 +750,7 @@ register function.</li>
     padding-left: 1ex;
     padding-right: 1ex;
     border-radius: 1ex;
-    background-color: var(--accent-bg);
+    background-color: var(--bg);
     color: var(--text);
   }
 
@@ -789,11 +806,15 @@ register function.</li>
     opacity: 0.5;
   }
 
+  details summary {
+    font-weight: normal;
+  }
+
   details:focus-within, details:focus {
     opacity: 1;
   }
 
-  #search {
+  #issue-search-input {
     width: 100%;
   }
 
