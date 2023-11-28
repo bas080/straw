@@ -24,7 +24,7 @@
 <main>
 
   <label for="search">Search</label>
-  <input id="search" placeholder="terms..." />
+  <div id="lit-app"></div>
   <details>
     <summary>Search cheatsheet</summary>
     <dl>
@@ -75,7 +75,624 @@
 
 
   <div class="issue-issues">
+
 <!--issues-->
+<article class="issue-issue"><a class='issue-bookmark' id='__support_basic_auth_for_calendar_endpoints' href='#__support_basic_auth_for_calendar_endpoints'>🔖 /should/support_basic_auth_for_calendar_endpoints.md</a><h1>Support basic auth for calendar endpoints</h1>
+
+<ul>
+<li>Auth</li>
+<li>Security</li>
+<li>Privacy</li>
+</ul>
+
+<p>We should support this convention as part of the calendar endpoints.</p>
+
+<p><code>https://user:password@localhost:8080/...</code></p>
+
+<h2>2022-12-27T22+00:00</h2>
+
+<p>Considering there are two processes that should enforce authentication it would
+be better to perform authentication at the http proxy level.</p>
+
+<p>Here an article that describes how to setup auth in nginx.
+https://www.howtogeek.com/devops/how-to-setup-basic-http-authentication-on-nginx/</p>
+
+<p>If this is not good enough we'll have to create our own proxy with auth. Either
+the node process (express.js) will proxy to radicale instance or we create
+a third application that does this.</p>
+
+<h2>2022-12-24T03+01:00</h2>
+
+<p>Most straightforward approach would be the following library.</p>
+
+<p><a href="https://www.npmjs.com/package/express-basic-auth">https://www.npmjs.com/package/express-basic-auth</a></p>
+
+<p>It also causes a popup to appear in most browsers and even calendar clients.
+Therefore I believe it to contribute to user friendly design.</p>
+
+<p>While developing I noticed that one can pass credentials in the following
+manner.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__implement__database__migrations_on_process_restart' href='#__implement__database__migrations_on_process_restart'>🔖 /should/migrations_on_restart.md</a><h1>Implement (database) migrations on process restart</h1>
+
+<ul>
+<li>Migrations</li>
+<li>Database</li>
+</ul>
+
+<h2>Features</h2>
+
+<ul>
+<li>A failed migration should cause the server not to start. That is currently not
+the case.</li>
+<li>Can also be used to run migrations unrelated to databases.</li>
+<li>Uses a migration table to keep track of migration runs.</li>
+</ul>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__add_a_changelog_to_the_site' href='#__add_a_changelog_to_the_site'>🔖 /open/add_a_changelog_to_the_site.md</a><h1>Add a changelog to the site</h1>
+
+<p>To inform users of new features it is nice to show changes.</p>
+
+<p>Look into <code>npx auto-changelog</code>. This tool allows the git changelog to be used
+for generating markdown which intern can be converted to HTML.</p>
+
+<blockquote>
+  <p>https://www.npmjs.com/package/auto-changelog</p>
+</blockquote>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__allow_batch_requests' href='#__allow_batch_requests'>🔖 /open/allow_batch_requests.md</a><h1>Allow batch requests</h1>
+
+<p>The idea is to be able to use the json api as is in a batch fashion.</p>
+
+<p>Ideas include:</p>
+
+<ul>
+<li>Use jq to allow users to query the results of the batch requests
+<ul>
+<li>Per request...</li>
+<li>Or cross requests.</li>
+</ul></li>
+<li>Allow the output of one command be the body of the other.</li>
+<li>Get requests are run in parallel.</li>
+<li>Mutating request (patch/put/post) make the batch wait before continuing
+further.</li>
+</ul>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__fix_the_404_page' href='#__fix_the_404_page'>🔖 /open/fix_the_404_page.md</a><h1>Fix the 404 page</h1>
+
+<p>Either do this in localu so it's also fixed for other sites or fix it in nginx.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__remove_occurrences_on_calendar_delete' href='#__remove_occurrences_on_calendar_delete'>🔖 /open/remove_occurrences_on_calendar_delete.md</a><h1>Remove occurrences on calendar delete</h1>
+
+<ul>
+<li>Undecided</li>
+</ul>
+
+<p>Currently deleting a calendar does not remove the occurrences. This might be
+desired behaviour. One might expect that the occurrences would dissappear
+though.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__use_nginx_upstream_for_seamless_server_update' href='#__use_nginx_upstream_for_seamless_server_update'>🔖 /open/use_nginx_upstream_for_seamless_server_update.md</a><h1>Use nginx upstream for seamless server update</h1>
+
+<blockquote>
+  <p>https://nginx.org/en/docs/http/ngx_http_upstream_module.html#variables</p>
+</blockquote>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__rename_availability_hash_to_occurrence_hash' href='#__rename_availability_hash_to_occurrence_hash'>🔖 /open/rename_availability_hash_to_occurrence_hash.md</a><h1>Rename availability_hash to occurrence_hash</h1>
+
+<p>It's an alias anyways and there is no value to having two names for the same
+thing.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__consider_adding_install_script_for_radicale_sync_hook' href='#__consider_adding_install_script_for_radicale_sync_hook'>🔖 /open/consider_adding_install_script_for_radicale_sync_hook.md</a><h1>Consider adding install script for radicale sync hook</h1>
+
+<p>The idea is that you can install the radicale sync hook into the current user
+that is running it. It does some tests and places the files when they are not
+there. Consider writting a simple node tape text script that does the checks
+and tests and installation with tap output.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__archive_old_reservations' href='#__archive_old_reservations'>🔖 /could/archive_old_reservations.md</a><h1>archive old reservations</h1>
+
+<p>Reason being that we want to keep our sql (view) queries simple.</p>
+
+<p>Create an archive package and tables that perform these actions.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__redesign_ical_package_api' href='#__redesign_ical_package_api'>🔖 /could/redesign_ical_package_api.md</a><h1>Redesign ical package api</h1>
+
+<p><a class="issue-hash" title="Search hashtag #technical-debt" href="#">#technical-debt</a> <a class="issue-hash" title="Search hashtag #improvement" href="#">#improvement</a></p>
+
+<h2>2022-12-24T02+01:00</h2>
+
+<p>A eye sore in the code is the following:</p>
+
+<p><code>js
+cal.view(cal.events)
+</code></p>
+
+<p>A obtainable redesign would result in:</p>
+
+<p><code>js
+cal.view.events()
+cal.over.events(event =&gt; event)
+cal.set.events(cal2.view.events())
+</code></p>
+
+<p>More research is required.</p>
+
+<h2>2022-12-14T02+01:00</h2>
+
+<ol>
+<li><p>Remove the encapsulation of state towards a referentially transparent
+approach.</p></li>
+<li><p>Make it easy to compose helpers in more novel orders and easier to extend
+the API with new helpers.</p></li>
+</ol>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__compose_ical' href='#__compose_ical'>🔖 /could/compose-ical-utility.md</a><h1>Compose ICAL</h1>
+
+<p>Attempt to create an ical transformation pipeline.</p>
+
+<h2>MUST</h2>
+
+<ul>
+<li>[ ] Move serialized ramda to a separate package (<code>@rezerv/samda</code>).</li>
+<li>[ ] Allow registering own functions that are automatically curried for you.</li>
+<li>[ ] Write the functions in the following project <code>./packages/compose-ical/</code>.</li>
+</ul>
+
+<p>```js
+const samda = require('samda')({
+  concurrentEvents,
+  nonconcurrentEvents,
+  getIcal:
+})</p>
+
+<p>samda(["getIcal", "http:someical.ical"]).expand(str => str) // this "str" is an
+ical string.</p>
+
+<p>```</p>
+
+<h2>COULD</h2>
+
+<ul>
+<li>[ ] Publish the package to npm.</li>
+<li>[ ] Another option for this is to have a pre eval async step that will
+trigger the eval after it is done evaluating. We could call it an async
+macro. All functions that implement the macro interface can rewrite
+themselves and everything in it in an async fashion.</li>
+<li>[ ] Perform the async stuff all before the sync code. Meaning that all urls
+should be evaluated down to calendars. Make sure the response type is indeed
+calendars and otherwise keep the url there. Reason being that the writing of
+the pointfree code would be much easier. NOTE: this might not work if some
+of the function in the pipeline are async.</li>
+</ul>
+
+<h2>Notes</h2>
+
+<h3>2021-12-30T01:51+01:00</h3>
+
+<p>So I have built a similar tool named serialized ramda. In that module the concept
+wraps the ramda utilities to build a function that is serialized and evaluable.</p>
+
+<p>Now we want to extend the serialized ramda functionality by allowing the adding
+of additional functions that MUST play nice with the ramda eco-system. We
+achieve this by adding curry-ing (automatically).</p>
+
+<h3>2021-12-30T01:31+01:00</h3>
+
+<ol>
+<li><p>We do not want the HTTP and parsing/serializing penalty. Therefore we won't
+choose the request composition mentioned in ideas [1][#ideas] and
+[2][#ideas].</p></li>
+<li><p>Idea [3][#ideas] is the only idea left. It seems reasonable yet some issues
+might arise during conceptualization, implementation and/or testing.</p></li>
+</ol>
+
+<h3>2021-12-30T01:01+01:00</h3>
+
+<h4>Ideas</h4>
+
+<ol>
+<li>Have bash be an inspiration.</li>
+</ol>
+
+<p>The idea here is to have the response body be the body of the next request.</p>
+
+<p><code>
+echo 'https://good-weather.ical
+https://timeslots.ical' | curl -X POST https://overlapping-ical | curl -X POST
+https://mustache.ical?summary=&lt;template&gt;&amp;description&lt;template&gt;
+</code></p>
+
+<ol>
+<li>Another idea is to have the utilities take the requests as parameters.</li>
+</ol>
+
+<p>No idea</p>
+
+<ol>
+<li>Use a similar concept to serialized-ramda ramdalized. Point free style of
+programming. This is interesting.</li>
+</ol>
+
+<p><code>bash
+curl -X PUT http://ical-compose.ical &lt;&lt;&lt; '[
+  "pipe",
+  [
+    "overlapping",
+    "http://timeslots.ical",
+    "http://weather.ical"
+  ],
+  [
+    "mustache",
+    {
+      "summary": "{{summary}} - {{email}}",
+      "description": "{{email}}\n"
+    }
+  ]
+]'
+</code></p>
+
+<p>Each of these calendar functions would return a parsed type of the calendar
+which is used for further transformation further down the pipeline.</p>
+
+<h4>Potential Issues</h4>
+
+<ol>
+<li><p>Composing tools using requests has a parsing and serializing penalty.
+Ideally the composition would not require this.</p></li>
+<li><p>Although these building blocks allow for novel compositions; issues might
+arise because of the limitations of the concept.</p></li>
+</ol>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__add_rss_format_to_booking_endpoints' href='#__add_rss_format_to_booking_endpoints'>🔖 /could/add_rss_format_to_booking_endpoints.md</a><h1>Add rss format to booking endpoints</h1>
+
+<p>https://www.npmjs.com/package/rss</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__allow_a_reservation_inquire_to_be_made' href='#__allow_a_reservation_inquire_to_be_made'>🔖 /could/allow_a_reservation_request_to_be_made.md</a><h1>Allow a reservation inquire to be made</h1>
+
+<p>The idea is to have people request a reservation to be made. This is different
+to a "normal" reservation as it has no <code>timeslot_uid</code> defined. Meaning that the
+booker has not picked a date and time but has shown intrest in a specific
+facility.</p>
+
+<p>It is then left to the facilitator to process the reservation request by
+picking a timeslot for them.</p>
+
+<h2>Implementation</h2>
+
+<p>We create a separate endpoint that allows both reservation requests and
+reservations. Whenever the endpoint detects that a <code>timeslot_uid</code> is not defined,
+it will store the reservation as a reservation request.</p>
+
+<h2>Interface</h2>
+
+<p>The booker receives the pending reservation requests in their calendar as all
+day events. This calendar contains a link that allows them to pick a timeslot.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__webdav_for_two_way_calendars' href='#__webdav_for_two_way_calendars'>🔖 /could/webdav-for-cancelling-reservations-on-event-delete.md</a><h1>WebDav for two way calendars</h1>
+
+<h2>2022-12-24T02+01:00</h2>
+
+<p>As of now we only support CalDAV for the availability calendar. This removes
+the dependence on third party calendar providers like google or outlook.</p>
+
+<p>For we could/won't implement CalDAV for reservations or any other calendar as
+this could make it more likely that a mistake occurs. Instead we want more
+control in a specialized user interface to perform these use-cases.</p>
+
+<h2>2021-12-29T22+01:00</h2>
+
+<p>Apparently Thunderbird supports a simple http put for an ical. No need for all
+this stuff yet.</p>
+
+<p>It's still nice to know of the python radicale library.</p>
+
+<h2>Archived</h2>
+
+<p>THE MOST PROMISING LIBRARY OUT THERE BECAUSE IT WAS TESTED ON THUNDERBIRD.</p>
+
+<blockquote>
+  <p>https://github.com/sedenardi/node-caldav-adapter</p>
+</blockquote>
+
+<p>The goal is to make cancelling reservations easy by offering webdav features.</p>
+
+<h2>Reasoning</h2>
+
+<p>Supporting web-dav for the reservation cancel feature allows for integration
+with all calendar clients that support webdav calendar features.</p>
+
+<h2>Implementation</h2>
+
+<p>Use the <a href="https://www.npmjs.com/package/office-webdav">office-webdav</a> to implement something sensible and test
+it. The code there is awfull but might help mock the webdav specifications.</p>
+
+<p>The calendar <code>put</code> request is performed; the put method gets the current
+reservations, compares it with the put calendar and performs cancellation for
+all deleted calendars.</p>
+
+<p>It's important not to mutate anything and keep a pipeline going.</p>
+
+<p><code>
+webdav get | webdav put | filter deleted events |
+perform cancelations | webdav get | ...
+</code></p>
+
+<p>Rezerv already offers a read-only ics reservations calendar. This feature will
+stay there and the <code>webdav get</code> will redirect to that endpoint.</p>
+
+<p>Filtering the deleted events is a bit more involved.</p>
+
+<p>Simply we need to check which events are not in the put ical but are in the get
+ical. We use the event uid to compare. It seems that ramda offers the
+<a href="https://ramdajs.com/docs/#differenceWith">differenceWith</a> function.</p>
+
+<h2>Source code</h2>
+
+<p>A separate package to make registering webdav routes easy.</p>
+
+<p>[webdav-package][../../packages/webdav/index.js]</p>
+
+<p>Furthermore we need to use the webdav package to register a route. This will be
+done in the webdav router. <code>./webdav/operator/:operator/reservation.ics</code></p>
+
+<p>[webdav-router][../../packages/server/src/router/webdav.js]</p>
+
+<h2>Notes</h2>
+
+<ol>
+<li>What to do if people want to replace a reservation and the replacement does
+not exactly match a timeslot?</li>
+<li>What to do with randomly added events?</li>
+</ol>
+
+<p><strong>Conclusion</strong> - Initially the reservation webdav calendar should not be used
+for moving or creating reservations. These items will be ignored and are
+overwrtten on the next sync/get of the calendar. On put these events are
+dropped. Only the removed/deleted reservation-events will be persisted by
+triggering the cancellation logic.</p>
+
+<h2>Further reading</h2>
+
+<ul>
+<li>https://ramdajs.com/docs/#differenceWith</li>
+<li>https://www.npmjs.com/package/office-webdav</li>
+<li>https://www.ietf.org/rfc/rfc4918.txt</li>
+<li>https://github.com/OpenMarshal/npm-WebDAV-Server</li>
+</ul>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__use_radicale_and_caldav_for_reservation_calendar' href='#__use_radicale_and_caldav_for_reservation_calendar'>🔖 /could/use_radicale_and_caldav_for_reservation_calendar.md</a><h1>Use radicale and caldav for reservation calendar</h1>
+
+<p>After a mutation to the <code>/caldav/reservation</code> endpoint, a reservation sync
+process is triggered.</p>
+
+<h2>Configuring a reservation caldav</h2>
+
+<ol>
+<li>Simply add a row to the <code>rezerv.facility_reservation_calendar</code> table.</li>
+</ol>
+
+<h2>The Sync Process</h2>
+
+<p>This process GETs the caldav reservation calendar and compares it to the
+reservations in the database for that specific <code>facility_code</code>.</p>
+
+<p>It does the following to sync with DB.</p>
+
+<ol>
+<li>Cancel reservations for removed events.</li>
+<li>Create reservations for new events.</li>
+<li>Move reservations for moved events.</li>
+</ol>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__also_add_authorization_to_timeslot_calendar' href='#__also_add_authorization_to_timeslot_calendar'>🔖 /wont/also_add_authorization_to_timeslot_calendar.md</a><h1>Also add authorization to timeslot calendar</h1>
+
+<p>This is necessary to prevent others from changing the availability.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__jwt_token' href='#__jwt_token'>🔖 /wont/important_security_stuff.md</a><h1>JWT Token</h1>
+
+<ul>
+<li>[ ] Emails in plain text is bad idea also when they are jwt tokens.</li>
+<li>[ ] Make sure tokens expire withing an acceptable time.</li>
+<li>[ ] Make sure password reset only works once.</li>
+<li>[x] Move jwt related stuff to one module.</li>
+</ul>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__separate_email_package' href='#__separate_email_package'>🔖 /wont/move-email-to-separate-package.md</a><h1>Separate email package</h1>
+
+<h2>Tasks</h2>
+
+<h3>Must</h3>
+
+<ul>
+<li>[ ] Use postgres' subscribe feature to trigger email sending.</li>
+<li>[ ] Keep using the previously written queries on trigger.</li>
+<li>[ ] Make sure that in case the email sending failed it will be able to
+recover. No fire forget mechanisms.</li>
+</ul>
+
+<h3>Should</h3>
+
+<ul>
+<li>[ ] Move the email related pending views to the email package as queries.</li>
+</ul>
+
+<h3>Could</h3>
+
+<ul>
+<li>[ ] Expose the migration api and write a sql migration in the<a class="issue-mention" title="Search mention @rezerv" href="#">@rezerv</a>/email
+package.</li>
+</ul>
+
+<blockquote>
+  <p>zo 18 dec 2022  1:55:13 CET</p>
+</blockquote>
+
+<p>No longer relevant after the rewrite. Adding an email service would be done
+differently using either a different app connected to the database or a package
+that would achieve the goal this issue set out to realize.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__quick_booking_through_calendar' href='#__quick_booking_through_calendar'>🔖 /wont/quick_booking_through_calendar.md</a><h1>Quick booking through calendar</h1>
+
+<p>Create a user specific calendar so they can press the link to quick book.</p>
+
+<p><code>http:domain?user_id=&lt;somejwttoken&gt;</code></p>
+
+<p>This generates a calendar with a quick book url for that user.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__support_webcal_scheme' href='#__support_webcal_scheme'>🔖 /done/support_webcal_scheme.md</a><h1>Support webcal scheme</h1>
+
+<h2>2023-01-19</h2>
+
+<p>All ical urls use the webcal scheme. This will result in the browser opening
+the calendar client.</p>
+
+<h2>Original</h2>
+
+<p>It seems there is a convention to use a different scheme for ics files.</p>
+
+<p><code>webcal://...</code></p>
+
+<ul>
+<li>[ ] Update the Android and iPhone instructions by adding a subscribe to
+reservation calendar button.</li>
+<li>[ ] Figure out if this can be done for caldav. I tried in chrome and caldav
+scheme does not work.</li>
+</ul>
+
+<p>Using this convention offers the ability to subscribe to calendars from a
+browser link. Browsers are smart enough to know that a scheme that they don't
+support should maybe be opened in a different app.</p>
+
+<ul>
+<li>https://en.wikipedia.org/wiki/Webcal</li>
+</ul>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__rewrite_calendar_sync' href='#__rewrite_calendar_sync'>🔖 /done/rewrite-calendar-sync.md</a><h1>Rewrite calendar sync</h1>
+
+<h2>Requirements</h2>
+
+<ul>
+<li>[x] Use the <code>@rezerv/ical</code> package to make syncing a bit more concise.</li>
+<li>[x] Keep the calendar sync and event sync separate.</li>
+<li>[x] Remove the event sync from calendar sync.</li>
+<li>[x] Perform event sync after calendar sync finishes.</li>
+<li>[ ] Make sure event sync for a calendar is a single insert query.</li>
+<li>[ ] Move calendar sync to a package and use postgres subscribe feature just
+like the<a class="issue-mention" title="Search mention @rezerv" href="#">@rezerv</a>/email package.</li>
+</ul>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__use__rezerv_ical_for_calendar_endpoints.' href='#__use__rezerv_ical_for_calendar_endpoints.'>🔖 /done/use_ical_package_for_calendar_endpoint.md</a><h1>Use<a class="issue-mention" title="Search mention @rezerv" href="#">@rezerv</a>/ical for calendar endpoints.</h1>
+
+<p>No need to have ical related code in several places.</p>
+
+<ul>
+<li>[ ] Allow creating calendars when no ical is passed.</li>
+<li>[ ] Replace the ical module in<a class="issue-mention" title="Search mention @rezerv" href="#">@rezerv</a>/server with the ical package.</li>
+<li>[ ] Make sure the email package also uses the ical package.</li>
+</ul>
+
+<p>zo 18 dec 2022  1:56:53 CET</p>
+
+<p>No longer relevant after rewrite and has implemented an ical package.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__use_npm_workspaces' href='#__use_npm_workspaces'>🔖 /done/use-npm-workspaces-instead-of-lerna.md</a><h1>Use NPM workspaces</h1>
+
+<p>Lerna is likely abandoning project because npm workspaces will take over the
+responsiblity of managing multiple packages in a single "workspace".</p>
+
+<p>Basicly we have to migrate to npm workspaces and remove everything lerna.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__easy_signup' href='#__easy_signup'>🔖 /done/easy-signup.md</a><h1>Easy Signup</h1>
+
+<h2>2023-01-19</h2>
+
+<p>Simplified signup even more by creating a caldav calendar on the fly after
+providing a facility slug.</p>
+
+<p>Once a slug is provided, the user is redirected to the web-app. The dashboard
+shows the caldav url and the other generated calendars and more.</p>
+
+<p>This issue can be considered solved as providing a single string to start
+a demo can be considered the simplest solution possible.</p>
+
+<p>Users that need authentication for authorization and privacy reasons should
+contact Rezerv for further help.</p>
+
+<h2>2022-12-24T02+01:00</h2>
+
+<p>Signup has been reduces to create a caldav or an ical put endpoint. This
+approach won't have authentication enabled. Therefore sensitive customer
+information cannot be shared. If a user of this system does want to do this
+they will have to contact Rezerv.</p>
+
+<p>Once authorization is implemented a user should be able to create multiple
+calendars.</p>
+
+<p>Implementing authorization is user specific. Implementing anything will have to
+wait until customer requirements are clear.</p>
+
+<h2>2022-12-01T03+01:00</h2>
+
+<p>The idea now is to instead allow people to literally GET a calendar.</p>
+
+<p><code>https://rezerv/ical/calendar/:slug</code> can be placed in any calendar. This will
+either initiate that calendar or fetch it.</p>
+
+<blockquote>
+  <p>Note: this might work in thunderbird but won't work for other clients that do
+  not support PUT method.</p>
+</blockquote>
+
+<p>In that case a caldav service would be necessary.</p>
+
+<p><strong>do  1 dec 2022  3:47:03 CET</strong></p>
+
+<p>A middleground between this new approach and old is to press a button that you
+want to get started and then you get the ical urls that contain adequate tokens
+and a secret for regenerating the urls that you just fetched.</p>
+
+<h2>Outdated</h2>
+
+<p>This is the easiest way to get started.</p>
+
+<ol>
+<li>Provide an email.</li>
+<li>Provide a password.</li>
+<li>Tell to generate calendar urls.</li>
+</ol>
+
+<p>Which will trigger the following</p>
+
+<ul>
+<li>Creates an operator and a facility with availability_total of 1</li>
+<li>Creates a webdav calendar for managing the availability.</li>
+<li>Creates a webdav calendar for managing the reservations.</li>
+<li>Shares the embed code for listing availability and performing and reservation
+form.</li>
+</ul>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__presentation' href='#__presentation'>🔖 /must/presentation.md</a><h1>Presentation</h1>
+
+<p>This is how the product is pitched to potential customers.</p>
+
+<h2>Step 1</h2>
+
+<p>Place their knowledge of their existing calendar solution at the center.</p>
+
+<ul>
+<li>Show how reservations are shown within their calendar.</li>
+</ul>
+
+<h2>Step 2</h2>
+
+<p>Show them how easy it is to add and configure facilities using their calendar
+URL.</p>
+
+<h2>Step 3</h2>
+
+<p>Show them how easy it is for their customers to make a reservation.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__create_whitelist_for_ssh_connections' href='#__create_whitelist_for_ssh_connections'>🔖 /must/create_whitelist_for_ssh_connections.md</a><h1>Create whitelist for ssh connections</h1>
+
+<p>To prevent the hetzner server from being compromised when the ssh key is leaked
+we can configure a whitelist for allowed IP addresses.</p>
+</article><article class="issue-issue"><a class='issue-bookmark' id='__add_sentry_to_node_app' href='#__add_sentry_to_node_app'>🔖 /must/add_sentry_to_node_app.md</a><h1>Add sentry to node app</h1>
+
+<p>Simply define a middleware at the top and at the bottom of own definitions.</p>
+
+<p>The error middleware is a bit more complicated as it should be defined before
+other error handlers.</p>
+
+<p>Steps</p>
+
+<ol>
+<li>Check if type routes have errors defined and remove them outside to the main
+register function.</li>
+<li>Decide to implement sentry in the main function or in the customer module.</li>
+</ol>
+
+<p>Related:</p>
+
+<ul>
+<li>https://docs.sentry.io/platforms/node/guides/express/</li>
+</ul>
+</article>
+
   </div>
 </main>
 
@@ -86,91 +703,28 @@
 </body>
 
 
-<script>
-function mapFocusable(elem, cb) {
-  for (const focusable of elem.querySelectorAll('a')) {
-    cb(focusable)
-  }
-}
-
-function isOdd(x) {
-  return (x % 2) === 1
-}
-
-function search (inputElement) {
-  const issues = Array.from(document.getElementsByClassName("issue-issue"))
-
-  const index = issues.map(issue => [issue, issue.textContent])
-
-  // Consider adding a better search.
-  function fuzzy (text, str) {
-    return text.includes(str)
-  }
-
-  function isEmpty(x) {
-    return x?.length === 0
-  }
-
-  function complement(fn) {
-    return (...args) => !fn(...args)
-  }
-
-  const isNotEmpty = complement(isEmpty)
-
-  inputElement.addEventListener("input", event => {
-    const { target: { value: search } } = event
-
-    // Support quoting using double quote.
-    const quoteSplit = search.split('"').reduce((acc, value, index) => {
-      if (isOdd(index)) return [...acc, value]
-
-      return acc.concat(value.split(' '))
-    }, []).filter(isNotEmpty)
-
-    document.getElementById('issue-search-query').innerHTML = quoteSplit.reduce((acc, value) => {
-      if (value.startsWith('@'))
-        return `${acc}\n<li class="issue-search-query-item issue-search-mention">🧑${value}</li>`
-
-      if (value.startsWith('/'))
-        return `${acc}\n<li class="issue-search-query-item issue-search-directory">📁${value}</li>`
-
-      if (value.endsWith('#'))
-        return `${acc}\n<li class="issue-search-query-item issue-search-hashtag">🏷️${value}</li>`
-
-      if (value.startsWith('='))
-        return `${acc}\n<li class="issue-search-query-item issue-search-word">🔎${value}</li>`
-
-
-      return `${acc}\n<li class="issue-search-query-item issue-search-term">${value.includes(" ") ? `"${value}"` : value}</li>`
-    }, '')
-
-    console.log(quoteSplit)
-
-    index.forEach(([elem, content]) => {
-      if (fuzzy(content, search)) {
-        elem.classList.remove('disabled')
-        mapFocusable(elem, focusable => {
-          focusable.removeAttribute('tabindex')
-        })
-      } else {
-        mapFocusable(elem, focusable => {
-          focusable.setAttribute('tabindex', '-1')
-        })
-        elem.classList.add("disabled")
-      }
-    })
-  })
-}
-
-search(document.getElementById("search"))
-</script>
-
 <!-- How cool is this -->
 <style>
 
-  #issue-search-query {
+.badge {
+  font-size: 0.8em;
+  padding: 0 0.5ex;
+  border-radius: 0.5em;
+}
+
+  .badge-primary {
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+  }
+
+  .issue-search-query-items {
     list-style-type: none;
     padding-left: 0;
+  }
+
+  .issue-search-query-items li {
+    display: inline-block;
+    margin-right: 1em;
   }
 
   .issue-search-query-item {
@@ -180,6 +734,7 @@ search(document.getElementById("search"))
     padding-right: 1ex;
     border-radius: 1ex;
     background-color: var(--accent-bg);
+    color: var(--text);
   }
 
   .issue-search-mention,
@@ -243,3 +798,5 @@ search(document.getElementById("search"))
   }
 
 </style>
+
+<script src="browser/bundle.js"></script>
