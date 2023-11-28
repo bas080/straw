@@ -1,22 +1,13 @@
 import { html, render } from "lit-html";
-import { byKey, isNotEmpty, isOdd, excludeIndex, partial } from "./helpers.mjs";
+import { byKey, excludeIndex, partial } from "./helpers.mjs";
 
 const targetValue =
   (fn) =>
   ({ target: { value } }, ...args) =>
     fn(value, ...args);
 
-const preventDefault =
-  (fn) =>
-  (event, ...args) => {
-    event.preventDefault();
-    return fn(event, ...args);
-  };
-
 const register = (onState) => {
   onState((state, push) => {
-    const { query } = state;
-
     // mutations
     state.onQueryChange = (query) => {
       push((state) => {
@@ -35,17 +26,6 @@ const register = (onState) => {
     // communicate the tokens outside of this module.
     return state;
   });
-};
-
-const searchTokens = (query) => {
-  return query
-    .split('"')
-    .reduce((acc, value, index) => {
-      if (isOdd(index)) return [...acc, `"${value}"`];
-
-      return acc.concat(value.split(" "));
-    }, [])
-    .filter(isNotEmpty);
 };
 
 const tokenIcon = byKey(
