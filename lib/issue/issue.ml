@@ -19,7 +19,7 @@ let rec find_parent_directory_with_file target_file start_dir =
     Filename.dirname start_dir |> find_parent_directory_with_file target_file
 
 let parent_dir () =
-  let start = Core_unix.getcwd () (* TODO: make env variable with default *) in
+  let start = Unix.getcwd () (* TODO: make env variable with default *) in
   let target = "issue" in
   find_parent_directory_with_file target start
 
@@ -79,7 +79,7 @@ let list root =
   traverse_directory root |> List.filter ~f:is_md_file
   |> List.iter ~f:(fun file -> print_endline file)
 
-let move from to' = Core_unix.rename ~src:from ~dst:to'
+let move from to' = Unix.rename ~src:from ~dst:to'
 
 let open_file_with_editor path =
   let editor = Core.Sys.getenv "EDITOR" |> Option.value ~default:"vi" in
@@ -126,7 +126,13 @@ let open_issue () =
       (* exit with non-standard exit code *)
       exit 1
 
-let edit _root = ()
+let edit issue_path =
+  let root = issue_dir () in
+  let path = Filename.concat root issue_path in
+  if Sys.file_exists_exn path then
+    open_file_with_editor (Filename.concat root issue_path)
+  else printf "Issue %s does not exist" issue_path
+
 let search _root = ()
 
 let categories root =

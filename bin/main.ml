@@ -12,8 +12,8 @@ let open_cmd =
       open_issue ())
 
 let edit_cmd =
-  Command.basic_spec ~summary:"edit an issue" Command.Spec.empty (fun () ->
-      working_on_it "edit")
+  Command.basic ~summary:"edit an issue"
+    Command.Param.(map (anon ("path" %: string)) ~f:(fun path () -> edit path))
 
 let dir_cmd =
   Command.basic_spec ~summary:"show the current issue directory"
@@ -21,7 +21,7 @@ let dir_cmd =
 
 let search_cmd =
   Command.basic_spec ~summary:"keyword search through issues" Command.Spec.empty
-    (fun () -> working_on_it "edit")
+    (fun () -> working_on_it "search")
 
 let status_cmd =
   Command.basic_spec ~summary:"show the number of files in each issue category"
@@ -52,6 +52,4 @@ let command =
     ]
 
 (* ENTRYPOINT *)
-(* let () = issue_dir () |> to_html |> print_endline *)
-(* let () = open_issue () *)
 let () = Command_unix.run ~version:"1.0" ~build_info:"RWO" command
