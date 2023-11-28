@@ -1,5 +1,5 @@
 import { html, render } from "lit-html";
-import { isNotEmpty, isOdd, removeIndex, identity } from "./helpers.mjs";
+import { isNotEmpty, isOdd, identity } from "./helpers.mjs";
 import search from "./search.mjs";
 import issues from "./issues.mjs";
 import state from "./state.mjs";

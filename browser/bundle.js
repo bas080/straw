@@ -271,7 +271,7 @@
   var partial = (fn, ...args) => fn.bind(null, ...args);
   var isEmpty = (x2) => x2.length === 0;
   var isOdd = (x2) => x2 % 2 === 1;
-  var removeIndex = (index, array) => {
+  var excludeIndex = (index, array) => {
     const result = Array.prototype.slice.call(array, 0);
     result.splice(index, 1);
     return result;
@@ -281,13 +281,10 @@
   var complement = (fn) => (...args) => !fn(...args);
   var notEquals = complement(equals);
   var isNotEmpty = complement(isEmpty);
+  var byKey = (object, defaultTo) => (key) => object[key] || defaultTo;
 
   // search.mjs
   var targetValue = (fn) => ({ target: { value } }, ...args) => fn(value, ...args);
-  var preventDefault = (fn) => (event, ...args) => {
-    event.preventDefault();
-    return fn(event, ...args);
-  };
   var register = (onState2) => {
     onState2((state2, push) => {
       const { query } = state2;
@@ -298,36 +295,42 @@
         });
       };
       state2.onTokenRemove = (index) => {
-        state2.onQueryChange(removeIndex(index, state2.tokens).join(" "));
+        state2.onQueryChange(excludeIndex(index, state2.tokens).join(" "));
       };
       j(searchTemplate(state2), document.getElementById("lit-app"));
       return state2;
     });
   };
-  var tokenIcon = (token) => tokenIcon.map[token[0]] || "\u{1F50E}";
-  tokenIcon.map = {
-    "#": "\u{1F3F7}\uFE0F",
-    "@": "\u{1F9D1}",
-    '"': "\u{1F50E}",
-    "/": "\u{1F4C1}"
-  };
+  var tokenIcon = byKey(
+    {
+      "#": "\u{1F3F7}\uFE0F",
+      "@": "\u{1F9D1}",
+      '"': "\u{1F50E}",
+      "/": "\u{1F4C1}"
+    },
+    "\u{1F50E}"
+  );
   var searchTokenItem = (state2, token, index, tokens) => {
     const { onTokenRemove } = state2;
     const count = state2.issuesPerToken[token];
-    const onClick = preventDefault((event) => {
-      onInput(removeIndex(index, tokens).join(" "));
-    });
     return x`<li>
     <button
-    class="issue-search-query-item"
-    title="Remove ${token}" value="${token}" @click="${partial(onTokenRemove, index)}">
-      ${tokenIcon(token)} ${token} <span class="badge badge-primary">${count}</span>
+      class="issue-search-query-item"
+      title="Remove ${token}"
+      value="${token}"
+      @click="${partial(onTokenRemove, index)}"
+    >
+      ${tokenIcon(token)} ${token}
+      <span class="badge badge-primary">${count}</span>
     </button>
   </li>`;
   };
   var searchTemplate = (state2) => {
     const { onQueryChange, tokens } = state2;
-    return x`<input .value="${state2.query}" @input=${targetValue(onQueryChange)} />
+    return x`<input
+      .value="${state2.query}"
+      @input=${targetValue(onQueryChange)}
+    />
     <ul class="issue-search-query-items">
       ${tokens.map(partial(searchTokenItem, state2))}
     </ul>`;
@@ -346,7 +349,7 @@
       function pushState(...args) {
         const [newValue] = args;
         if (args.length === 0) {
-          registered = removeIndex(index, registered);
+          registered = excludeIndex(index, registered);
           return;
         }
         oldState = registered.reduce((acc, fn) => fn(acc), newValue(oldState));

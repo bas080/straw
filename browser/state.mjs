@@ -1,4 +1,4 @@
-import { tail, removeIndex, notEquals } from "./helpers.mjs";
+import { tail, excludeIndex, notEquals } from "./helpers.mjs";
 
 const state = (initial) => {
   let registered = [];
@@ -17,7 +17,7 @@ const state = (initial) => {
 
       // Removes the listener when no arguments are pushed.
       if (args.length === 0) {
-        registered = removeIndex(index, registered);
+        registered = excludeIndex(index, registered);
         return;
       }
 

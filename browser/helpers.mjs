@@ -1,7 +1,7 @@
 const partial = (fn, ...args) => fn.bind(null, ...args);
 const isEmpty = (x) => x.length === 0;
 const isOdd = (x) => x % 2 === 1;
-const removeIndex = (index, array) => {
+const excludeIndex = (index, array) => {
   const result = Array.prototype.slice.call(array, 0);
 
   result.splice(index, 1);
@@ -27,7 +27,7 @@ export {
   tail,
   notEquals,
   isEmpty,
-  removeIndex,
+  excludeIndex,
   isNotEmpty,
   isOdd,
   noop,

@@ -1,5 +1,5 @@
 import { html, render } from "lit-html";
-import { byKey, isNotEmpty, isOdd, removeIndex, partial } from "./helpers.mjs";
+import { byKey, isNotEmpty, isOdd, excludeIndex, partial } from "./helpers.mjs";
 
 const targetValue =
   (fn) =>
@@ -26,7 +26,7 @@ const register = (onState) => {
     };
 
     state.onTokenRemove = (index) => {
-      state.onQueryChange(removeIndex(index, state.tokens).join(" "));
+      state.onQueryChange(excludeIndex(index, state.tokens).join(" "));
     };
 
     // render
@@ -61,11 +61,6 @@ const tokenIcon = byKey(
 const searchTokenItem = (state, token, index, tokens) => {
   const { onTokenRemove } = state;
   const count = state.issuesPerToken[token];
-
-  // Should I be creating a new function for eacht element?
-  const onClick = preventDefault((event) => {
-    onInput(removeIndex(index, tokens).join(" "));
-  });
 
   return html`<li>
     <button
