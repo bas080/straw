@@ -7,5 +7,5 @@ val edit : string -> unit
 val search : string -> unit
 val status : unit -> unit
 val show : string -> unit
-val html : string -> unit
+val html : unit -> unit
 val validate : string -> unit

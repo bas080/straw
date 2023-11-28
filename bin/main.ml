@@ -28,11 +28,23 @@ let dir_cmd =
     Command.Spec.empty
     (fun () -> print_endline (parent_dir ()))
 
+let search_cmd =
+  Command.basic_spec
+    ~summary:"keyword search through issues"
+    Command.Spec.empty
+    (fun () -> working_on_it "edit")
+
 let status_cmd =
   Command.basic_spec
     ~summary:"show the number of files in each issue category"
     Command.Spec.empty
     (fun () -> status ())
+
+let html_cmd = 
+  Command.basic_spec
+    ~summary:"print issues as HTML"
+    Command.Spec.empty
+    (fun () -> html ())
 
 let readme () = "TODO"
 
@@ -45,7 +57,9 @@ let command =
       "open", open_cmd; 
       "edit", edit_cmd;
       "dir", dir_cmd;
+      "search", search_cmd;
       "status", status_cmd;
+      "html", html_cmd;
     ]
 
 (* ENTRYPOINT *)
