@@ -8,3 +8,6 @@ val from_path : string -> t option
 
 (** Return the file path where the issue is stored. *)
 val path : t -> string
+
+val title : t -> string
+val category : t -> string

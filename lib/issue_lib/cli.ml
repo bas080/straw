@@ -60,9 +60,8 @@ let file_to_html file = read_entire_file file |> Omd.of_string |> Omd.to_html
    |> String.concat ~sep:"\n\n\n" *)
 
 let list root =
-  let open Fs in
-  traverse_directory root |> List.filter ~f:is_md_file
-  |> List.iter ~f:(fun file -> print_endline file)
+  Issue.all_issues root
+  |> List.iter ~f:(fun issue -> print_endline (Issue.path issue))
 
 let move from to' = Unix.rename ~src:from ~dst:to'
 
@@ -77,7 +76,7 @@ let find_unique_filename path =
   let counter = ref 1 in
   let search = ref path in
   while Sys.file_exists_exn !search do
-    print_endline ("Possible duplicate issue found:\t" ^ !search);
+    eprintf "Possible duplicate issue found:\t%s\n" !search;
     let replacement = sprintf "_%i.md" !counter in
     search := Str.replace_first r replacement path;
     counter := !counter + 1
@@ -105,7 +104,7 @@ let open_issue () =
       ignore (move tmpfile unique_path);
       printf "Issue saved at: %s\n" unique_path
   | None ->
-      print_endline "No changes were saved.";
+      eprintf "No changes were saved.\n";
       (* cleanup empty tempfile *)
       Sys.remove tmpfile;
       (* exit with non-standard exit code *)
@@ -115,15 +114,14 @@ let edit issue_path =
   let root = issue_dir () in
   let path = Filename.concat root issue_path in
   if Sys.file_exists_exn path then
-    open_file_with_editor (Filename.concat root issue_path)
-  else printf "Issue %s does not exist" issue_path
+    open_file_with_editor path
+  else eprintf "Issue %s does not exist\n" issue_path
 
 let search _root = ()
 
 let categories root =
-  root |> Sys.ls_dir
-  |> List.map ~f:(Filename.concat root)
-  |> List.filter ~f:Sys.is_directory_exn
+  Issue.all_issues root
+  |> List.map ~f:Issue.category
 
 let md_files path =
   let open Fs in
@@ -172,7 +170,7 @@ let html () =
       print_string before;
       print_html_issues ();
       print_string after
-  | None -> print_endline "No issues found."
+  | None -> eprintf "No issues found.\n"
 
 let is_valid_commit_message_from_file file =
   let lines = lines_of_file file in

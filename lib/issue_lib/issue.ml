@@ -29,3 +29,6 @@ let path issue =
   Filename.concat
     issue.category
     (title_to_filename issue.title)
+
+let title t = t.title
+let category t = t.title
