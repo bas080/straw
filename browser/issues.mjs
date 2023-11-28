@@ -27,7 +27,6 @@ export default function search(onState) {
 
     // Push computed state when the query changes.
     onQueryChange(state.query, (a, b) => {
-      console.log("onQueryChange", JSON.stringify(a), JSON.stringify(b));
       push((state) => {
         state.issuesPerToken = issuesPerToken(tokens);
         return state;

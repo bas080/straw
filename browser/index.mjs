@@ -7,7 +7,7 @@ const searchTokens = (query) => {
   return query
     .split('"')
     .reduce((acc, value, index) => {
-      if (isOdd(index)) return [...acc, `"${value}"`];
+      if (isOdd(index)) return [...acc, `${value}`];
 
       return acc.concat(value.split(" "));
     }, [])

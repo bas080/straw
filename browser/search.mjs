@@ -1,6 +1,11 @@
 import { html, render } from "lit-html";
 import { byKey, excludeIndex, partial } from "./helpers.mjs";
 
+const quote = str => `"${str}"`
+const whitespaceRegex = /\s/
+const hasWhitespace = str => whitespaceRegex.test(str);
+const quoteOnWhitespace = token => hasWhitespace(token) ? quote(token) : token
+
 const targetValue =
   (fn) =>
   ({ target: { value } }, ...args) =>
@@ -49,7 +54,7 @@ const searchTokenItem = (state, token, index, tokens) => {
       value="${token}"
       @click="${partial(onTokenRemove, index)}"
     >
-      ${tokenIcon(token[0])} ${token}
+      ${tokenIcon(token[0])} ${quoteOnWhitespace(token)}
       <span class="badge badge-primary">${count}</span>
     </button>
   </li>`;

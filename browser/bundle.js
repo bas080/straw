@@ -284,6 +284,10 @@
   };
 
   // search.mjs
+  var quote = (str) => `"${str}"`;
+  var whitespaceRegex = /\s/;
+  var hasWhitespace = (str) => whitespaceRegex.test(str);
+  var quoteOnWhitespace = (token) => hasWhitespace(token) ? quote(token) : token;
   var targetValue = (fn) => ({ target: { value } }, ...args) => fn(value, ...args);
   var register = (onState2) => {
     onState2((state2, push) => {
@@ -319,7 +323,7 @@
       value="${token}"
       @click="${partial(onTokenRemove, index)}"
     >
-      ${tokenIcon(token[0])} ${token}
+      ${tokenIcon(token[0])} ${quoteOnWhitespace(token)}
       <span class="badge badge-primary">${count}</span>
     </button>
   </li>`;
@@ -394,7 +398,6 @@
     onState2((state2, push) => {
       const { tokens } = state2;
       onQueryChange(state2.query, (a2, b2) => {
-        console.log("onQueryChange", JSON.stringify(a2), JSON.stringify(b2));
         push((state3) => {
           state3.issuesPerToken = issuesPerToken(tokens);
           return state3;
@@ -424,7 +427,7 @@
   var searchTokens = (query) => {
     return query.split('"').reduce((acc, value, index) => {
       if (isOdd(index))
-        return [...acc, `"${value}"`];
+        return [...acc, `${value}`];
       return acc.concat(value.split(" "));
     }, []).filter(isNotEmpty);
   };
