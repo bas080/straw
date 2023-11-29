@@ -7,9 +7,7 @@ type t = {
 }
 
 let title_to_filename title =
-  let open Fs in
-  let filename = title |> String.strip |> safe_filename in
-  filename ^ ".md"
+  title |> String.strip |> Fs.safe_filename
 
 let from_path path =
   let category = Filename.dirname path in 
@@ -28,7 +26,7 @@ let all_issues root =
 let path issue =
   Filename.concat
     issue.category
-    (title_to_filename issue.title)
+    ((title_to_filename issue.title) ^ ".md")
 
 let title t = t.title
 let category t = t.title

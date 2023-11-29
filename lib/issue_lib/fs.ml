@@ -14,7 +14,7 @@ let safe_filename filename =
 
 let has_extension ~extension path =
   Filename.split_extension path
-  |> Tuple2.get2
+  |> snd
   |> Option.for_all ~f:(fun ext -> ext |> String.lowercase |> String.equal extension)
 
 let is_md_file = has_extension ~extension:"md"

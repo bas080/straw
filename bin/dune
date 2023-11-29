@@ -1,16 +1,16 @@
+;; set O2 for a release build
+(env
+ (release
+  (ocamlopt_flags
+   (:standard -O2 -ccopt -static -ccopt -s))))
+
 (executable
  (public_name issue)
  (name main)
+ (modes native)
  (libraries
   issue_lib
   ;; stdlib
   core
   ;; CLI argument parsing
   core_unix.command_unix))
-
-;; set O2 for a release build
-
-(env
- (release
-  (ocamlopt_flags
-   (:standard -O2))))
