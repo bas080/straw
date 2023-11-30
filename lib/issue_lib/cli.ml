@@ -10,14 +10,14 @@ let rec find_parent_directory_with_file target_file start_dir =
     (* Move one dir up and try again *)
     Filename.dirname start_dir |> find_parent_directory_with_file target_file
 
-let parent_dir () =
+let root_dir () =
   let start = Sys.getcwd () (* TODO: make env variable with default *) in
   let target = "issue" in
   Path.of_string (find_parent_directory_with_file target start)
 
 let issue_dir () =
-  let dir = parent_dir () in
-  Path.concat dir (Path.of_string "issue")
+  let dir = root_dir () in
+  Path.append dir "issue"
 
 let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
 
@@ -88,7 +88,7 @@ let open_issue () =
   match List.nth_opt lines 0 with
   | Some title ->
       let issue_file = issue_filename_str title in
-      let path = Path.concat open_dir (Path.of_string issue_file) in
+      let path = Path.append open_dir issue_file in
       (* check for filename conflicts and find a unique filename *)
       let unique_path = find_unique_filename (Path.to_string path) in
       Printf.printf "Moving %s to %s\n" (Path.to_string tmpfile) unique_path;
@@ -104,7 +104,7 @@ let open_issue () =
 
 let edit issue_path =
   let root = issue_dir () in
-  let path = Path.concat root (Path.of_string issue_path) in
+  let path = Path.append root issue_path in
   if Sys.file_exists (Path.to_string path) 
   then open_file_with_editor path
   else Printf.eprintf "Issue %s does not exist\n" issue_path
@@ -157,7 +157,7 @@ let print_html_issues () =
   ()
 
 let html () =
-  let template_path = Path.concat (parent_dir ()) (Path.of_string "template.html") in
+  let template_path = Path.append (root_dir ()) "template.html" in
   let content = Fs.read_entire_file template_path in
   match split_on_issues content with
   | Some (before, after) ->

@@ -5,9 +5,9 @@ let rec mkdir_p (path : Path.t) =
     let parent = Path.parent path in
     if not (Path.equal path parent) then begin
       mkdir_p parent
-    end
-  end;
-  Sys.mkdir (Path.to_string path) 0o777
+    end;
+    Sys.mkdir (Path.to_string path) 0o777
+  end
 
 let ls_dir (path : Path.t) = 
   path

@@ -19,6 +19,7 @@ let to_string x =
     x
 
 let to_quoted = Filename.quote
+let append = Filename.concat
 let concat = Filename.concat
 
 let of_parts parts = 

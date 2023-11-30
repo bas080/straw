@@ -19,6 +19,9 @@ val to_string : t -> string
 (** Converts the path to an escaped file path. Same as [Filename.quote]. *)
 val to_quoted : t -> string
 
+(** Append a string to the end of a path. *)
+val append : t -> string -> t
+
 (** Concatinate two paths together, similar to Filename.concat. *)
 val concat : t -> t -> t
 
