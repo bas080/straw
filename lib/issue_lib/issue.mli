@@ -1,13 +1,13 @@
 type t
 
 (** List of all issues contained inside of the given [root] directory *)
-val all_issues : string -> t list
+val all_issues : Path.t -> t list
 
 (** Create a new issue given a path *)
-val from_path : string -> t option
+val from_path : Path.t -> t option
 
 (** Return the file path where the issue is stored. *)
-val path : t -> string
+val path : t -> Path.t
 
 val title : t -> string
 val category : t -> string

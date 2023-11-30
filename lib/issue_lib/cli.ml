@@ -1,10 +1,5 @@
-open Base
-module Printf = Stdlib.Printf
-module Filename = Stdlib.Filename
-module Sys = Stdlib.Sys
-
 let issue_filename_str str =
-  let filename = str |> String.strip |> Fs.safe_filename in
+  let filename = str |> String.trim |> Fs.safe_filename in
   filename ^ ".md"
 
 (* FIXME: what if we don't find it? *)
@@ -18,14 +13,11 @@ let rec find_parent_directory_with_file target_file start_dir =
 let parent_dir () =
   let start = Sys.getcwd () (* TODO: make env variable with default *) in
   let target = "issue" in
-  find_parent_directory_with_file target start
+  Path.of_string (find_parent_directory_with_file target start)
 
 let issue_dir () =
   let dir = parent_dir () in
-  Filename.concat dir "issue"
-
-let absolute_to_relative root target =
-  Fs.absolute_to_relative target ~root:root
+  Path.concat dir (Path.of_string "issue")
 
 let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
 
@@ -58,16 +50,17 @@ let file_to_html file = Fs.read_entire_file file |> Omd.of_string |> Omd.to_html
    |> List.map ~f:(fun x -> x |> file_to_html |> wrap_in_article)
    |> String.concat ~sep:"\n\n\n" *)
 
-let list root =
-  Fs.(traverse_directory root |> List.filter ~f:is_md_file)
-  |> List.iter ~f:Stdlib.print_endline
+let list () =
+  let root = issue_dir () in
+  Fs.(traverse_directory root |> List.filter is_md_file)
+  |> List.iter (fun path -> print_endline (Path.to_string path))
 
 let move ~src ~dest = Sys.rename src dest
 
 let open_file_with_editor path =
   let editor = Sys.getenv "EDITOR" in
   (* open the temporary file with the default editor *)
-  Printf.sprintf "%s %s" editor (Filename.quote path) |> Sys.command |> ignore
+  Printf.sprintf "%s %s" editor (Path.to_quoted path) |> Sys.command |> ignore
 
 let find_unique_filename path =
   (* literal copy of what was in perl, not the best for OCaml *)
@@ -84,36 +77,36 @@ let find_unique_filename path =
 
 let open_issue () =
   (* will create the file *)
-  let tmpfile = Filename.temp_file ~temp_dir:"issue" "tmp-" ".md" in
-  let open_dir = Filename.concat "issue" "open" in
+  let tmpfile = Path.temp_file ~dir:(issue_dir ()) "tmp-" ".md" in
+  let open_dir = Path.of_parts ["issue"; "open"] in
   (* create the issue/open directory if it doesn't exit *)
   ignore (Fs.mkdir_p open_dir);
   open_file_with_editor tmpfile;
   let lines = Fs.lines_of_file tmpfile in
   (* extract the title from the contents (first line) *)
   (* TODO: add same regex check as in perl *)
-  match List.hd lines with
+  match List.nth_opt lines 0 with
   | Some title ->
       let issue_file = issue_filename_str title in
-      let path = Filename.concat open_dir issue_file in
+      let path = Path.concat open_dir (Path.of_string issue_file) in
       (* check for filename conflicts and find a unique filename *)
-      let unique_path = find_unique_filename path in
-      Printf.printf "Moving %s to %s\n" tmpfile unique_path;
+      let unique_path = find_unique_filename (Path.to_string path) in
+      Printf.printf "Moving %s to %s\n" (Path.to_string tmpfile) unique_path;
       (* TODO: error handling *)
-      ignore (move ~src:tmpfile ~dest:unique_path);
+      ignore (move ~src:(Path.to_string tmpfile) ~dest:unique_path);
       Printf.printf "Issue saved at: %s\n" unique_path
   | None ->
       Printf.eprintf "No changes were saved.\n";
       (* cleanup empty tempfile *)
-      Sys.remove tmpfile;
+      Sys.remove (Path.to_string tmpfile);
       (* exit with non-standard exit code *)
-      Stdlib.exit 1
+      exit 1
 
 let edit issue_path =
   let root = issue_dir () in
-  let path = Filename.concat root issue_path in
-  if Sys.file_exists path then
-    open_file_with_editor path
+  let path = Path.concat root (Path.of_string issue_path) in
+  if Sys.file_exists (Path.to_string path) 
+  then open_file_with_editor path
   else Printf.eprintf "Issue %s does not exist\n" issue_path
 
 let search _root = ()
@@ -121,21 +114,21 @@ let search _root = ()
 let categories root =
   root
   |> Fs.ls_dir
-  |> List.map ~f:(Filename.concat root)
-  |> List.filter ~f:Sys.is_directory
+  |> List.map (Path.concat root)
+  |> List.filter Path.is_directory
 
 let md_files path =
   let open Fs in
   traverse_directory path
-  |> List.filter ~f:(fun file -> Stdlib.Sys.is_regular_file file && is_md_file file)
+  |> List.filter (fun file -> Path.is_file file && is_md_file file)
 
 let status () =
   let root = issue_dir () in
   Fs.ls_dir root
-  |> List.map ~f:(fun dir ->
-         let count = Filename.concat root dir |> md_files |> List.length in
+  |> List.map (fun dir ->
+         let count = Path.concat root dir |> md_files |> List.length in
          (dir, count))
-  |> List.iter ~f:(fun (dir, count) -> Printf.printf "%s\t%i\n" dir count)
+  |> List.iter (fun (dir, count) -> Printf.printf "%s\t%i\n" (Path.to_string dir) count)
 
 let show _root = ()
 
@@ -148,44 +141,45 @@ let split_on_issues content =
 let print_html_issues () =
   let root = issue_dir () in
   categories root
-  |> List.concat_map ~f:md_files
-  |> List.map ~f:(fun file ->
+  |> List.concat_map md_files
+  |> List.map (fun file ->
          let lines = Fs.lines_of_file file in
          let title =
-           lines |> List.hd
+           lines 
+           |> (fun l -> List.nth_opt l 0)
            |> Option.value ~default:"Untitled Issue"
            |> issue_filename_str
          in
          let md = file_to_html file in
-         wrap_issue_link title (absolute_to_relative root file) ^ md
+         wrap_issue_link title (Path.to_string (Path.to_relative ~root file)) ^ md
          |> replace_text_with_links |> wrap_in_article)
-  (* TODO: get relative path *)
-  |> List.iter ~f:Stdlib.print_endline;
+  |> List.iter print_endline;
   ()
 
 let html () =
-  let template_path = Filename.concat (parent_dir ()) "template.html" in
+  let template_path = Path.concat (parent_dir ()) (Path.of_string "template.html") in
   let content = Fs.read_entire_file template_path in
   match split_on_issues content with
   | Some (before, after) ->
-      Stdlib.print_string before;
+      print_string before;
       print_html_issues ();
-      Stdlib.print_string after
+      print_string after
   | None -> Printf.printf "No issues found.\n"
 
 let is_valid_commit_message_from_file file =
   let lines = Fs.lines_of_file file in
-  Option.is_some (List.hd lines)
+  not (List.is_empty lines)
 
 let validate () =
   let root = issue_dir () in
   let exit_code = ref 0 in
   let open Fs in
-  traverse_directory root |> List.filter ~f:is_md_file
-  |> List.iter ~f:(fun file ->
+  traverse_directory root
+  |> List.filter (Path.has_extension ~ext:"md")
+  |> List.iter (fun file ->
          if is_valid_commit_message_from_file file then
-           Printf.printf "valid\t%s\n" file
+           Printf.printf "valid\t%s\n" (Path.to_string file)
          else (
-           Printf.printf "invalid\t%s\n" file;
+           Printf.printf "invalid\t%s\n" (Path.to_string file);
            exit_code := 1));
-  Stdlib.exit !exit_code
+  exit !exit_code

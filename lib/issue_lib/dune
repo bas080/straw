@@ -1,8 +1,6 @@
 (library
  (name issue_lib)
  (libraries
-  ;; stdlib
-  base
   ;; regex
   str
   ;; markdown

@@ -6,7 +6,7 @@ let working_on_it cmd = Printf.eprintf "Executing '%s' subcommand\n" cmd
 let list_cmd =
   Cmd.v 
     (Cmd.info "list" ~doc:"List the current issues")
-    Term.(const list $ const (issue_dir ()))
+    Term.(const list $ const ())
 
 let open_cmd =
   Cmd.v
@@ -24,7 +24,7 @@ let edit_cmd =
 let dir_cmd =
   Cmd.v
     (Cmd.info "dir" ~doc:"Show the current issue directory")
-    Term.(const print_endline $ (const parent_dir $ const ()))
+    Term.(const (fun () -> issue_dir () |> Issue_lib.Path.to_string |> print_endline) $ const ())
 
 let search_cmd =
   Cmd.v

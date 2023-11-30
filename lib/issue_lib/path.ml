@@ -18,10 +18,14 @@ let to_string x =
   else
     x
 
+let to_quoted = Filename.quote
 let concat = Filename.concat
 
 let of_parts parts = 
   List.fold_left Filename.concat "" parts
+
+let temp_file ?dir prefix suffix =
+  of_string (Filename.temp_file ?temp_dir:dir prefix suffix)
 
 let parent path = Filename.dirname path
 let parts path = String.split_on_char '/' path
@@ -44,5 +48,20 @@ let to_relative ~root path =
 let to_absolute path =
   concat (Stdlib.Sys.getcwd ()) path
 
-let has_extension ~extension path =
-  String.equal (Filename.extension path) ("." ^ extension)
+let extension path = 
+  let ext = Filename.extension (to_string path) in
+  if String.length ext > 0
+  then Some ext
+  else None
+
+let has_extension ~ext path =
+  match extension path with
+  | Some x -> String.equal x ("." ^ ext)
+  | None -> false
+
+let is_directory path = Sys.is_directory (to_string path)
+let is_file path = Sys.is_regular_file (to_string path)
+let exists path = Sys.file_exists (to_string path)
+
+let equal = String.equal
+let compare = String.compare
