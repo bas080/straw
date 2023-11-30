@@ -11,4 +11,4 @@
  (libraries
   issue_lib
   ;; CLI argument parsing
-  core_unix.command_unix))
+  cmdliner))

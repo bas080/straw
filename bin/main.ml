@@ -1,55 +1,69 @@
-open Core
+open Cmdliner
 open Issue_lib.Cli
 
-let working_on_it cmd = printf "Executing '%s' subcommand\n" cmd
+let working_on_it cmd = Printf.eprintf "Executing '%s' subcommand\n" cmd
 
 let list_cmd =
-  Command.basic_spec ~summary:"list the current issues" Command.Spec.empty
-    (fun () -> list (issue_dir ()))
+  Cmd.v 
+    (Cmd.info "list" ~doc:"List the current issues")
+    Term.(const list $ const (issue_dir ()))
 
 let open_cmd =
-  Command.basic_spec ~summary:"open a new issue" Command.Spec.empty (fun () ->
-      open_issue ())
+  Cmd.v
+    (Cmd.info "open" ~doc:"Open a new issue")
+    Term.(const open_issue $ const ())
 
 let edit_cmd =
-  Command.basic ~summary:"edit an issue"
-    Command.Param.(map (anon ("path" %: string)) ~f:(fun path () -> edit path))
+  let path =
+    Arg.(required & pos 0 (some string) None & info [] ~docv:"PATH" ~doc:"Path to the issue")
+  in
+  Cmd.v
+    (Cmd.info "edit" ~doc:"Edit an issue")
+    Term.(const edit $ path)
 
 let dir_cmd =
-  Command.basic_spec ~summary:"show the current issue directory"
-    Command.Spec.empty (fun () -> print_endline (parent_dir ()))
+  Cmd.v
+    (Cmd.info "dir" ~doc:"Show the current issue directory")
+    Term.(const print_endline $ (const parent_dir $ const ()))
 
 let search_cmd =
-  Command.basic_spec ~summary:"keyword search through issues" Command.Spec.empty
-    (fun () -> working_on_it "search")
+  Cmd.v
+    (Cmd.info "search" ~doc:"Keyword search through issues")
+    Term.(const working_on_it $ const "search")
 
 let status_cmd =
-  Command.basic_spec ~summary:"show the number of files in each issue category"
-    Command.Spec.empty (fun () -> status ())
+  Cmd.v
+    (Cmd.info "status" ~doc:"Show the number of files in each issue category")
+    Term.(const status $ const ())
 
 let html_cmd =
-  Command.basic_spec ~summary:"print issues as HTML" Command.Spec.empty
-    (fun () -> html ())
+  Cmd.v
+    (Cmd.info "html" ~doc:"Print issues as HTML")
+    Term.(const html $ const ())
 
 let validate_cmd =
-  Command.basic_spec ~summary:"check issues are valid" Command.Spec.empty
-    (fun () -> validate ())
+  Cmd.v 
+    (Cmd.info "validate" ~doc:"Check issues are valid")
+    Term.(const validate $ const ())
 
-let readme () = "TODO"
+let subcommands = [
+  list_cmd;
+  open_cmd;
+  edit_cmd;
+  dir_cmd;
+  search_cmd;
+  status_cmd;
+  html_cmd;
+  validate_cmd;
+]
 
-let command =
-  Command.group ~summary:"Issue management from the CLI" ~readme
-    [
-      ("list", list_cmd);
-      ("ls", list_cmd);
-      ("open", open_cmd);
-      ("edit", edit_cmd);
-      ("dir", dir_cmd);
-      ("search", search_cmd);
-      ("status", status_cmd);
-      ("html", html_cmd);
-      ("validate", validate_cmd);
-    ]
+let root_cmd =
+  let doc = "Issue management from the CLI" in
+  let man = [`S "BUGS"; `P "Email bug reports to <bassimhuis@gmail.com>."] in
+  let sdocs = Manpage.s_common_options in
+  let info = Cmd.info "issue" ~version:"%%VERSION%%" ~doc ~man ~sdocs in
+  (* show help when no subcommand is provided *)
+  let default = Term.(ret (const (`Help (`Pager, None)))) in
+  Cmd.group ~default info subcommands
 
-(* ENTRYPOINT *)
-let () = Command_unix.run ~version:"1.0" ~build_info:"RWO" command
+let () = exit (Cmd.eval root_cmd)
