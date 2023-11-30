@@ -10,7 +10,5 @@
  (modes native)
  (libraries
   issue_lib
-  ;; stdlib
-  core
   ;; CLI argument parsing
   core_unix.command_unix))
