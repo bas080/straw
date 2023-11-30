@@ -4,69 +4,53 @@
   to_string. 
 *)
 
-type t = string
+type t = Fpath.t
 
-let root = "/"
+let root = 
+  Fpath.normalize (Fpath.v "/")
 
-let of_string x = 
-  if Sys.win32 then
-    Str.global_replace (Str.regexp "\\") "/" x
-  else
-    x
+(* for now we'll assume that strings are trusted, TODO: use Fpath.of_string *)
+let of_string = Fpath.v
+let to_string = Fpath.to_string
 
-let to_string x = 
-  if Sys.win32 then
-    Str.global_replace 
-      (Str.regexp "/") 
-      Filename.dir_sep x
-  else
-    x
+(* FIXME: figure out how to do this in fpath *)
+let to_quoted path = Filename.quote (Fpath.to_string path)
+let append = Fpath.add_seg
+let concat = Fpath.append
 
-let to_quoted = Filename.quote
-let append = Filename.concat
-let concat = Filename.concat
-
-let of_parts parts = 
-  List.fold_left Filename.concat "" parts
+let of_parts = function
+  | x :: xs -> List.fold_left append (Fpath.v x) xs
+  | [] -> failwith ("Path.of_parts: No parts provided")
 
 let temp_file ?dir prefix suffix =
-  of_string (Filename.temp_file ?temp_dir:dir prefix suffix)
+  let temp_dir = Option.map to_string dir in
+  of_string (Filename.temp_file ?temp_dir prefix suffix)
 
-let parent path = Filename.dirname path
-let parts path = String.split_on_char '/' path
+let parent = Fpath.parent
+let parts = Fpath.segs
 
-let to_relative ~root path =
-  let rec find_common_prefix parts1 parts2 = 
-    match parts1, parts2 with
-    | x :: xs, y :: ys when String.equal x y -> find_common_prefix xs ys
-    | _ -> parts1, parts2
-  in
-  let root_parts = parts root in
-  let target_parts = parts path in
-  let remaining_root, remaining_target =
-    find_common_prefix root_parts target_parts
-  in
-  let go_up = List.map (fun _ -> "..") remaining_root in
-  let relative_parts = go_up @ remaining_target in
-  String.concat Filename.dir_sep relative_parts
+let to_relative ~root path = 
+  (* for now we'll assume its always fine *)
+  Option.get (Fpath.relativize ~root path)
 
 let to_absolute path =
-  concat (Stdlib.Sys.getcwd ()) path
+  concat (of_string (Sys.getcwd ())) path
 
-let extension path = 
-  let ext = Filename.extension path in
+let extension path =
+  let ext = Fpath.get_ext path in
   if String.length ext > 0
   then Some ext
   else None
 
-let has_extension ~ext path =
-  match extension path with
-  | Some x -> String.equal x ("." ^ ext)
-  | None -> false
+let has_extension ~ext path = Fpath.has_ext ext path
 
-let is_directory path = Sys.is_directory path
-let is_file path = Sys.is_regular_file path
-let exists path = Sys.file_exists path
+let is_directory path = 
+  Fpath.is_dir_path path || Sys.is_directory (to_string path)
 
-let equal = String.equal
-let compare = String.compare
+let is_file path = 
+  Fpath.is_file_path path || Sys.is_regular_file (to_string path)
+
+let exists path = Sys.file_exists (Fpath.to_string path)
+
+let equal = Fpath.equal
+let compare = Fpath.compare

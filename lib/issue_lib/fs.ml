@@ -14,7 +14,6 @@ let ls_dir (path : Path.t) =
   |> Path.to_string
   |> Sys.readdir
   |> Array.to_list
-  (* |> List.filter Path.is_symlink *)
   |> List.map (Path.append path)
 
 let rec traverse_directory path =
