@@ -60,8 +60,8 @@ let file_to_html file = read_entire_file file |> Omd.of_string |> Omd.to_html
    |> String.concat ~sep:"\n\n\n" *)
 
 let list root =
-  Issue.all_issues root
-  |> List.iter ~f:(fun issue -> print_endline (Issue.path issue))
+  Fs.(traverse_directory root |> List.filter ~f:is_md_file)
+  |> List.iter ~f:print_endline
 
 let move from to' = Unix.rename ~src:from ~dst:to'
 
@@ -99,7 +99,7 @@ let open_issue () =
       let path = Filename.concat open_dir issue_file in
       (* check for filename conflicts and find a unique filename *)
       let unique_path = find_unique_filename path in
-      printf "Moving %s to %s.\n" tmpfile unique_path;
+      printf "Moving %s to %s\n" tmpfile unique_path;
       (* TODO: error handling *)
       ignore (move tmpfile unique_path);
       printf "Issue saved at: %s\n" unique_path
@@ -120,8 +120,10 @@ let edit issue_path =
 let search _root = ()
 
 let categories root =
-  Issue.all_issues root
-  |> List.map ~f:Issue.category
+  root
+  |> Sys.ls_dir
+  |> List.map ~f:(Filename.concat root)
+  |> List.filter ~f:Sys.is_directory_exn
 
 let md_files path =
   let open Fs in
