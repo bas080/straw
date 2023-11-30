@@ -1,17 +1,10 @@
 type t
 
-(** The root directory. *)
-val root : t
+(** Returns true if the file is rooted *)
+ val is_root : t -> bool
 
 (** Create a [Path.t] from a string. *)
 val of_string : string -> t
-
-(** Create a [Path.t] using the parts of a path.
-    {[
-    Path.of_parts ["home"; "rage"; "test.md"] 
-    ]} 
-*)
-val of_parts : string list -> t
 
 (** Return a new [Path.t] containing the location of a temporary file. *)
 val temp_file : ?dir:t -> string -> string -> t

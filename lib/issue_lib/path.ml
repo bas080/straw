@@ -6,21 +6,17 @@
 
 type t = Fpath.t
 
-let root = 
-  Fpath.normalize (Fpath.v "/")
+let is_root path = 
+  Fpath.is_root (Fpath.normalize path)
 
 (* for now we'll assume that strings are trusted, TODO: use Fpath.of_string *)
 let of_string = Fpath.v
 let to_string = Fpath.to_string
 
 (* FIXME: figure out how to do this in fpath *)
-let to_quoted path = Filename.quote (Fpath.to_string path)
+let to_quoted path = Filename.quote (to_string path)
 let append = Fpath.add_seg
 let concat = Fpath.append
-
-let of_parts = function
-  | x :: xs -> List.fold_left append (Fpath.v x) xs
-  | [] -> failwith ("Path.of_parts: No parts provided")
 
 let temp_file ?dir prefix suffix =
   let temp_dir = Option.map to_string dir in
@@ -50,7 +46,7 @@ let is_directory path =
 let is_file path = 
   Fpath.is_file_path path || Sys.is_regular_file (to_string path)
 
-let exists path = Sys.file_exists (Fpath.to_string path)
+let exists path = Sys.file_exists (to_string path)
 
 let equal = Fpath.equal
 let compare = Fpath.compare

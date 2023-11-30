@@ -8,7 +8,7 @@ let rec find_parent_directory_with_file target_file start_dir =
   let target_file = Path.concat start_dir target_file in
   if Path.exists target_file then 
     Some start_dir
-  else if Path.equal start_dir Path.root then
+  else if Path.is_root start_dir then
     (* doesn't exist *)
     None
   else
@@ -29,19 +29,30 @@ let project_dir () =
 
 let issue_dir () = Path.append (project_dir ()) "issue"
 
+let md_files path =
+  Fs.traverse_directory path
+  |> List.filter (fun path -> 
+      Path.is_file path && Path.has_extension ~ext:"md" path)
+
 let move ~src ~dest = Sys.rename src dest
 
 let list () =
   let root = issue_dir () in
-  Fs.traverse_directory root 
-  |> List.filter (Path.has_extension ~ext:"md")
-  |> List.iter (fun path -> print_endline (Path.to_string path))
+  md_files root
+  |> List.iter (fun path -> 
+    Path.(
+      path
+      |> to_relative ~root
+      |> to_string
+      |> print_endline))
 
 let open_file_with_editor path =
   let getenv name default = Option.value ~default (Sys.getenv_opt name) in
   let editor = getenv "EDITOR" "vi" in
   (* open the temporary file with the default editor *)
-  Printf.sprintf "%s %s" editor (Path.to_quoted path) |> Sys.command |> ignore
+  Printf.sprintf "%s %s" editor (Path.to_quoted path) 
+  |> Sys.command 
+  |> ignore
 
 let find_unique_filename path =
   (* literal copy of what was in perl, not the best for OCaml *)
@@ -59,7 +70,7 @@ let find_unique_filename path =
 let open_issue () =
   (* will create the file *)
   let tmpfile = Path.temp_file ~dir:(issue_dir ()) "tmp-" ".md" in
-  let open_dir = Path.of_parts ["issue"; "open"] in
+  let open_dir = Path.of_string "issue/open" in
   (* create the issue/open directory if it doesn't exit *)
   ignore (Fs.mkdir_p open_dir);
   open_file_with_editor tmpfile;
@@ -91,11 +102,6 @@ let edit issue_path =
   else Printf.eprintf "Issue %s does not exist\n" issue_path
 
 let search _root = ()
-
-let md_files path =
-  Fs.traverse_directory path
-  |> List.filter (fun path -> 
-      Path.is_file path && Path.has_extension ~ext:"md" path)
 
 let status () =
   let root = issue_dir () in

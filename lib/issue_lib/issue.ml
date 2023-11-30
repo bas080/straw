@@ -24,8 +24,11 @@ let all_issues root =
   |> List.filter_map from_path
 
 let path issue =
-  Path.of_parts
-    [ issue.category; ((title_to_filename issue.title) ^ ".md") ]
+  Path.(
+    append 
+      (of_string issue.category)
+      ((title_to_filename issue.title) ^ ".md")
+  )
 
 let title t = t.title
 let category t = t.category
