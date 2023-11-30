@@ -34,8 +34,6 @@ let md_files path =
   |> List.filter (fun path -> 
       Path.is_file path && Path.has_extension ~ext:"md" path)
 
-let move ~src ~dest = Sys.rename src dest
-
 let list () =
   let root = issue_dir () in
   md_files root
@@ -58,6 +56,7 @@ let find_unique_filename path =
   (* literal copy of what was in perl, not the best for OCaml *)
   let r = Str.regexp "\\.md" in
   let counter = ref 1 in
+  let path = Path.to_string path in
   let search = ref path in
   while Sys.file_exists !search do
     Printf.eprintf "Possible duplicate issue found:\t%s\n" !search;
@@ -65,7 +64,7 @@ let find_unique_filename path =
     search := Str.replace_first r replacement path;
     counter := !counter + 1
   done;
-  !search
+  Path.of_string !search
 
 let open_issue () =
   (* will create the file *)
@@ -82,11 +81,12 @@ let open_issue () =
       let issue_path = issue_filename_str title in
       let path = Path.append open_dir issue_path in
       (* check for filename conflicts and find a unique filename *)
-      let unique_path = find_unique_filename (Path.to_string path) in
-      Printf.printf "Moving %s to %s\n" (Path.to_string tmpfile) unique_path;
+      let unique_path = find_unique_filename path in
+      Printf.printf "Moving %s to %s\n" 
+        (Path.to_string tmpfile) (Path.to_string unique_path);
       (* TODO: error handling *)
-      ignore (move ~src:(Path.to_string tmpfile) ~dest:unique_path);
-      Printf.printf "Issue saved at: %s\n" unique_path
+      ignore (Fs.move ~src:tmpfile ~dest:unique_path);
+      Printf.printf "Issue saved at: %s\n" (Path.to_string unique_path)
   | None ->
       Printf.eprintf "No changes were saved.\n";
       (* cleanup empty tempfile *)
@@ -108,11 +108,11 @@ let status () =
   Fs.ls_dir root
   |> List.filter Path.is_directory
   |> List.map (fun dir ->
-         let count = List.length (md_files dir) in
-         (dir, count))
+      let count = List.length (md_files dir) in
+      (dir, count))
   |> List.iter (fun (dir, count) -> 
-    let relpath = Path.(to_string (to_relative ~root dir)) in
-    Printf.printf "%s\t%i\n" relpath count)
+      let relpath = Path.(to_string (to_relative ~root dir)) in
+      Printf.printf "%s\t%i\n" relpath count)
 
 let show _root = ()
 

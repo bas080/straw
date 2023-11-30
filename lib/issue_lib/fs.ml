@@ -30,3 +30,5 @@ let read_entire_file path =
 
 let lines_of_file path = 
   In_channel.with_open_text (Path.to_string path) In_channel.input_lines
+
+let move ~src ~dest = Sys.rename (Path.to_string src) (Path.to_string dest)
