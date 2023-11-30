@@ -73,26 +73,27 @@ let open_issue () =
   (* create the issue/open directory if it doesn't exit *)
   ignore (Fs.mkdir_p open_dir);
   open_file_with_editor tmpfile;
-  let lines = Fs.lines_of_file tmpfile in
   (* extract the title from the contents (first line) *)
-  (* TODO: add same regex check as in perl *)
-  match List.nth_opt lines 0 with
-  | Some title ->
-      let issue_path = issue_filename_str title in
-      let path = Path.append open_dir issue_path in
-      (* check for filename conflicts and find a unique filename *)
-      let unique_path = find_unique_filename path in
-      Printf.printf "Moving %s to %s\n" 
-        (Path.to_string tmpfile) (Path.to_string unique_path);
-      (* TODO: error handling *)
-      ignore (Fs.move ~src:tmpfile ~dest:unique_path);
-      Printf.printf "Issue saved at: %s\n" (Path.to_string unique_path)
-  | None ->
-      Printf.eprintf "No changes were saved.\n";
-      (* cleanup empty tempfile *)
-      Sys.remove (Path.to_string tmpfile);
-      (* exit with non-standard exit code *)
-      exit 1
+    (* TODO: read a few lines if the first one isn't used *)
+    (* TODO: add same regex check as in perl, skip whitespace *)
+  let title = Fs.single_line_of_file tmpfile in
+  if String.equal title String.empty then begin
+    let issue_path = issue_filename_str title in
+    let path = Path.append open_dir issue_path in
+    (* check for filename conflicts and find a unique filename *)
+    let unique_path = find_unique_filename path in
+    Printf.printf "Moving %s to %s\n" 
+      (Path.to_string tmpfile) (Path.to_string unique_path);
+    (* TODO: error handling *)
+    ignore (Fs.move ~src:tmpfile ~dest:unique_path);
+    Printf.printf "Issue saved at: %s\n" (Path.to_string unique_path)
+  end else begin
+    Printf.eprintf "No changes were saved.\n";
+    (* cleanup empty tempfile *)
+    Sys.remove (Path.to_string tmpfile);
+    (* exit with non-standard exit code *)
+    exit 1
+  end
 
 let edit issue_path =
   let root = issue_dir () in
