@@ -1,5 +1,6 @@
-open Core
-module Sys = Sys_unix
+open Base
+module Filename = Stdlib.Filename
+module Sys = Stdlib.Sys
 
 type t = {
   title : string;
@@ -11,8 +12,7 @@ let title_to_filename title =
 
 let from_path path =
   let category = Filename.dirname path in 
-  path
-  |> In_channel.with_file ~f:In_channel.input_line
+  In_channel.with_open_text path In_channel.input_line
   |> Option.map ~f:(fun raw_title -> 
     let safe_title = title_to_filename raw_title in
     { title = safe_title; category = category })
