@@ -1,5 +1,8 @@
 type t
 
+(** The root directory. *)
+val root : t
+
 (** Create a [Path.t] from a string. *)
 val of_string : string -> t
 

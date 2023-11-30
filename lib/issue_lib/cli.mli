@@ -6,4 +6,3 @@ val search : string -> unit
 val status : unit -> unit
 val show : string -> unit
 val html : unit -> unit
-val validate : unit -> unit

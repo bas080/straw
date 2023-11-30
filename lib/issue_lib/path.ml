@@ -1,8 +1,12 @@
-(* we will treat all filepaths as unix and convert them to/from that
-   representation to the OS-native representation during of_string or
-   to_string. *)
+(* 
+  we will treat all filepaths as unix and convert them to/from that
+  representation to the OS-native representation during of_string or
+  to_string. 
+*)
 
 type t = string
+
+let root = "/"
 
 let of_string x = 
   if Sys.win32 then
@@ -50,7 +54,7 @@ let to_absolute path =
   concat (Stdlib.Sys.getcwd ()) path
 
 let extension path = 
-  let ext = Filename.extension (to_string path) in
+  let ext = Filename.extension path in
   if String.length ext > 0
   then Some ext
   else None
@@ -60,9 +64,9 @@ let has_extension ~ext path =
   | Some x -> String.equal x ("." ^ ext)
   | None -> false
 
-let is_directory path = Sys.is_directory (to_string path)
-let is_file path = Sys.is_regular_file (to_string path)
-let exists path = Sys.file_exists (to_string path)
+let is_directory path = Sys.is_directory path
+let is_file path = Sys.is_regular_file path
+let exists path = Sys.file_exists path
 
 let equal = String.equal
 let compare = String.compare

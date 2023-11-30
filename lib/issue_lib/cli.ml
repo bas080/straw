@@ -2,63 +2,44 @@ let issue_filename_str str =
   let filename = str |> String.trim |> Fs.safe_filename in
   filename ^ ".md"
 
-(* FIXME: what if we don't find it? *)
+(* Return a directory that contains the given [target_file], or [None]
+   if no file was found *)
 let rec find_parent_directory_with_file target_file start_dir =
-  let target_file = Filename.concat start_dir target_file in
-  if Sys.is_directory target_file then start_dir
+  let target_file = Path.concat start_dir target_file in
+  if Path.exists target_file then 
+    Some start_dir
+  else if Path.equal start_dir Path.root then
+    (* doesn't exist *)
+    None
   else
+    let parent = Path.parent start_dir in
     (* Move one dir up and try again *)
-    Filename.dirname start_dir |> find_parent_directory_with_file target_file
+    find_parent_directory_with_file target_file parent
 
-let root_dir () =
-  let start = Sys.getcwd () (* TODO: make env variable with default *) in
-  let target = "issue" in
-  Path.of_string (find_parent_directory_with_file target start)
+(* Returns the parent of the issue directory, considered the project root. *)
+let project_dir () =
+  let start = Path.of_string (Sys.getcwd ()) in
+  let target = Path.of_string "issue" in
+  match find_parent_directory_with_file target start with
+  | Some x -> x
+  | None ->
+    failwith (
+      Printf.sprintf "issue directory could not be found. use %s open to create issues."
+        Sys.executable_name)
 
-let issue_dir () =
-  let dir = root_dir () in
-  Path.append dir "issue"
-
-let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
-
-let wrap_issue_link title relative_path =
-  Printf.sprintf "<a class='issue-bookmark' id='%s' href='#%s'>🔖 %s</a>" title title
-    relative_path
-
-let replace_text_with_links text =
-  text
-  (* hashtags *)
-  |> Str.global_replace
-       (Str.regexp "[ \n\t]\\([A-Za-z0-9-]+\\)#")
-       "<a class=\"issue-hash\" title=\"Search hashtag \\1\" \
-        href=\"#\">\\1#</a>"
-  (* mentions *)
-  |> Str.global_replace
-       (Str.regexp "[ \n\t]@\\([A-Za-z0-9-]+\\)")
-       "<a class=\"issue-mention\" title=\"Search metnion \\1\" \
-        href=\"#\">@\\1</a>"
-  (* directories *)
-  |> Str.global_replace
-       (Str.regexp "[ \n\t]\\(/[A-Za-z0-9-]+\\)")
-       "<a class=\"issue-directory\" title=\"Search directory \\1\" \
-        href=\"#\">\\1</a>"
-
-let file_to_html file = Fs.read_entire_file file |> Omd.of_string |> Omd.to_html
-
-(* let to_html root =
-   traverse_directory root
-   |> List.map ~f:(fun x -> x |> file_to_html |> wrap_in_article)
-   |> String.concat ~sep:"\n\n\n" *)
-
-let list () =
-  let root = issue_dir () in
-  Fs.(traverse_directory root |> List.filter is_md_file)
-  |> List.iter (fun path -> print_endline (Path.to_string path))
+let issue_dir () = Path.append (project_dir ()) "issue"
 
 let move ~src ~dest = Sys.rename src dest
 
+let list () =
+  let root = issue_dir () in
+  Fs.traverse_directory root 
+  |> List.filter (Path.has_extension ~ext:"md")
+  |> List.iter (fun path -> print_endline (Path.to_string path))
+
 let open_file_with_editor path =
-  let editor = Sys.getenv "EDITOR" in
+  let getenv name default = Option.value ~default (Sys.getenv_opt name) in
+  let editor = getenv "EDITOR" "vi" in
   (* open the temporary file with the default editor *)
   Printf.sprintf "%s %s" editor (Path.to_quoted path) |> Sys.command |> ignore
 
@@ -87,8 +68,8 @@ let open_issue () =
   (* TODO: add same regex check as in perl *)
   match List.nth_opt lines 0 with
   | Some title ->
-      let issue_file = issue_filename_str title in
-      let path = Path.append open_dir issue_file in
+      let issue_path = issue_filename_str title in
+      let path = Path.append open_dir issue_path in
       (* check for filename conflicts and find a unique filename *)
       let unique_path = find_unique_filename (Path.to_string path) in
       Printf.printf "Moving %s to %s\n" (Path.to_string tmpfile) unique_path;
@@ -105,30 +86,27 @@ let open_issue () =
 let edit issue_path =
   let root = issue_dir () in
   let path = Path.append root issue_path in
-  if Sys.file_exists (Path.to_string path) 
+  if Path.exists path
   then open_file_with_editor path
   else Printf.eprintf "Issue %s does not exist\n" issue_path
 
 let search _root = ()
 
-let categories root =
-  root
-  |> Fs.ls_dir
-  |> List.map (Path.concat root)
-  |> List.filter Path.is_directory
-
 let md_files path =
-  let open Fs in
-  traverse_directory path
-  |> List.filter (fun file -> Path.is_file file && is_md_file file)
+  Fs.traverse_directory path
+  |> List.filter (fun path -> 
+      Path.is_file path && Path.has_extension ~ext:"md" path)
 
 let status () =
   let root = issue_dir () in
   Fs.ls_dir root
+  |> List.filter Path.is_directory
   |> List.map (fun dir ->
-         let count = Path.concat root dir |> md_files |> List.length in
+         let count = List.length (md_files dir) in
          (dir, count))
-  |> List.iter (fun (dir, count) -> Printf.printf "%s\t%i\n" (Path.to_string dir) count)
+  |> List.iter (fun (dir, count) -> 
+    let relpath = Path.(to_string (to_relative ~root dir)) in
+    Printf.printf "%s\t%i\n" relpath count)
 
 let show _root = ()
 
@@ -138,26 +116,59 @@ let split_on_issues content =
   | [ before; after ] -> Some (before, after)
   | _ -> None
 
+let issue_link title relative_path =
+  Printf.sprintf "<a class='issue-bookmark' id='%s' href='#%s'>🔖 %s</a>" title title
+    (Path.to_string relative_path)
+
+let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
+
+let replace_text_with_links text =
+  text
+  (* hashtags *)
+  |> Str.global_replace
+       (Str.regexp "[ \n\t]\\([A-Za-z0-9-]+\\)#")
+       "<a class=\"issue-hash\" title=\"Search hashtag \\1\" \
+        href=\"#\">\\1#</a>"
+  (* mentions *)
+  |> Str.global_replace
+       (Str.regexp "[ \n\t]@\\([A-Za-z0-9-]+\\)")
+       "<a class=\"issue-mention\" title=\"Search metnion \\1\" \
+        href=\"#\">@\\1</a>"
+  (* directories *)
+  |> Str.global_replace
+       (Str.regexp "[ \n\t]\\(/[A-Za-z0-9-]+\\)")
+       "<a class=\"issue-directory\" title=\"Search directory \\1\" \
+        href=\"#\">\\1</a>"
+
+let markdown_to_html text = 
+  text
+  |> Omd.of_string 
+  |> Omd.to_html
+
+let html_issues root path =
+  let lines = Fs.lines_of_file path in
+  let title =
+    lines 
+    |> (fun l -> List.nth_opt l 0)
+    |> Option.value ~default:"Untitled Issue"
+    |> issue_filename_str
+  in
+  (* read the source markdown file and replace all text with relevant links. *)
+  let markdown = replace_text_with_links (Fs.read_entire_file path) in
+  (* then turn it into html *)
+  let html = markdown_to_html markdown in
+  let issue_link = issue_link title (Path.to_relative ~root path) in
+  wrap_in_article (issue_link ^ html)
+
 let print_html_issues () =
   let root = issue_dir () in
-  categories root
-  |> List.concat_map md_files
-  |> List.map (fun file ->
-         let lines = Fs.lines_of_file file in
-         let title =
-           lines 
-           |> (fun l -> List.nth_opt l 0)
-           |> Option.value ~default:"Untitled Issue"
-           |> issue_filename_str
-         in
-         let md = file_to_html file in
-         wrap_issue_link title (Path.to_string (Path.to_relative ~root file)) ^ md
-         |> replace_text_with_links |> wrap_in_article)
+  md_files root
+  |> List.map (html_issues root)
   |> List.iter print_endline;
   ()
 
 let html () =
-  let template_path = Path.append (root_dir ()) "template.html" in
+  let template_path = Path.append (project_dir ()) "template.html" in
   let content = Fs.read_entire_file template_path in
   match split_on_issues content with
   | Some (before, after) ->
@@ -165,21 +176,3 @@ let html () =
       print_html_issues ();
       print_string after
   | None -> Printf.printf "No issues found.\n"
-
-let is_valid_commit_message_from_file file =
-  let lines = Fs.lines_of_file file in
-  not (List.is_empty lines)
-
-let validate () =
-  let root = issue_dir () in
-  let exit_code = ref 0 in
-  let open Fs in
-  traverse_directory root
-  |> List.filter (Path.has_extension ~ext:"md")
-  |> List.iter (fun file ->
-         if is_valid_commit_message_from_file file then
-           Printf.printf "valid\t%s\n" (Path.to_string file)
-         else (
-           Printf.printf "invalid\t%s\n" (Path.to_string file);
-           exit_code := 1));
-  exit !exit_code

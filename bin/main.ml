@@ -41,11 +41,6 @@ let html_cmd =
     (Cmd.info "html" ~doc:"Print issues as HTML")
     Term.(const html $ const ())
 
-let validate_cmd =
-  Cmd.v 
-    (Cmd.info "validate" ~doc:"Check issues are valid")
-    Term.(const validate $ const ())
-
 let subcommands = [
   list_cmd;
   open_cmd;
@@ -54,7 +49,6 @@ let subcommands = [
   search_cmd;
   status_cmd;
   html_cmd;
-  validate_cmd;
 ]
 
 let root_cmd =

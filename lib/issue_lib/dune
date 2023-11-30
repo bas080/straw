@@ -1,7 +1,9 @@
 (library
  (name issue_lib)
  (libraries
-  ;; regex
-  str
-  ;; markdown
-  omd))
+ ;; path handling
+ fpath
+ ;; regex
+ str
+ ;; markdown
+ omd))
