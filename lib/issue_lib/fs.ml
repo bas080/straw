@@ -25,6 +25,11 @@ let safe_filename filename =
   let r = Str.regexp "[^A-Za-z0-9.-]" in
   Str.global_replace r "_" filename
 
+let write_entire_file path content =
+  Out_channel.with_open_text 
+    (Path.to_string path)
+    (fun c -> Out_channel.output_string c content)
+
 let read_entire_file path = 
   In_channel.with_open_text (Path.to_string path) In_channel.input_all
 
