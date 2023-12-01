@@ -1,4 +1,4 @@
-import { tail, excludeIndex, notEquals } from "./helpers.mjs";
+import { identity, excludeIndex, notEquals } from "./helpers.mjs";
 
 const state = (initial) => {
   let registered = [];
@@ -10,23 +10,19 @@ const state = (initial) => {
     const index = registered.length;
 
     registered.push(internalOnState);
-    internalOnState(oldState);
+    pushState(identity)
 
     function pushState(...args) {
-      const [newValue] = args;
-
       // Removes the listener when no arguments are pushed.
       if (args.length === 0) {
         registered = excludeIndex(index, registered);
         return;
       }
 
-      oldState = registered.reduce((acc, fn) => fn(acc), newValue(oldState));
+      const [newValue] = args;
 
-      oldState = tail(registered).reduce(
-        (acc, fn) => fn(acc),
-        newValue(oldState),
-      );
+      oldState = registered.reduce((acc, fn) => fn(acc), newValue(oldState));
+      oldState = registered.reduce((acc, fn) => fn(acc), oldState);
 
       return oldState;
     }

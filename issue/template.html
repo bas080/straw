@@ -1,7 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>Rezerv / Issues</title>
+  <title>Issue / Issues</title>
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪣</text></svg>">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- simplecss -->
   <style>
@@ -12,19 +15,11 @@
 
 <body>
 
-  <header>
-    <h1>Rezerv / Issues</h1>
-
-    <p>
-    “Strive not to be a success, but rather to be of value.” –Albert Einstein
-    </p>
-
-  </header>
 
 <main>
 
-  <label for="search">Search</label>
-  <input id="search" placeholder="terms..." />
+  <label for="issue-search-input">Search</label>
+  <div id="issue-search"></div>
   <details>
     <summary>Search cheatsheet</summary>
     <dl>
@@ -71,32 +66,13 @@
 
   </details>
 
-  <ul id="issue-search-query"></ul>
+  <p id="issue-search-count"></p>
 
 
   <div class="issue-issues">
-<article class="issue-issue"><a class='issue-bookmark' id='i_love_it' href='#i_love_it'>🔖 /active/i_love_it.md</a><p>i love it</p>
-</article><article class="issue-issue"><a class='issue-bookmark' id='untitled_issue' href='#untitled_issue'>🔖 /open/.md</a>
-</article><article class="issue-issue"><a class='issue-bookmark' id='now_for_some_stdin' href='#now_for_some_stdin'>🔖 /open/now_for_some_stdin.md</a><p>now for some stdin</p>
 
-<p>This is some stdin stuff</p>
-</article><article class="issue-issue"><a class='issue-bookmark' id='__hello_world' href='#__hello_world'>🔖 /open/__Hello_world.md</a><h1>Hello world</h1>
+<!--issues-->
 
-<p>This is me</p>
-</article><article class="issue-issue"><a class='issue-bookmark' id='hello_world' href='#hello_world'>🔖 /open/hello_world.md</a><p>hello world</p>
-</article><article class="issue-issue"><a class='issue-bookmark' id='untitled_issue' href='#untitled_issue'>🔖 /open/_1.md</a>
-</article><article class="issue-issue"><a class='issue-bookmark' id='wow' href='#wow'>🔖 /open/wow_3.md</a><p>wow</p>
-</article><article class="issue-issue"><a class='issue-bookmark' id='lololol' href='#lololol'>🔖 /open/lololol.md</a><p>lololol</p>
-
-<p>How about that<a class="issue-hash" title="Search hashtag hash#" href="#">hash#</a> and then some.</p>
-</article><article class="issue-issue"><a class='issue-bookmark' id='wow' href='#wow'>🔖 /open/wow.md</a><p>Wow</p>
-</article><article class="issue-issue"><a class='issue-bookmark' id='wow' href='#wow'>🔖 /open/wow_2.md</a><p>wow</p>
-</article><article class="issue-issue"><a class='issue-bookmark' id='hi' href='#hi'>🔖 /open/hi.md</a><p>Hi</p>
-</article><article class="issue-issue"><a class='issue-bookmark' id='wow' href='#wow'>🔖 /open/wow_1.md</a><p>Wow</p>
-</article><article class="issue-issue"><a class='issue-bookmark' id='this_is_great' href='#this_is_great'>🔖 /open/This_is_great.md</a><p>This is great</p>
-
-<p>I love it</p>
-</article>
   </div>
 </main>
 
@@ -106,92 +82,52 @@
 
 </body>
 
-
-<script>
-function mapFocusable(elem, cb) {
-  for (const focusable of elem.querySelectorAll('a')) {
-    cb(focusable)
-  }
-}
-
-function isOdd(x) {
-  return (x % 2) === 1
-}
-
-function search (inputElement) {
-  const issues = Array.from(document.getElementsByClassName("issue-issue"))
-
-  const index = issues.map(issue => [issue, issue.textContent])
-
-  // Consider adding a better search.
-  function fuzzy (text, str) {
-    return text.includes(str)
-  }
-
-  function isEmpty(x) {
-    return x?.length === 0
-  }
-
-  function complement(fn) {
-    return (...args) => !fn(...args)
-  }
-
-  const isNotEmpty = complement(isEmpty)
-
-  inputElement.addEventListener("input", event => {
-    const { target: { value: search } } = event
-
-    // Support quoting using double quote.
-    const quoteSplit = search.split('"').reduce((acc, value, index) => {
-      if (isOdd(index)) return [...acc, value]
-
-      return acc.concat(value.split(' '))
-    }, []).filter(isNotEmpty)
-
-    document.getElementById('issue-search-query').innerHTML = quoteSplit.reduce((acc, value) => {
-      if (value.startsWith('@'))
-        return `${acc}\n<li class="issue-search-query-item issue-search-mention">🧑${value}</li>`
-
-      if (value.startsWith('/'))
-        return `${acc}\n<li class="issue-search-query-item issue-search-directory">📁${value}</li>`
-
-      if (value.endsWith('#'))
-        return `${acc}\n<li class="issue-search-query-item issue-search-hashtag">🏷️${value}</li>`
-
-      if (value.startsWith('='))
-        return `${acc}\n<li class="issue-search-query-item issue-search-word">🔎${value}</li>`
-
-
-      return `${acc}\n<li class="issue-search-query-item issue-search-term">${value.includes(" ") ? `"${value}"` : value}</li>`
-    }, '')
-
-    console.log(quoteSplit)
-
-    index.forEach(([elem, content]) => {
-      if (fuzzy(content, search)) {
-        elem.classList.remove('disabled')
-        mapFocusable(elem, focusable => {
-          focusable.removeAttribute('tabindex')
-        })
-      } else {
-        mapFocusable(elem, focusable => {
-          focusable.setAttribute('tabindex', '-1')
-        })
-        elem.classList.add("disabled")
-      }
-    })
-  })
-}
-
-search(document.getElementById("search"))
-</script>
-
-<!-- How cool is this -->
 <style>
 
-  #issue-search-query {
+label {
+  font-size: 1.2em;
+  opacity: 0.8;
+}
+
+article {
+  overflow: hidden;
+}
+
+#issue-search {
+  border: 1px solid var(--border);
+  border-radius: var(--standard-border-radius);
+  background-color: var(--accent-bg);
+  padding: min(1em, 4vw);
+  margin: 1em 0;
+}
+
+#issue-search ul {
+  margin: min(1em, 4vw) 0 0 0;
+}
+
+.issue-bookmark {
+  word-break: break-all;
+}
+
+.badge {
+  font-size: 0.8em;
+  padding: 0 0.5ex;
+  border-radius: 0.5em;
+}
+
+  .badge-primary {
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+  }
+
+  .issue-search-query-items {
     list-style-type: none;
     padding-left: 0;
+  }
+
+  .issue-search-query-items li {
+    display: inline-block;
+    margin-right: 1em;
   }
 
   .issue-search-query-item {
@@ -200,7 +136,15 @@ search(document.getElementById("search"))
     padding-left: 1ex;
     padding-right: 1ex;
     border-radius: 1ex;
-    background-color: var(--accent-bg);
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  .issue-search-query-or-item {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    margin-left: 0;
+    text-align: center;
   }
 
   .issue-search-mention,
@@ -220,7 +164,7 @@ search(document.getElementById("search"))
   }
 
   .issue-issues {
-    display:flex;
+    display: flex;
     flex-flow: column;
   }
 
@@ -255,12 +199,30 @@ search(document.getElementById("search"))
     opacity: 0.5;
   }
 
+  details summary {
+    font-weight: normal;
+  }
+
   details:focus-within, details:focus {
     opacity: 1;
   }
 
-  #search {
+  #issue-search-input {
     width: 100%;
   }
 
+  .issue-suggestion {
+    background: none;
+    color: var(--accent);
+    border: none;
+    text-decoration: underline;
+  }
+
+  .issue-suggestion:hover {
+    text-decoration: none;
+  }
+
 </style>
+
+<script src="bundle.js"></script>
+</html>

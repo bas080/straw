@@ -1,3 +1,4 @@
+const isNil = (x) => x == null;
 const partial = (fn, ...args) => fn.bind(null, ...args);
 const isEmpty = (x) => x.length === 0;
 const isOdd = (x) => x % 2 === 1;
@@ -18,11 +19,36 @@ const complement =
   (...args) =>
     !fn(...args);
 
+const indexSplit = (i, str) => [str.substring(0, i), str.substring(i)];
+const butLast = (arr) => arr.slice(0, -1);
+const last = (arr) => arr[arr.length - 1];
 const notEquals = complement(equals);
 const isNotEmpty = complement(isEmpty);
 const byKey = (object, defaultTo) => (key) => object[key] || defaultTo;
+const tap =
+  (fn) =>
+  (returned, ...args) => {
+    fn(returned, ...args);
+
+    return returned;
+  };
+
+const isNotNil = complement(isNil);
+const debounce = (milli, fn) => {
+  let timeout
+
+  return (...args) => {
+    if (timeout) clearTimeout(timeout)
+
+    timeout = setTimeout(() => {
+      fn(...args)
+    }, milli)
+  }
+}
 
 export {
+  isNil,
+  isNotNil,
   byKey,
   tail,
   notEquals,
@@ -33,4 +59,9 @@ export {
   noop,
   identity,
   partial,
+  tap,
+  butLast,
+  last,
+  indexSplit,
+  debounce,
 };

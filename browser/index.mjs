@@ -3,6 +3,15 @@ import search from "./search.mjs";
 import issues from "./issues.mjs";
 import state from "./state.mjs";
 
+const specialTokensRegex = /[@#\/]\w+/g;
+const specialTokens = Array.from(
+  new Set(
+    document
+      .querySelector(".issue-issues")
+      .textContent.match(specialTokensRegex),
+  ),
+);
+
 const searchTokens = (query) => {
   return query
     .split('"')
@@ -18,23 +27,15 @@ const onState = state(() => ({
   query: getQueryParam("q") || "",
   tokens: [],
   issuesPerToken: {},
+  specialTokens,
 }));
-
-onState((state) => {
-  // Keep hash up to date with state.
-  if (state.query) updateQueryParam("q", state.query);
-  else deleteQueryParam("q");
-
-  state.tokens = searchTokens(state.query);
-  return state;
-});
 
 function getQueryParam(parameterName) {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(parameterName);
 }
 
-function updateQueryParam(parameterName, newValue) {
+function setQueryParam(parameterName, newValue) {
   const urlParams = new URLSearchParams(window.location.search);
   urlParams.set(parameterName, newValue);
 
@@ -53,6 +54,15 @@ function deleteQueryParam(parameterName) {
   }`;
   history.replaceState({}, document.title, newUrl);
 }
+
+onState((state) => {
+  // Keep hash up to date with state.
+  if (state.query) setQueryParam("q", state.query);
+  else deleteQueryParam("q");
+
+  state.tokens = searchTokens(state.query);
+  return state;
+});
 
 search(onState);
 issues(onState);

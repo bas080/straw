@@ -1,3 +1,4 @@
+import { html, render } from "lit-html";
 import { onChange } from "./state.mjs";
 import { isEmpty } from "./helpers.mjs";
 
@@ -22,6 +23,7 @@ export default function search(onState) {
 
   const onQueryChange = onChange();
 
+  // Most of the code in onState should only be run if tokens has changed.
   onState((state, push) => {
     const { tokens } = state;
 
@@ -33,13 +35,31 @@ export default function search(onState) {
       });
     });
 
-    // Consider adding a better search.
+    const ors = tokens.reduce(
+      (acc, token) => {
+        if (token === "or") return [[], ...acc];
+
+        acc[0].push(token);
+
+        return acc;
+      },
+      [[]],
+    );
+
     function fuzzy(text, str) {
-      return tokens.every((token) => text.includes(token));
+      let matched;
+
+      return ors.some((tokens) =>
+        tokens.every((token) => text.includes(token)),
+      );
     }
 
+    state.matchedCount = 0;
+    state.issuesCount = 0;
     index.forEach(([elem, content]) => {
+      state.issuesCount += 1;
       if (isEmpty(state.tokens) || fuzzy(content, search)) {
+        state.matchedCount += 1;
         elem.classList.remove("disabled");
         mapFocusable(elem, (focusable) => {
           focusable.removeAttribute("tabindex");
@@ -51,6 +71,9 @@ export default function search(onState) {
         elem.classList.add("disabled");
       }
     });
+
+    document.getElementById("issue-search-count").innerText =
+      `Matched ${state.matchedCount} / ${state.issuesCount}`;
 
     return state;
   });
