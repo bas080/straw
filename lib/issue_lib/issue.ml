@@ -10,6 +10,21 @@
     actual file path. *)
 type t = { root : Path.t; path : Path.t }
 
+let find_unique_filename path =
+  (* literal copy of what was in perl, not the best for OCaml *)
+  let r = Str.regexp "\\.md" in
+  let rec count_files search counter = 
+    if Sys.file_exists search then begin
+      Printf.eprintf "Possible duplicate issue found:\t%s\n" search;
+      let search = 
+        Str.replace_first r 
+          (Printf.sprintf "_%i.md" counter)
+          (Path.to_string path)
+      in
+      count_files search (counter + 1)
+    end else search
+  in Path.(of_string (count_files (to_string path) 1))
+
 let slug_title title =
   let safe_title = 
     title
@@ -18,19 +33,21 @@ let slug_title title =
   in
   safe_title ^ ".md"
 
-let from_title ~root category title = 
-  let path = Path.(
-    append 
-      (of_string category)
-      (slug_title title)
-  ) in
-  { root; path }
-
 let from_path ~root path =
-  Some { root; path = Path.to_relative ~root path }
+  { root; path = Path.to_relative ~root path }
 
 let path issue =
   Path.concat issue.root issue.path
+
+let from_title ~root category title = 
+  let path = Path.(
+    concat
+      root
+      (append 
+        (of_string category)
+        (slug_title title))
+  ) |> find_unique_filename in
+  from_path ~root path
 
 let title issue = 
   path issue
@@ -47,7 +64,7 @@ let category issue =
 let all_issues root =
   Fs.traverse_directory root
   |> List.filter (Path.has_extension ~ext:"md")
-  |> List.filter_map (from_path ~root)
+  |> List.map (from_path ~root)
 
 let issue_link title relative_path =
   Printf.sprintf "<a class='issue-bookmark' id='%s' href='#%s'>🔖 %s</a>" title title

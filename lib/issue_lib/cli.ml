@@ -43,21 +43,6 @@ let open_file_with_editor path =
   |> Sys.command 
   |> ignore
 
-let find_unique_filename (path : Path.t) =
-  (* literal copy of what was in perl, not the best for OCaml *)
-  let r = Str.regexp "\\.md" in
-  let rec count_files search counter = 
-    if Sys.file_exists search then begin
-      Printf.eprintf "Possible duplicate issue found:\t%s\n" search;
-      let search = 
-        Str.replace_first r 
-          (Printf.sprintf "_%i.md" counter)
-          (Path.to_string path)
-      in
-      count_files search (counter + 1)
-    end else search
-  in Path.(of_string (count_files (to_string path) 1))
-
 let open_issue () =
   (* will create the file *)
   let root = issue_dir () in
@@ -72,14 +57,13 @@ let open_issue () =
   match Fs.single_line_of_file tmpfile with 
   | Some title when not (String.equal title String.empty) ->
     let issue = Issue.from_title ~root "open" title in
-    let path = Path.concat open_dir (Issue.path issue) in
+    let path = Issue.path issue in
     (* check for filename conflicts and find a unique filename *)
-    let unique_path = find_unique_filename path in
     Printf.printf "Moving %s to %s\n" 
-      (Path.to_string tmpfile) (Path.to_string unique_path);
+      (Path.to_string tmpfile) (Path.to_string path);
     (* TODO: error handling *)
-    ignore (Fs.move ~src:tmpfile ~dest:unique_path);
-    Printf.printf "Issue saved at: %s\n" (Path.to_string unique_path)
+    ignore (Fs.move ~src:tmpfile ~dest:path);
+    Printf.printf "Issue saved at: %s\n" (Path.to_string path)
   | Some _ | None -> 
     Printf.eprintf "No changes were saved.\n";
     (* cleanup empty tempfile *)
