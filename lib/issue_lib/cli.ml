@@ -29,17 +29,12 @@ let project_dir () =
 
 let issue_dir () = Path.append (project_dir ()) "issue"
 
-let md_files path =
-  Fs.traverse_directory path
-  |> List.filter (fun path -> 
-      Path.is_file path && Path.has_extension ~ext:"md" path)
-
 let list () =
   let root = issue_dir () in
-  md_files root
-  |> List.iter (fun path -> 
+  Issue.all_issues root
+  |> List.iter (fun issue -> 
     Path.(
-      path
+      Issue.path issue
       |> to_relative ~root
       |> to_string
       |> print_endline))
@@ -105,14 +100,19 @@ let search _root = ()
 
 let status () =
   let root = issue_dir () in
-  Fs.ls_dir root
-  |> List.filter Path.is_directory
-  |> List.map (fun dir ->
-      let count = List.length (md_files dir) in
-      (dir, count))
-  |> List.iter (fun (dir, count) -> 
-      let relpath = Path.(to_string (to_relative ~root dir)) in
-      Printf.printf "%s\t%i\n" relpath count)
+  Issue.all_issues root
+  |> List.to_seq
+  (* group by category *)
+  |> Seq.group (fun a b -> 
+      String.equal 
+        (Issue.category a)
+        (Issue.category b))
+  (* get a count for each category *)
+  |> Seq.map (fun s -> 
+      let category = s |> List.of_seq |> List.hd |> Issue.category in
+      (category, Seq.length s))
+  |> Seq.iter (fun (category, count) ->
+      Printf.printf "%s\t%i\n" category count)
 
 let show _root = ()
 
@@ -122,55 +122,10 @@ let split_on_issues content =
   | [ before; after ] -> Some (before, after)
   | _ -> None
 
-let issue_link title relative_path =
-  Printf.sprintf "<a class='issue-bookmark' id='%s' href='#%s'>🔖 %s</a>" title title
-    (Path.to_string relative_path)
-
-let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
-
-let replace_text_with_links text =
-  text
-  (* hashtags *)
-  |> Str.global_replace
-       (Str.regexp "[ \n\t]\\([A-Za-z0-9-]+\\)#")
-       "<a class=\"issue-hash\" title=\"Search hashtag \\1\" \
-        href=\"#\">\\1#</a>"
-  (* mentions *)
-  |> Str.global_replace
-       (Str.regexp "[ \n\t]@\\([A-Za-z0-9-]+\\)")
-       "<a class=\"issue-mention\" title=\"Search metnion \\1\" \
-        href=\"#\">@\\1</a>"
-  (* directories *)
-  |> Str.global_replace
-       (Str.regexp "[ \n\t]\\(/[A-Za-z0-9-]+\\)")
-       "<a class=\"issue-directory\" title=\"Search directory \\1\" \
-        href=\"#\">\\1</a>"
-
-let markdown_to_html text = 
-  text
-  |> Omd.of_string 
-  |> Omd.to_html
-
-let html_issues root path =
-  let lines = Fs.lines_of_file path in
-  let title =
-    lines 
-    |> (fun l -> List.nth_opt l 0)
-    |> Option.value ~default:"Untitled Issue"
-    |> issue_filename_str
-  in
-  (* read the source markdown file and replace all text with relevant links. *)
-  let markdown = replace_text_with_links (Fs.read_entire_file path) in
-  (* then turn it into html *)
-  let html = markdown_to_html markdown in
-  (* generate a link to the current issue *)
-  let issue_link = issue_link title (Path.to_relative ~root path) in
-  wrap_in_article (issue_link ^ html)
-
 let print_html_issues () =
   let root = issue_dir () in
-  md_files root
-  |> List.map (html_issues root)
+  Issue.all_issues root
+  |> List.map (Issue.to_html ~root)
   |> List.iter print_endline;
   ()
 
@@ -182,4 +137,4 @@ let html () =
       print_string before;
       print_html_issues ();
       print_string after
-  | None -> Printf.printf "Invalid template.html, does not contain <!--issues-->.\n"
+  | None -> Printf.eprintf "Invalid template.html, does not contain <!--issues-->.\n"

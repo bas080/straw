@@ -23,11 +23,13 @@ let temp_file ?dir prefix suffix =
   of_string (Filename.temp_file ?temp_dir prefix suffix)
 
 let parent = Fpath.parent
-let parts = Fpath.segs
+let parts path = 
+  List.filter (fun part -> not (String.equal String.empty part))
+    (Fpath.segs path)
 
 let to_relative ~root path = 
   (* for now we'll assume its always fine *)
-  Option.get (Fpath.relativize ~root path)
+  Option.get (Fpath.relativize ~root (Fpath.normalize path))
 
 let to_absolute path =
   concat (of_string (Sys.getcwd ())) path
