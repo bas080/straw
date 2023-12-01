@@ -43,19 +43,20 @@ let open_file_with_editor path =
   |> Sys.command 
   |> ignore
 
-let find_unique_filename path =
+let find_unique_filename (path : Path.t) =
   (* literal copy of what was in perl, not the best for OCaml *)
   let r = Str.regexp "\\.md" in
-  let counter = ref 1 in
-  let path = Path.to_string path in
-  let search = ref path in
-  while Sys.file_exists !search do
-    Printf.eprintf "Possible duplicate issue found:\t%s\n" !search;
-    let replacement = Printf.sprintf "_%i.md" !counter in
-    search := Str.replace_first r replacement path;
-    counter := !counter + 1
-  done;
-  Path.of_string !search
+  let rec count_files search counter = 
+    if Sys.file_exists search then begin
+      Printf.eprintf "Possible duplicate issue found:\t%s\n" search;
+      let search = 
+        Str.replace_first r 
+          (Printf.sprintf "_%i.md" counter)
+          (Path.to_string path)
+      in
+      count_files search (counter + 1)
+    end else search
+  in Path.(of_string (count_files (to_string path) 1))
 
 let open_issue () =
   (* will create the file *)
