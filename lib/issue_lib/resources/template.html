@@ -15,14 +15,6 @@
 
 <body>
 
-  <header>
-    <h1>Issue / Issues</h1>
-
-    <p>
-    “Strive not to be a success, but rather to be of value.” –Albert Einstein
-    </p>
-
-  </header>
 
 <main>
 
@@ -74,7 +66,7 @@
 
   </details>
 
-  <ul id="issue-search-query"></ul>
+  <p id="issue-search-count"></p>
 
 
   <div class="issue-issues">
@@ -90,8 +82,6 @@
 
 </body>
 
-
-<!-- How cool is this -->
 <style>
 
 label {
@@ -113,6 +103,10 @@ article {
 
 #issue-search ul {
   margin: min(1em, 4vw) 0 0 0;
+}
+
+.issue-bookmark {
+  word-break: break-all;
 }
 
 .badge {
@@ -144,6 +138,13 @@ article {
     border-radius: 1ex;
     background-color: var(--bg);
     color: var(--text);
+  }
+
+  .issue-search-query-or-item {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    margin-left: 0;
+    text-align: center;
   }
 
   .issue-search-mention,
@@ -210,7 +211,18 @@ article {
     width: 100%;
   }
 
+  .issue-suggestion {
+    background: none;
+    color: var(--accent);
+    border: none;
+    text-decoration: underline;
+  }
+
+  .issue-suggestion:hover {
+    text-decoration: none;
+  }
+
 </style>
 
-<script src="browser/bundle.js"></script>
+<script src="bundle.js"></script>
 </html>
