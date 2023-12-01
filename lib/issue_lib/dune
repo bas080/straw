@@ -7,3 +7,12 @@
  str
  ;; markdown
  omd))
+
+;; load template.html into binary
+(rule
+ (with-stdout-to
+  template.ml
+  (progn
+   (echo "let html = {|")
+   (cat resources/template.html)
+   (echo "|}"))))

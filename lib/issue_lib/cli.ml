@@ -112,9 +112,16 @@ let print_html_issues () =
   ()
 
 let html () =
-  let template_path = Path.append (project_dir ()) "template.html" in
-  let content = Fs.read_entire_file template_path in
-  match split_on_issues content with
+  let template_path = Path.append (issue_dir ()) "template.html" in
+  let template = 
+    (* if the template path doesn't exist, created it with the bundled 
+       template.html *)
+    if not (Path.exists template_path) then begin
+      Fs.write_entire_file template_path Template.html
+    end;
+    Fs.read_entire_file template_path
+  in
+  match split_on_issues template with
   | Some (before, after) ->
       print_string before;
       print_html_issues ();
