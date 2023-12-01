@@ -76,31 +76,30 @@ let open_issue () =
   (* extract the title from the contents (first line) *)
     (* TODO: read a few lines if the first one isn't used *)
     (* TODO: add same regex check as in perl, skip whitespace *)
-  let title = Fs.single_line_of_file tmpfile in
-  if String.equal title String.empty then begin
-    let issue_path = issue_filename_str title in
-    let path = Path.append open_dir issue_path in
-    (* check for filename conflicts and find a unique filename *)
-    let unique_path = find_unique_filename path in
-    Printf.printf "Moving %s to %s\n" 
-      (Path.to_string tmpfile) (Path.to_string unique_path);
-    (* TODO: error handling *)
-    ignore (Fs.move ~src:tmpfile ~dest:unique_path);
-    Printf.printf "Issue saved at: %s\n" (Path.to_string unique_path)
-  end else begin
+  match Fs.single_line_of_file tmpfile with 
+  | Some title when not (String.equal title String.empty) ->
+      let issue_path = issue_filename_str title in
+      let path = Path.append open_dir issue_path in
+      (* check for filename conflicts and find a unique filename *)
+      let unique_path = find_unique_filename path in
+      Printf.printf "Moving %s to %s\n" 
+        (Path.to_string tmpfile) (Path.to_string unique_path);
+      (* TODO: error handling *)
+      ignore (Fs.move ~src:tmpfile ~dest:unique_path);
+      Printf.printf "Issue saved at: %s\n" (Path.to_string unique_path)
+  | Some _ | None -> 
     Printf.eprintf "No changes were saved.\n";
     (* cleanup empty tempfile *)
     Sys.remove (Path.to_string tmpfile);
     (* exit with non-standard exit code *)
     exit 1
-  end
 
 let edit issue_path =
   let root = issue_dir () in
   let path = Path.append root issue_path in
   if Path.exists path
   then open_file_with_editor path
-  else Printf.eprintf "Issue %s does not exist\n" issue_path
+  else Printf.eprintf "Issue %s does not exist.\n" issue_path
 
 let search _root = ()
 
@@ -164,6 +163,7 @@ let html_issues root path =
   let markdown = replace_text_with_links (Fs.read_entire_file path) in
   (* then turn it into html *)
   let html = markdown_to_html markdown in
+  (* generate a link to the current issue *)
   let issue_link = issue_link title (Path.to_relative ~root path) in
   wrap_in_article (issue_link ^ html)
 
@@ -182,4 +182,4 @@ let html () =
       print_string before;
       print_html_issues ();
       print_string after
-  | None -> Printf.printf "No issues found.\n"
+  | None -> Printf.printf "Invalid template.html, does not contain <!--issues-->.\n"
