@@ -1,12 +1,8 @@
-let issue_filename_str str =
-  let filename = str |> String.trim |> Fs.safe_filename in
-  filename ^ ".md"
-
 (* Return a directory that contains the given [target_file], or [None]
    if no file was found *)
 let rec find_parent_directory_with_file target_file start_dir =
-  let target_file = Path.concat start_dir target_file in
-  if Path.exists target_file then 
+  let path = Path.concat start_dir target_file in
+  if Path.exists path then 
     Some start_dir
   else if Path.is_root start_dir then
     (* doesn't exist *)
@@ -24,7 +20,7 @@ let project_dir () =
   | Some x -> x
   | None ->
     failwith (
-      Printf.sprintf "issue directory could not be found. use %s open to create issues."
+      Printf.sprintf "issue directory could not be found. use '%s open' to create issues."
         Sys.executable_name)
 
 let issue_dir () = Path.append (project_dir ()) "issue"
@@ -63,7 +59,8 @@ let find_unique_filename path =
 
 let open_issue () =
   (* will create the file *)
-  let tmpfile = Path.temp_file ~dir:(issue_dir ()) "tmp-" ".md" in
+  let root = issue_dir () in
+  let tmpfile = Path.temp_file ~dir:root "tmp-" ".md" in
   let open_dir = Path.of_string "issue/open" in
   (* create the issue/open directory if it doesn't exit *)
   ignore (Fs.mkdir_p open_dir);
@@ -73,15 +70,15 @@ let open_issue () =
     (* TODO: add same regex check as in perl, skip whitespace *)
   match Fs.single_line_of_file tmpfile with 
   | Some title when not (String.equal title String.empty) ->
-      let issue_path = issue_filename_str title in
-      let path = Path.append open_dir issue_path in
-      (* check for filename conflicts and find a unique filename *)
-      let unique_path = find_unique_filename path in
-      Printf.printf "Moving %s to %s\n" 
-        (Path.to_string tmpfile) (Path.to_string unique_path);
-      (* TODO: error handling *)
-      ignore (Fs.move ~src:tmpfile ~dest:unique_path);
-      Printf.printf "Issue saved at: %s\n" (Path.to_string unique_path)
+    let issue = Issue.from_title ~root "open" title in
+    let path = Path.concat open_dir (Issue.path issue) in
+    (* check for filename conflicts and find a unique filename *)
+    let unique_path = find_unique_filename path in
+    Printf.printf "Moving %s to %s\n" 
+      (Path.to_string tmpfile) (Path.to_string unique_path);
+    (* TODO: error handling *)
+    ignore (Fs.move ~src:tmpfile ~dest:unique_path);
+    Printf.printf "Issue saved at: %s\n" (Path.to_string unique_path)
   | Some _ | None -> 
     Printf.eprintf "No changes were saved.\n";
     (* cleanup empty tempfile *)
@@ -125,7 +122,7 @@ let split_on_issues content =
 let print_html_issues () =
   let root = issue_dir () in
   Issue.all_issues root
-  |> List.map (Issue.to_html ~root)
+  |> List.map Issue.to_html
   |> List.iter print_endline;
   ()
 
