@@ -4,7 +4,8 @@
   "description": "Browser code for fancy issue features",
   "main": "index.mjs",
   "scripts": {
-    "build": "esbuild index.mjs --bundle --outfile=../issue/bundle.js",
+    "build": "esbuild index.mjs --bundle --outfile=bundle.js",
+    "postbuild": "inline-script-tags template.html ../lib/issue_lib/resources/template.html",
     "test": "tape *.test.mjs"
   },
   "author": "",
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.19.7",
+    "inline-scripts": "^1.7.4",
     "tape": "^5.7.2",
     "tape-check": "^1.0.0-rc.0"
   }
