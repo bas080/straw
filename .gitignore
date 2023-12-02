@@ -1,3 +1,4 @@
 _build/
 issue/index.html
 issue/template.html
+lib/issue_lib/resources/template.html
