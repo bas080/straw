@@ -138,7 +138,7 @@ sub print_html_issues {
 }
 
 sub print_html_issues_with_template {
-    my $template_path = parent_dir() . '/issue/template.html';
+    my $template_path = parent_dir() . '/lib/issue_lib/resources/template.html';
 
     # Read the content of the template file
     open my $fh, '<', $template_path or die "Cannot open file $template_path: $!";
