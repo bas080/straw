@@ -1,6 +1,7 @@
 import { html, render } from "lit-html";
 import { createRef, ref } from "lit-html/directives/ref.js";
 import {
+  identity,
   isEmpty,
   indexSplit,
   butLast,
@@ -31,18 +32,11 @@ const register = (onState) => {
     };
 
     const onSelectionChange = ({ target }) => {
-      push((state) => {
-        state.inputSelectionStart = state.queryInput.selectionStart;
-
-        return state;
-      });
+      push(identity);
     };
 
     state.onMouseUp = (event) => {
       onSelectionChange(event);
-      push((state) => {
-        return state;
-      });
     };
 
     state.onKeyUp = (event) => {
@@ -51,7 +45,6 @@ const register = (onState) => {
 
     state.onInput = (event) => {
       targetValue(onQueryChange)(event);
-      onSelectionChange(event);
     };
 
     state.onTokenRemove = (index) => {
@@ -60,7 +53,7 @@ const register = (onState) => {
 
     state.onSuggestionClick = (token) => (_event) => {
       const [before, after] = indexSplit(
-        state.inputSelectionStart,
+        state.queryInput.selectionStart,
         state.query,
       );
 
@@ -94,7 +87,7 @@ const tokenIcon = byKey(
 
 const searchTokenItem = (state, token, index, tokens) => {
   const { onTokenRemove } = state;
-  const count = state.issuesPerToken[token];
+  const count = state.issuesPerToken[token] || 0;
 
   if (token === "or") {
     return html`<li class="issue-search-query-or-item">or</li>`;
@@ -114,9 +107,11 @@ const searchTokenItem = (state, token, index, tokens) => {
 };
 
 const suggestions = (state) => {
+  if (!state.queryInput) return;
+
   // How to find the token you are editing? Diff?
   const current = last(
-    indexSplit(state.inputSelectionStart, state.query)[0].split(" "),
+    indexSplit(state.queryInput.selectionStart, state.query)[0].split(" "),
   );
 
   const tokens = state.specialTokens.filter((x) => x.startsWith(current));
