@@ -6,6 +6,7 @@
   "scripts": {
     "build": "esbuild index.mjs --bundle --outfile=bundle.js",
     "postbuild": "inline-script-tags template.html ../lib/issue_lib/resources/template.html",
+    "lint": "npx prettier -c .",
     "test": "tape *.test.mjs"
   },
   "author": "",
