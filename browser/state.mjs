@@ -1,8 +1,9 @@
-import { identity, excludeIndex, notEquals } from "./helpers.mjs";
+import { identity, excludeIndex, notEquals, isEmpty } from "./helpers.mjs";
 
 const state = (initial) => {
   let registered = [];
   let oldState = initial();
+  let queue = true;
 
   return function register(onState) {
     // Creates a unique reference for this function.
@@ -10,7 +11,7 @@ const state = (initial) => {
     const index = registered.length;
 
     registered.push(internalOnState);
-    pushState(identity)
+    pushState(identity);
 
     function pushState(...args) {
       // Removes the listener when no arguments are pushed.
@@ -21,10 +22,19 @@ const state = (initial) => {
 
       const [newValue] = args;
 
-      oldState = registered.reduce((acc, fn) => fn(acc), newValue(oldState));
-      oldState = registered.reduce((acc, fn) => fn(acc), oldState);
+      oldState = newValue(oldState);
 
-      return oldState;
+      if (queue) {
+        queueMicrotask(() => {
+          oldState = registered.reduce(
+            (acc, fn) => fn(acc),
+            newValue(oldState),
+          );
+          oldState = registered.reduce((acc, fn) => fn(acc), oldState);
+          queue = true;
+        });
+        queue = false;
+      }
     }
   };
 };
@@ -35,9 +45,8 @@ const firstCallSymbol = Symbol("firstCall");
 const onChange = (hasChanged = notEquals) => {
   let old = firstCallSymbol;
   return (value, cb) => {
-    // Only call callback when a change occurred.
     if (hasChanged(value, old) || old === firstCallSymbol)
-      queueMicrotask(() => cb(value, old === firstCallSymbol ? value : old), 0);
+      cb(value, old === firstCallSymbol ? value : old);
 
     old = value;
   };
