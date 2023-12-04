@@ -2,7 +2,7 @@
    if no file was found *)
 let rec find_parent_directory_with_file target_file start_dir =
   let path = Path.concat start_dir target_file in
-  if Path.exists path then 
+  if Path.exists path then
     Some start_dir
   else if Path.is_root start_dir then
     (* doesn't exist *)
@@ -28,7 +28,7 @@ let issue_dir () = Path.append (project_dir ()) "issue"
 let list () =
   let root = issue_dir () in
   Issue.all_issues root
-  |> List.iter (fun issue -> 
+  |> List.iter (fun issue ->
     Path.(
       Issue.path issue
       |> to_relative ~root
@@ -39,8 +39,8 @@ let open_file_with_editor path =
   let getenv name default = Option.value ~default (Sys.getenv_opt name) in
   let editor = getenv "EDITOR" "vi" in
   (* open the temporary file with the default editor *)
-  Printf.sprintf "%s %s" editor (Path.to_quoted path) 
-  |> Sys.command 
+  Printf.sprintf "%s %s" editor (Path.to_quoted path)
+  |> Sys.command
   |> ignore
 
 let open_issue () =
@@ -49,22 +49,22 @@ let open_issue () =
   let tmpfile = Path.temp_file ~dir:root "tmp-" ".md" in
   let open_dir = Path.of_string "issue/open" in
   (* create the issue/open directory if it doesn't exit *)
-  ignore (Fs.mkdir_p open_dir);
+  ignore (File_util.mkdir_p open_dir);
   open_file_with_editor tmpfile;
   (* extract the title from the contents (first line) *)
     (* TODO: read a few lines if the first one isn't used *)
     (* TODO: add same regex check as in perl, skip whitespace *)
-  match Fs.single_line_of_file tmpfile with 
+  match File_util.single_line_of_file tmpfile with
   | Some title when not (String.equal title String.empty) ->
     let issue = Issue.from_title ~root "open" title in
     let path = Issue.path issue in
     (* check for filename conflicts and find a unique filename *)
-    Printf.printf "Moving %s to %s\n" 
+    Printf.printf "Moving %s to %s\n"
       (Path.to_string tmpfile) (Path.to_string path);
     (* TODO: error handling *)
-    ignore (Fs.move ~src:tmpfile ~dest:path);
+    ignore (File_util.move ~src:tmpfile ~dest:path);
     Printf.printf "Issue saved at: %s\n" (Path.to_string path)
-  | Some _ | None -> 
+  | Some _ | None ->
     Printf.eprintf "No changes were saved.\n";
     (* cleanup empty tempfile *)
     Sys.remove (Path.to_string tmpfile);
@@ -85,12 +85,12 @@ let status () =
   Issue.all_issues root
   |> List.to_seq
   (* group by category *)
-  |> Seq.group (fun a b -> 
-      String.equal 
+  |> Seq.group (fun a b ->
+      String.equal
         (Issue.category a)
         (Issue.category b))
   (* get a count for each category *)
-  |> Seq.map (fun s -> 
+  |> Seq.map (fun s ->
       let category = s |> List.of_seq |> List.hd |> Issue.category in
       (category, Seq.length s))
   |> Seq.iter (fun (category, count) ->
@@ -113,13 +113,13 @@ let print_html_issues () =
 
 let html () =
   let template_path = Path.append (issue_dir ()) "template.html" in
-  let template = 
-    (* if the template path doesn't exist, created it with the bundled 
+  let template =
+    (* if the template path doesn't exist, created it with the bundled
        template.html *)
     if not (Path.exists template_path) then begin
-      Fs.write_entire_file template_path Template.html
+      File_util.write_entire_file template_path Template.html
     end;
-    Fs.read_entire_file template_path
+    File_util.read_entire_file template_path
   in
   match split_on_issues template with
   | Some (before, after) ->
