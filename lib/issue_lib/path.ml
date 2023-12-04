@@ -1,12 +1,12 @@
-(* 
+(*
   we will treat all filepaths as unix and convert them to/from that
   representation to the OS-native representation during of_string or
-  to_string. 
+  to_string.
 *)
 
 type t = Fpath.t
 
-let is_root path = 
+let is_root path =
   Fpath.is_root (Fpath.normalize path)
 
 (* for now we'll assume that strings are trusted, TODO: use Fpath.of_string *)
@@ -23,11 +23,11 @@ let temp_file ?dir prefix suffix =
   of_string (Filename.temp_file ?temp_dir prefix suffix)
 
 let parent = Fpath.parent
-let parts path = 
+let parts path =
   List.filter (fun part -> not (String.equal String.empty part))
     (Fpath.segs path)
 
-let to_relative ~root path = 
+let to_relative ~root path =
   (* for now we'll assume its always fine *)
   Option.get (Fpath.relativize ~root (Fpath.normalize path))
 
@@ -42,11 +42,11 @@ let extension path =
 
 let has_extension ~ext path = Fpath.has_ext ext path
 
-let is_directory path = 
+let is_directory path =
   Fpath.is_dir_path path || Sys.is_directory (to_string path)
 
-let is_file path = 
-  Fpath.is_file_path path || Sys.is_regular_file (to_string path)
+let is_file path =
+  Fpath.is_file_path path && Sys.is_regular_file (to_string path)
 
 let exists path = Sys.file_exists (to_string path)
 
