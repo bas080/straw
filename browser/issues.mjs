@@ -1,6 +1,6 @@
 import { html, render } from "lit-html";
 import { onChange } from "./state.mjs";
-import { isEmpty } from "./helpers.mjs";
+import { isEmpty, uniq } from "./helpers.mjs";
 
 function mapFocusable(elem, cb) {
   for (const focusable of elem.querySelectorAll("a")) {
@@ -13,6 +13,7 @@ export default function search(onState) {
   const index = issues.map((issue) => [issue, issue.textContent]);
 
   const issuesPerToken = (tokens) => {
+    tokens = uniq(tokens);
     return index.reduce((acc, [, content]) => {
       tokens.forEach((token) => {
         acc[token] = (acc[token] || 0) + Number(content.includes(token));
@@ -31,6 +32,7 @@ export default function search(onState) {
     onQueryChange(state.query, (a, b) => {
       push((state) => {
         state.issuesPerToken = issuesPerToken(tokens);
+
         return state;
       });
     });
