@@ -13,6 +13,16 @@ const noop = () => {};
 const identity = (x) => x;
 const equals = (a, b) => a === b;
 const tail = ([, ...tail]) => tail;
+const once = (fn) => {
+  let called = false;
+  let returned;
+  return (...args) => {
+    if (called) return returned;
+    called = true;
+    returned = fn(...args);
+    return returned;
+  };
+};
 
 const complement =
   (fn) =>
@@ -33,18 +43,19 @@ const tap =
     return returned;
   };
 
+const uniq = (arr) => [...new Set(arr)];
 const isNotNil = complement(isNil);
 const debounce = (milli, fn) => {
-  let timeout
+  let timeout;
 
   return (...args) => {
-    if (timeout) clearTimeout(timeout)
+    if (timeout) clearTimeout(timeout);
 
     timeout = setTimeout(() => {
-      fn(...args)
-    }, milli)
-  }
-}
+      fn(...args);
+    }, milli);
+  };
+};
 
 export {
   isNil,
@@ -64,4 +75,6 @@ export {
   last,
   indexSplit,
   debounce,
+  once,
+  uniq,
 };
