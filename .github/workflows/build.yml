@@ -1,0 +1,31 @@
+name: Build binary & run tests
+
+on: push
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          # - macos-latest
+          - ubuntu-latest
+          # we'll wait for windows to get v5.x support
+          # - windows-latest
+        ocaml-compiler:
+          # latest version supported by all platforms
+          - "5.1.x"
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v4
+
+      - name: Setup OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - run: opam install . --deps-only --with-test
+      - run: opam exec -- dune build --release
+      - run: GITHUB_ACTIONS=1 opam exec -- dune runtest
