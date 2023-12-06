@@ -10,8 +10,6 @@
     "lint": "npx prettier -c .",
     "test": "tape *.test.mjs"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "lit-html": "^3.1.0"
   },
