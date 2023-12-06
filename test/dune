@@ -1,5 +1,5 @@
-(tests
- (names issue path)
+(test
+ (name test_issue_lib)
  (libraries
   alcotest
   issue_lib))
