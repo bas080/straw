@@ -76,15 +76,15 @@ let replace_text_with_links text =
   text
   (* hashtags *)
   |> Str.global_replace
-       (Str.regexp {|[ \n\t]\([A-Za-z0-9-]+\)#|})
+       (Str.regexp {|\([A-Za-z0-9-]+\)#|})
        {|<a class="issue-hash" title="Search hashtag \1" href="#">\1#</a>|}
   (* mentions *)
   |> Str.global_replace
-       (Str.regexp {|[ \n\t]@\([A-Za-z0-9-]+\)|})
+       (Str.regexp {|@\([A-Za-z0-9-]+\)|})
        {|<a class="issue-mention" title="Search mention \1" href="#">@\1</a>"|}
   (* directories *)
   |> Str.global_replace
-       (Str.regexp {|[ \n\t]\(/[A-Za-z0-9-]+\)|})
+       (Str.regexp {|\(/[A-Za-z0-9-]+\)|})
        {|<a class="issue-directory" title="Search directory \1" href="#">\1</a>|}
 
 let markdown_to_html text =

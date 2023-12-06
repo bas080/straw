@@ -72,11 +72,11 @@ let test_to_html () =
         print_endline html;
         (* check contains links *)
         Alcotest.(check bool) "contains hello <a>@mike</a>" true
-          (contains html {|hello<a.*class="issue-mention".*@mike|});
+          (contains html {|hello <a.*class="issue-mention".*@mike|});
         Alcotest.(check bool) "contains hello <a>joe#</a></p>" true
-          (contains html {|hello<a.*class="issue-hash".*joe|});
+          (contains html {|hello <a.*class="issue-hash".*joe|});
         Alcotest.(check bool) "contains hello <a>robert</a>" true
-          (contains html {|hello<a.*class="issue-directory".*robert|});
+          (contains html {|hello <a.*class="issue-directory".*robert|});
         (* check contains article *)
         Alcotest.(check bool) "contains <article>" true
           (contains html "<article>")))
