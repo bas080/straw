@@ -23,6 +23,10 @@ const targetValue =
     fn(value, ...args);
 
 const register = (onState) => {
+  const root = document.getElementById("issue-search");
+
+  root.innerHTML = "";
+
   onState((state, push) => {
     const onQueryChange = (query) => {
       push((state) => {
@@ -68,7 +72,7 @@ const register = (onState) => {
     };
 
     // render
-    render(searchTemplate(state), document.getElementById("issue-search"));
+    render(searchTemplate(state), root);
 
     // communicate the tokens outside of this module.
     return state;
