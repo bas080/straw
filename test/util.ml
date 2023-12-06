@@ -9,5 +9,5 @@ let with_test_file path contents f =
 let with_test_dir path f =
   Sys.mkdir (Path.to_string path) 0o777;
   let res = f path in
-  Sys.rmdir (Path.to_string path);
+  ignore (Sys.command ("rm -r " ^ (Path.to_string path)));
   res
