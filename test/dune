@@ -1,5 +1,6 @@
 (test
  (name test_issue_lib)
+ (deps (universe))
  (libraries
   str
   alcotest
