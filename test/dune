@@ -1,5 +1,6 @@
 (test
  (name test_issue_lib)
  (libraries
+  str
   alcotest
   issue_lib))
