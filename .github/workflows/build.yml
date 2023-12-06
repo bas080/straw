@@ -21,6 +21,20 @@ jobs:
       - name: Checkout tree
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          check-latest: true
+
+      - run: npm ci
+        working-directory: browser
+
+      - run: npm run build
+        working-directory: browser
+
+      - run: npm test
+        working-directory: browser
+
       - name: Setup OCaml ${{ matrix.ocaml-compiler }}
         uses: ocaml/setup-ocaml@v2
         with:
