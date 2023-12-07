@@ -9,6 +9,9 @@ module Block : sig
 
     (** iterate over the inline elements of a block. *)
     val iter : f:('a inline -> unit) -> 'a t -> unit
+
+    val find : f:('a inline -> bool) -> 'a t -> 'a inline option
+    val find_map : f:('a inline -> 'b option) -> 'a t -> 'a inline option
 end
 
 module Document : sig
@@ -20,10 +23,31 @@ module Document : sig
 
     (** iterate over each block in a document *)
     val iter: f:(attr Block.t -> unit) -> t -> unit
+
+    (** attempt to find an element that matches the given predicate *)
+    val find : f:(attr Block.t -> bool) -> t -> attr Block.t option
+    val find_map : f:(attr Block.t -> 'b option) -> t -> 'b option
 end
 
 (** Same as Document.map ~f:(Block.map ~f), but also handles Omd.Concat types. *)
-val inline_map : f:(Document.attr Block.inline -> Document.attr Block.inline) -> Document.t -> Document.t
+val inline_map :
+    f:(Document.attr Block.inline -> Document.attr Block.inline)
+    -> Document.t
+    -> Document.t
 
 (** Same as Document.iter ~f:(Block.iter ~f), but also handles Omd.Concat types. *)
-val inline_iter : f:(Document.attr Block.inline -> unit) -> Document.t -> unit
+val inline_iter :
+    f:(Document.attr Block.inline -> unit)
+    -> Document.t
+    -> unit
+
+val inline_find :
+    f:(Document.attr Block.inline -> bool)
+    -> Document.t
+    -> Document.attr Block.inline option
+
+(* FIXME: type signatures are completely borked *)
+val inline_find_map :
+    f:('a Block.inline -> 'b option)
+    -> 'a Block.t list
+    -> 'a Block.inline option
