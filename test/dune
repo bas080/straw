@@ -1,7 +1,8 @@
-(test
- (name test_issue_lib)
+(tests
+ (names test_issue_lib omd_test)
  (deps (universe))
  (libraries
+  omd
   str
   alcotest
   issue_lib))
