@@ -30,16 +30,38 @@ let extract_links attr text =
       | Str.Text (s) ->
         Omd.Text (attr, s))
 
+let title doc =
+  (* attempt to find a heading element *)
+  let title_opt =
+    Omd_ext.Document.find_map
+      ~f:(function
+        | Omd.Heading (_, _, Omd.Text (_, s)) -> Some s
+        | _ -> None)
+      doc
+  in
+  (* try and use the first text element *)
+  let _text_opt =
+    Omd_ext.inline_find_map
+      ~f:(function
+      | Omd.Text (_, s) -> Some s
+      | _ -> None)
+      doc
+  in
+  (* use the first text that's found *)
+  Option.value title_opt ~default:"Untitled document"
+
 let md_file_path = "test.md"
 let () =
   Printf.printf "==> Running under %s\n" (Sys.getcwd ());
-  let md_file = In_channel.with_open_text md_file_path In_channel.input_all in
   Printf.printf "============ ORIGINAL ============\n";
+  let md_file = In_channel.with_open_text md_file_path In_channel.input_all in
   print_endline md_file;
+  Printf.printf "============= PRINTED ============\n";
   let doc = Omd.of_string md_file in
-  Printf.printf "============ PRINTED ============\n";
   print_markdown doc;
-  Printf.printf "========== TRANSFORMED ==========\n";
+  Printf.printf "=========== TRANSFORMED ==========\n";
+  let title = title doc in
+  Printf.printf "title would be: %s\n" title;
   let f = function
   | Omd.Text (attr, s) as t ->
     let links = extract_links attr s in
@@ -48,6 +70,8 @@ let () =
     else Omd.Concat (attr, extract_links attr s)
   | _ as x -> x
   in
-  let new_doc = Omd_ext.inline_map ~f doc in
-  print_endline (Omd.to_html new_doc);
+  doc
+  |> Omd_ext.inline_map ~f
+  |> Omd.to_html
+  |> print_endline
 
