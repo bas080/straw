@@ -49,10 +49,17 @@ let from_title ~root category title =
   ) |> find_unique_filename in
   from_path ~root path
 
+let title_from_md doc =
+  doc
+  |> Omd_ext.inline_find_map
+      ~f:(function Omd.Text (_, s) -> Some s | _ -> None)
+  |> Option.value ~default:"Untitled document"
+
 let title issue =
   path issue
-  |> File_util.single_line_of_file
-  |> Option.value ~default:""
+  |> File_util.read_entire_file
+  |> Omd.of_string
+  |> title_from_md
 
 let category issue =
   (* path is already relative*)
@@ -72,32 +79,43 @@ let issue_link title relative_path =
 
 let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
 
-let replace_text_with_links text =
-  text
-  (* hashtags *)
-  |> Str.global_replace
-       (Str.regexp {|\([A-Za-z0-9-]+\)#|})
-       {|<a class="issue-hash" title="Search hashtag \1" href="#">\1#</a>|}
-  (* mentions *)
-  |> Str.global_replace
-       (Str.regexp {|@\([A-Za-z0-9-]+\)|})
-       {|<a class="issue-mention" title="Search mention \1" href="#">@\1</a>|}
-  (* directories *)
-  |> Str.global_replace
-       (Str.regexp {|\(/[A-Za-z0-9-]+\)|})
-       {|<a class="issue-directory" title="Search directory \1" href="#">\1</a>|}
+(* split a string, extracting a list of Omd.Link and Omd.Text *)
+let split_links attr (tag, r) text =
+  Str.full_split r text
+  |> List.map (function
+    | Str.Delim (s) ->
+      let label = Omd.Text (attr, s) in
+      let title = Some ("Search " ^ tag ^ " " ^ s) in
+      Omd.Link (
+        [("class", "issue-" ^ tag)],
+        { Omd.title; label; destination = "#" })
+    | Str.Text (s) -> Omd.Text (attr, s))
 
-let markdown_to_html text =
-  text
-  |> Omd.of_string
-  |> Omd.to_html
+let mention_regexp = Str.regexp {|@\([A-Za-z0-9]+\)|}
+let hashtag_regexp = Str.regexp {|#\([A-Za-z0-9]+\)|}
+
+let extract_links attr text =
+  split_links attr ("mention", mention_regexp) text
+  |> List.concat_map (
+    function
+    | Omd.Text (attr, s) -> split_links attr ("hashtag", hashtag_regexp) s
+    | _ as x -> [x])
+
+let replace_text_with_links = Omd_ext.inline_map ~f:(function
+  | Omd.Text (attr, s) as t ->
+    let links = extract_links attr s in
+    if List.is_empty links
+    then t
+    else Omd.Concat (attr, links)
+  | _ as x -> x)
 
 let to_html issue =
   let path = path issue in
   (* read the source markdown file and replace all text with relevant links. *)
-  let markdown = replace_text_with_links (File_util.read_entire_file path) in
+  let markdown = Omd.of_string (File_util.read_entire_file path) in
+  let markdown = replace_text_with_links markdown in
   (* then turn it into html *)
-  let html = markdown_to_html markdown in
+  let html = Omd.to_html markdown in
   (* generate a link to the current issue *)
   let issue_link = issue_link (title issue)
     (Path.to_relative ~root:issue.root path)

@@ -52,8 +52,7 @@ let open_issue () =
   ignore (File_util.mkdir_p open_dir);
   open_file_with_editor tmpfile;
   (* extract the title from the contents (first line) *)
-    (* TODO: read a few lines if the first one isn't used *)
-    (* TODO: add same regex check as in perl, skip whitespace *)
+  (* FIXME: SHOULDNT BE THE ONE RESPONSIBLE FOR THIS *)
   match File_util.single_line_of_file tmpfile with
   | Some title when not (String.equal title String.empty) ->
     let issue = Issue.from_title ~root "open" title in
