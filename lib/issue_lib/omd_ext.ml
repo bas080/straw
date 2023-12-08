@@ -1,7 +1,4 @@
 module Block = struct
-  type 'a t = 'a Omd.block
-  type 'a inline = 'a Omd.inline
-
   (* taken from https://github.com/ocaml/omd/blob/373e3f80e48001a62daf4072373ad3aa589ca65f/src/ast_block.ml#L62 *)
   let rec map ~f = function
   | Omd.Paragraph (attr, x) -> Omd.Paragraph (attr, f x)
@@ -32,19 +29,16 @@ module Block = struct
   (* TODO: definiton_list, table *)
   | _ -> None
 
-  let find_map ~f = find ~f:(fun x -> Option.is_some (f x))
+  (* let find_map ~f = find ~f:(fun x -> Option.is_some (f x)) *)
 
   let iter ~f block = map ~f:(fun x -> f x; x) block |> ignore
 end
 
 module Document = struct
-  type t = Omd.doc
-  type attr = Omd.attributes
-
   let map ~f = List.map f
   let iter ~f = List.iter f
   let find ~f = List.find_opt f
-  let find_map ~f = List.find_map f
+  (* let find_map ~f = List.find_map f *)
 end
 
 let inline_map ~f =
@@ -68,11 +62,11 @@ let inline_find ~f =
   | Omd.Concat (_, xs) -> List.exists f' xs
   | _ as inline -> f inline
   in
-  Document.find_map ~f:(Block.find ~f:f')
+  List.find_map (Block.find ~f:f')
 
-let inline_find_map ~f =
+(* let inline_find_map ~f =
   let rec f' = function
   | Omd.Concat (_, xs) -> List.find_map f' xs
   | _ as inline -> f inline
   in
-  Document.find_map ~f:(Block.find_map ~f:f')
+  Document.find_map ~f:(Block.find_map ~f:f') *)

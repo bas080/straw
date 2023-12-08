@@ -30,7 +30,12 @@ let extract_links attr text =
       | Str.Text (s) ->
         Omd.Text (attr, s))
 
-let title doc =
+let pick_option o1 o2 =
+  if Option.is_some o1
+  then o1
+  else o2
+
+(* let title doc =
   (* attempt to find a heading element *)
   let title_opt =
     Omd_ext.Document.find_map
@@ -40,7 +45,7 @@ let title doc =
       doc
   in
   (* try and use the first text element *)
-  let _text_opt =
+  let text_opt =
     Omd_ext.inline_find_map
       ~f:(function
       | Omd.Text (_, s) -> Some s
@@ -48,7 +53,8 @@ let title doc =
       doc
   in
   (* use the first text that's found *)
-  Option.value title_opt ~default:"Untitled document"
+  pick_option title_opt text_opt
+  |> Option.value ~default:"Untitled document" *)
 
 let md_file_path = "test.md"
 let () =
@@ -60,8 +66,8 @@ let () =
   let doc = Omd.of_string md_file in
   print_markdown doc;
   Printf.printf "=========== TRANSFORMED ==========\n";
-  let title = title doc in
-  Printf.printf "title would be: %s\n" title;
+  (* let title = title doc in *)
+  (* Printf.printf "title would be: %s\n" title; *)
   let f = function
   | Omd.Text (attr, s) as t ->
     let links = extract_links attr s in
