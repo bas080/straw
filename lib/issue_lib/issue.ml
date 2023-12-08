@@ -1,29 +1,20 @@
 (* open Containers *)
 
-(* OUTDATED: the possible original source path of the issue. this may not be
-    set if the issue is created new, but it exists so that files that
-    are created with "invalid" filepaths are still able to be used/updated.
-
-    If we try and create a path based on title and category only, while
-    ignoring the original filepath we have a problem where issues can be
-    loaded but not read, since the generated file path is different than the
-    actual file path. *)
 type t = { root : Path.t; path : Path.t }
 
+(* the functional implementation of this is much more obtuse *)
 let find_unique_filename path =
-  (* literal copy of what was in perl, not the best for OCaml *)
-  let r = Str.regexp "\\.md" in
-  let rec count_files search counter =
-    if Sys.file_exists search then begin
-      Printf.eprintf "Possible duplicate issue found:\t%s\n" search;
-      let search =
-        Str.replace_first r
-          (Printf.sprintf "_%i.md" counter)
-          (Path.to_string path)
-      in
-      count_files search (counter + 1)
-    end else search
-  in Path.(of_string (count_files (to_string path) 1))
+  let path = Path.to_string path in
+  let r = Str.regexp {|\.md|} in
+  let counter = ref 1 in
+  let search = ref path in
+  while Sys.file_exists !search do
+    Printf.printf "Possible duplicate issue found:\t%s\n" !search;
+    let replacement = Printf.sprintf "_%i.md" !counter in
+    search := Str.replace_first r replacement path;
+    counter := !counter + 1
+  done;
+  Path.of_string !search
 
 let slug_title title =
   let safe_title =

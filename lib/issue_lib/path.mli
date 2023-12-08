@@ -30,16 +30,20 @@ val parts : t -> string list
 (** Convert the path to be relative to the given root path. *)
 val to_relative : root:t -> t -> t
 
-(** Convert the path to be absolute. It uses the value of getcwd as 
+(** Convert the path to be absolute. It uses the value of getcwd as
     the base path. *)
 val to_absolute : t -> t
+
+(** Return the last segment of a path if it represents a file, empty
+    string otherwise *)
+val filename : t -> string
 
 (** Returns the extension of the file (without the .), if any exists. *)
 val extension : t -> string option
 
 (** Returns true if the path has an extension that matches
     the [ext] parameter.
-    
+
     {[
         Path.of_string "test.md" |> Path.has_extension ~ext:"md"
     ]}
