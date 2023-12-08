@@ -34,6 +34,8 @@ let to_relative ~root path =
 let to_absolute path =
   concat (of_string (Sys.getcwd ())) path
 
+let filename = Fpath.filename
+
 let extension path =
   let ext = Fpath.get_ext path in
   if String.length ext > 0
