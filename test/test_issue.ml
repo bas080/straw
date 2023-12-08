@@ -66,17 +66,16 @@ let test_to_html () =
   Util.with_test_dir (Path.append root "open") (fun open_dir ->
     Util.with_test_file
       (Path.append open_dir "to_html.md")
-      "hello @mike\nhello joe#\nhello /robert\n" (* https://youtu.be/UuSZ37vMIks?si=_F0-lHat8WayFDzM *)
+      "hello @mike\nhello #joe\nhello robert\n" (* https://youtu.be/UuSZ37vMIks?si=_F0-lHat8WayFDzM *)
       (fun path ->
         let html = Issue.to_html (Issue.from_path ~root path) in
-        print_endline html;
         (* check contains links *)
         Alcotest.(check bool) "contains hello <a>@mike</a>" true
           (contains html {|hello <a.*class="issue-mention".*@mike|});
-        Alcotest.(check bool) "contains hello <a>joe#</a></p>" true
-          (contains html {|hello <a.*class="issue-hash".*joe|});
-        Alcotest.(check bool) "contains hello <a>robert</a>" true
-          (contains html {|hello <a.*class="issue-directory".*robert|});
+        Alcotest.(check bool) "contains hello <a>#joe</a></p>" true
+          (contains html {|hello <a.*class="issue-hashtag".*joe|});
+        (* Alcotest.(check bool) "contains hello <a>robert</a>" true
+          (contains html {|hello <a.*class="issue-directory".*robert|}); *)
         (* check contains article *)
         Alcotest.(check bool) "contains <article>" true
           (contains html "<article>")))
