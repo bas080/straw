@@ -30,31 +30,16 @@ let extract_links attr text =
       | Str.Text (s) ->
         Omd.Text (attr, s))
 
-let pick_option o1 o2 =
-  if Option.is_some o1
-  then o1
-  else o2
-
 let title doc =
-  (* attempt to find a heading element *)
-  let title_opt =
-    Omd_ext.Document.find_map
-      ~f:(function
-        | Omd.Heading (_, _, Omd.Text (_, s)) -> Some s
-        | _ -> None)
-      doc
-  in
-  (* try and use the first text element *)
+  (* use the first text that's found *)
   let text_opt =
-    Omd_ext.inline_find_map
+    (* TODO: concat elements found in a Concat *)
+    Omd_ext.inline_find_map doc
       ~f:(function
       | Omd.Text (_, s) -> Some s
       | _ -> None)
-      doc
   in
-  (* use the first text that's found *)
-  pick_option title_opt text_opt
-  |> Option.value ~default:"Untitled document"
+  Option.value text_opt ~default:"Untitled document"
 
 let md_file_path = "test.md"
 let () =
