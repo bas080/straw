@@ -11,41 +11,53 @@ let print_inline md =
 
 let print_markdown = Omd_ext.inline_iter ~f:print_inline
 
-let rs = [
-  Str.regexp {|@\([A-Za-z0-9]+\)|};
-  Str.regexp {|\([A-Za-z0-9-]+\)#|};
-  Str.regexp {|\(/[A-Za-z0-9-]+\)|};
-]
+let mention_regexp = Str.regexp {|@\([A-Za-z0-9]+\)|}
+let hashtag_regexp = Str.regexp {|#\([A-Za-z0-9]+\)|}
+(* FIXME: this regex doesn't work *)
+let directory_regexp = Str.regexp {|\(/[A-Za-z0-9]+\)|}
 
-let extract_links attr text =
-  let r = List.hd rs in
+(* split a string, extracting a list of Omd.Link and Omd.Text *)
+let split_links attr (tag, r) text =
   Str.full_split r text
   |> List.map (function
-      | Str.Delim(s) ->
-        let label = Omd.Text (attr, s) in
-        let title = Some ("Search mention " ^ s) in
-        Omd.Link (
-          [("class", "issue-mention")],
-          { Omd.title; label; destination = "#" })
-      | Str.Text (s) ->
-        Omd.Text (attr, s))
+    | Str.Delim (s) ->
+      let label = Omd.Text (attr, s) in
+      let title = Some ("Search " ^ tag ^ " " ^ s) in
+      Omd.Link (
+        [("class", "issue-" ^ tag)],
+        { Omd.title; label; destination = "#" })
+    | Str.Text (s) -> Omd.Text (attr, s))
+
+let extract_links attr text =
+  split_links attr ("mention", mention_regexp) text
+  |> List.concat_map (
+    function
+    | Omd.Text (attr, s) -> split_links attr ("hashtag", hashtag_regexp) s
+    | _ as x -> [x])
 
 let title doc =
   (* use the first text that's found *)
   let text_opt =
-    (* TODO: concat elements found in a Concat *)
+    (* TODO: concat elements found in a Concat, will break on e.g.
+       "hello [my link](a-link)", returning "hello " *)
     Omd_ext.inline_find_map doc
-      ~f:(function
-      | Omd.Text (_, s) -> Some s
-      | _ -> None)
+      ~f:(function Omd.Text (_, s) -> Some s | _ -> None)
   in
   Option.value text_opt ~default:"Untitled document"
 
-let md_file_path = "test.md"
+let md_file = {|
+# hello @mike
+
+hello @joe, hello @mike
+
+# #erlang
+
+have you seen the #erlang movie?
+|}
+
 let () =
   Printf.printf "==> Running under %s\n" (Sys.getcwd ());
   Printf.printf "============ ORIGINAL ============\n";
-  let md_file = In_channel.with_open_text md_file_path In_channel.input_all in
   print_endline md_file;
   Printf.printf "============= PRINTED ============\n";
   let doc = Omd.of_string md_file in
@@ -58,7 +70,7 @@ let () =
     let links = extract_links attr s in
     if List.is_empty links
     then t (* no links, dont change text *)
-    else Omd.Concat (attr, extract_links attr s)
+    else Omd.Concat (attr, links)
   | _ as x -> x
   in
   doc
