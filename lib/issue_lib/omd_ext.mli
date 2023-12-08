@@ -20,50 +20,49 @@ module Block : sig
         -> 'a block
         -> 'a inline option
 
-    (* val find_map :
+    val find_map :
         f:('a inline -> 'b option)
         -> 'a block
-        -> 'b option *)
+        -> 'b option
 end
 
 module Document : sig
     (** map over each block in a document *)
-    val map : f:(attributes block -> attributes block) -> doc -> doc
+    val map : f:('a block -> 'a block) -> 'a block list -> 'a block list
 
     (** iterate over each block in a document *)
-    val iter: f:(attributes block -> unit) -> doc -> unit
+    val iter: f:('a block -> unit) -> 'a block list -> unit
 
     (** attempt to find an element that matches the given predicate *)
     val find :
-        f:(attributes block -> bool)
-        -> doc
-        -> attributes block option
+        f:('a block -> bool)
+        -> 'a block list
+        -> 'a block option
 
-    (* val find_map :
-        f:(attributes block -> 'b option)
-        -> doc
-        -> 'b option *)
+    val find_map :
+        f:('a block -> 'b option)
+        -> 'a block list
+        -> 'b option
 end
 
-(** Same as Document.map ~f:(Block.map ~f), but also handles Concat types. *)
+(** Same as Document.map ~f:(Block.map ~f) *)
 val inline_map :
-    f:(attributes inline -> attributes inline)
-    -> doc
-    -> doc
+    f:('a inline -> 'a inline)
+    -> 'a block list
+    -> 'a block list
 
-(** Same as Document.iter ~f:(Block.iter ~f), but also handles Concat types. *)
+(** Same as Document.iter ~f:(Block.iter ~f) *)
 val inline_iter :
-    f:(attributes inline -> unit)
-    -> doc
+    f:('a inline -> unit)
+    -> 'a block list
     -> unit
 
 val inline_find :
-    f:(attributes inline -> bool)
-    -> doc
-    -> attributes inline option
+    f:('a inline -> bool)
+    -> 'a block list
+    -> 'a inline option
 
-(* FIXME: type signatures are completely borked *)
-(* val inline_find_map :
+val inline_find_map :
     f:('a inline -> 'b option)
-    -> doc
-    -> 'b option *)
+    -> 'a block list
+    -> 'b option
