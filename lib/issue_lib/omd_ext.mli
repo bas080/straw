@@ -1,53 +1,67 @@
 (* Extensions to Omd, the markdown parser *)
 
 module Block : sig
-    type 'a t = 'a Omd.block
-    type 'a inline = 'a Omd.inline
-
     (** map over the inline elements in a block. *)
-    val map : f:('a inline -> 'a inline) -> 'a t -> 'a t
+    val map :
+        f:('a Omd.inline -> 'a Omd.inline)
+        -> 'a Omd.block
+        -> 'a Omd.block
 
     (** iterate over the inline elements of a block. *)
-    val iter : f:('a inline -> unit) -> 'a t -> unit
+    val iter :
+        f:('a Omd.inline -> unit)
+        -> 'a  Omd.block
+        -> unit
 
-    val find : f:('a inline -> bool) -> 'a t -> 'a inline option
-    val find_map : f:('a inline -> 'b option) -> 'a t -> 'a inline option
+    val find :
+        f:('a Omd.inline -> bool)
+        -> 'a Omd.block
+        -> 'a Omd.inline option
+
+    (* val find_map :
+        f:('a Omd.inline -> 'b option)
+        -> 'a Omd.block
+        -> 'b option *)
 end
 
 module Document : sig
-    type t = Omd.doc
-    type attr = Omd.attributes
-
     (** map over each block in a document *)
-    val map : f:(attr Block.t -> attr Block.t) -> t -> t
+    val map : f:(Omd.attributes Omd.block -> Omd.attributes Omd.block) -> Omd.doc -> Omd.doc
 
     (** iterate over each block in a document *)
-    val iter: f:(attr Block.t -> unit) -> t -> unit
+    val iter: f:(Omd.attributes Omd.block -> unit) -> Omd.doc -> unit
 
     (** attempt to find an element that matches the given predicate *)
-    val find : f:(attr Block.t -> bool) -> t -> attr Block.t option
-    val find_map : f:(attr Block.t -> 'b option) -> t -> 'b option
+    val find :
+        f:(Omd.attributes Omd.block -> bool)
+        -> Omd.doc
+        -> Omd.attributes Omd.block option
+
+    (* val find_map :
+        f:(Omd.attributes Omd.block -> 'b option)
+        -> Omd.doc
+        -> 'b option *)
 end
 
 (** Same as Document.map ~f:(Block.map ~f), but also handles Omd.Concat types. *)
 val inline_map :
-    f:(Document.attr Block.inline -> Document.attr Block.inline)
-    -> Document.t
-    -> Document.t
+    f:(Omd.attributes Omd.inline -> Omd.attributes Omd.inline)
+    -> Omd.doc
+    -> Omd.doc
 
 (** Same as Document.iter ~f:(Block.iter ~f), but also handles Omd.Concat types. *)
 val inline_iter :
-    f:(Document.attr Block.inline -> unit)
-    -> Document.t
+    f:(Omd.attributes Omd.inline -> unit)
+    -> Omd.doc
     -> unit
 
 val inline_find :
-    f:(Document.attr Block.inline -> bool)
-    -> Document.t
-    -> Document.attr Block.inline option
+    f:(Omd.attributes Omd.inline -> bool)
+    -> Omd.doc
+    -> Omd.attributes Omd.inline option
 
 (* FIXME: type signatures are completely borked *)
-val inline_find_map :
-    f:('a Block.inline -> 'b option)
-    -> 'a Block.t list
-    -> 'a Block.inline option
+(* val inline_find_map :
+    f:('a Omd.inline -> 'b option)
+    -> Omd.doc
+    -> 'b option *)
