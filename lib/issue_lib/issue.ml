@@ -20,6 +20,7 @@ let slug_title title =
   let safe_title =
     title
     |> String.trim
+    |> String.lowercase_ascii
     |> Str.global_replace (Str.regexp "[^A-Za-z0-9.-]") "_"
   in
   safe_title ^ ".md"
