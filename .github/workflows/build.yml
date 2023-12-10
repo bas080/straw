@@ -41,6 +41,13 @@ jobs:
       - run: npm test
         working-directory: browser
 
+      - name: Cache OPAM
+        uses: actions/cache@v3
+        with:
+          path: ~/.opam
+          key: ${{ runner.os }}-opam-${{ matrix.ocaml-compiler }}-${{ hashFiles('**/*.opam') }}
+          restore-keys: ${{ runner.os }}-opam-${{ matrix.ocaml-compiler }}-
+
       - name: Setup OCaml ${{ matrix.ocaml-compiler }}
         uses: ocaml/setup-ocaml@v2
         with:
