@@ -1,6 +1,6 @@
 open Issue_lib
 
-let%test "is / a root" = Path.(is_root (of_string "/"))
+let%test "/ is a root" = Path.(is_root (of_string "/"))
 let%test "/home is not a root" = not Path.(is_root (of_string "/home"))
 
 let%test "convert to and from a string" =

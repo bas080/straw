@@ -1,5 +1,7 @@
 open Issue_lib
 
+module Util = Issue_lib_test.Util
+
 let test_path () =
   let root = Path.of_string (Sys.getcwd()) in
   Util.with_test_dir (Path.append root "open") (fun open_dir ->
