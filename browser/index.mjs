@@ -3,14 +3,19 @@ import search from "./search.mjs";
 import issues from "./issues.mjs";
 import state from "./state.mjs";
 
-const specialTokensRegex = /[@#\/]\w+/g;
-const specialTokens = Array.from(
-  new Set(
-    document
-      .querySelector(".issue-issues")
-      .textContent.match(specialTokensRegex),
-  ),
-);
+const specialTokens = (() => {
+  const directoryTokenRegex = /\/\w+(?=\/)/g;
+  const otherTokensRegex = /[@#]\w+/g;
+
+  const { textContent } = document.querySelector(".issue-issues");
+
+  return Array.from(
+    new Set([
+      ...textContent.match(directoryTokenRegex),
+      ...textContent.match(otherTokensRegex),
+    ]),
+  );
+})();
 
 const searchTokens = (query) => {
   return query

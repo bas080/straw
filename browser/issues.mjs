@@ -8,7 +8,7 @@ function mapFocusable(elem, cb) {
   }
 }
 
-export default function search(onState) {
+export default function issues(onState) {
   const issues = Array.from(document.getElementsByClassName("issue-issue"));
   const index = issues.map((issue) => [issue, issue.textContent]);
 
