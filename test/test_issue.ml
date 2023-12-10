@@ -82,9 +82,9 @@ let test_to_html () =
         Alcotest.(check bool) "contains <article>" true
           (contains html "<article>")))
 
-let tests =
+let () =
   let open Alcotest in
-  [
+  run "Issue_lib.Issue" [
     "Issue.path", [
       test_case "Path is the absolute version of what was given" `Quick test_path
     ];
