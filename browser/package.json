@@ -7,7 +7,7 @@
     "build": "esbuild index.mjs --bundle --outfile=bundle.js",
     "postbuild": "inline-script-tags template.html ../lib/issue_lib/resources/template.html",
     "dev": "npm run build -- --watch && cp ../lib/issue_lib/resources/template.html ./browser",
-    "lint": "npx prettier -c .",
+    "lint": "npx prettier --write . && npx standard --fix",
     "test": "tape *.test.mjs"
   },
   "dependencies": {
