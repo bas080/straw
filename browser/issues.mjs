@@ -48,7 +48,7 @@ export default function issues(onState) {
       [[]],
     );
 
-    function fuzzy(text, str) {
+    function fuzzy(text) {
       let matched;
 
       return ors.some((tokens) =>
@@ -60,7 +60,7 @@ export default function issues(onState) {
     state.issuesCount = 0;
     index.forEach(([elem, content]) => {
       state.issuesCount += 1;
-      if (isEmpty(state.tokens) || fuzzy(content, search)) {
+      if (isEmpty(state.tokens) || fuzzy(content)) {
         state.matchedCount += 1;
         elem.classList.remove("disabled");
         mapFocusable(elem, (focusable) => {
