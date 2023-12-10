@@ -727,23 +727,21 @@
       color: var(--code);
     }
 
-    .issue-issue {
-      opacity: 1;
-      transition: opacity 0.5s ease;
-    }
-
-    .issue-issue.disabled {
-      opacity: 0.1;
-      pointer-events: none;
-    }
-
     .issue-issues {
       display: flex;
       flex-flow: column;
     }
 
-    .issue-issues > .issue-issue {
+    .issue-issues > article {
+      opacity: 1;
       order: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    .issue-issues > article.disabled {
+      opacity: 0.1;
+      pointer-events: none;
+      order: 2;
     }
 
     .issue-hash {
@@ -752,10 +750,6 @@
     }
 
     .issue-hash {
-    }
-
-    .issue-issues > .issue-issue.disabled {
-      order: 2;
     }
 
     details {
