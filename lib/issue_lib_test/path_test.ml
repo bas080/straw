@@ -70,8 +70,32 @@ let%test "has_extension with no extension" =
   not Path.(has_extension ~ext:"md" (of_string "test"))
 
 (* TODO: move file utils over *)
-let%test "is_directory returns true if we're using a directory" =
-  false
+let%test "is_directory returns true if its a directory" =
+  Util.with_test_dir (Path.of_string "./test-dir")
+    (fun path -> Path.is_directory path)
+
+let%test "is_directory returns false if its a file" =
+  Util.with_test_file (Path.of_string "./test-file") "test"
+    (fun path -> not (Path.is_directory path))
+
+let%test "is_file returns true for a regular file" =
+  Util.with_test_file (Path.of_string "./test-file") "test"
+    (fun path -> Path.is_file path)
+
+let%test "is_file returns false for a directory" =
+  Util.with_test_dir (Path.of_string "./test-dir")
+    (fun path -> not (Path.is_file path))
+
+let%test "exists returns true if a file exists" =
+  Util.with_test_file (Path.of_string "./test-file") "test"
+    (fun path -> Path.exists path)
+
+let%test "exists returns true if the directory exists" =
+  Util.with_test_dir (Path.of_string "./test-dir")
+    (fun path -> Path.exists path)
+
+let%test "exists returns false if there is nothing at the file path" =
+  not (Path.(exists (of_string "missing")))
 
 let%test "equal is true if the files are exactly equal" =
   Path.(equal (of_string "test.md") (of_string "test.md"))
