@@ -81,7 +81,7 @@ let replace_text_with_links text =
   (* mentions *)
   |> Str.global_replace
        (Str.regexp {|@\([A-Za-z0-9-]+\)|})
-       {|<a class="issue-mention" title="Search mention \1" href="#">@\1</a>"|}
+       {|<a class="issue-mention" title="Search mention \1" href="#">@\1</a>|}
   (* directories *)
   |> Str.global_replace
        (Str.regexp {|\(/[A-Za-z0-9-]+\)|})
