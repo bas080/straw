@@ -590,7 +590,7 @@
 
   <body>
     <main>
-      <label for="issue-search-input">Search</label>
+      <label for="issue-search-input">Filter</label>
       <div id="issue-search">
         <p>
           <noscript>
@@ -603,32 +603,34 @@
           Loading...
         </p>
       </div>
+
       <details>
-        <summary>Search cheatsheet</summary>
+        <summary>Filter Cheatsheet</summary>
         <dl>
-          <dt>term</dt>
-          <dd>A case insensitive search.</dd>
+          <dt><code>term</code></dt>
+          <dd>Matches a case-sensitive substring.</dd>
 
-          <dt><b>"</b>with space<b>"</b></dt>
-          <dd>Quoted string allows querying with spaces.</dd>
+          <dt><code>"two terms"</code></dt>
+          <dd>Allows querying with spaces by using a quoted string.</dd>
 
-          <dt><b>=</b>word</dt>
-          <dd>Match the complete word instead of part of a word.</dd>
-
-          <dt><b>/</b>directory</dt>
-          <dd>Issues that are part of a specific directory/iteration.</dd>
-
-          <dt>hashtag<b>#</b></dt>
+          <dt><code>/directory</code></dt>
           <dd>
-            Issues that contain a hashtag.
-            <i>Hashtags are placed behind the word.</i>
+            Filters issues that belong to a specific directory or iteration.
           </dd>
 
-          <dt><b>@</b>mention</dt>
-          <dd>Issues that mention a specific person.</dd>
+          <dt><code>#hashtag</code></dt>
+          <dd>Identifies issues that include a specific hashtag.</dd>
+
+          <dt><code>@mention</code></dt>
+          <dd>Finds issues that mention a specific person.</dd>
+
+          <dt><code>or</code></dt>
+          <dd>
+            Introduces a logical OR operator to stop the previous query and
+            define another one for finding more issues.
+          </dd>
         </dl>
       </details>
-
       <p id="issue-search-count"></p>
 
       <div class="issue-issues">
@@ -754,16 +756,6 @@
 
     .issue-issues > .issue-issue.disabled {
       order: 2;
-    }
-
-    dt {
-      font-size: 134%;
-    }
-
-    dl {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 1em;
     }
 
     details {
