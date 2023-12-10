@@ -1,5 +1,5 @@
-import { html, render } from "lit-html";
-import { createRef, ref } from "lit-html/directives/ref.js";
+import { html, render } from 'lit-html'
+import { createRef, ref } from 'lit-html/directives/ref.js'
 import {
   identity,
   isEmpty,
@@ -8,93 +8,93 @@ import {
   last,
   byKey,
   excludeIndex,
-  partial,
-} from "./helpers.mjs";
+  partial
+} from './helpers.mjs'
 
-const quote = (str) => `"${str}"`;
-const whitespaceRegex = /\s/;
-const hasWhitespace = (str) => whitespaceRegex.test(str);
+const quote = (str) => `"${str}"`
+const whitespaceRegex = /\s/
+const hasWhitespace = (str) => whitespaceRegex.test(str)
 const quoteOnWhitespace = (token) =>
-  hasWhitespace(token) ? quote(token) : token;
+  hasWhitespace(token) ? quote(token) : token
 
 const targetValue =
   (fn) =>
-  ({ target: { value } }, ...args) =>
-    fn(value, ...args);
+    ({ target: { value } }, ...args) =>
+      fn(value, ...args)
 
 const register = (onState) => {
-  const root = document.getElementById("issue-search");
+  const root = document.getElementById('issue-search')
 
-  root.innerHTML = "";
+  root.innerHTML = ''
 
   onState((state, push) => {
     const onQueryChange = (query) => {
       push((state) => {
-        state.query = query;
-        return state;
-      });
-    };
+        state.query = query
+        return state
+      })
+    }
 
     const onSelectionChange = ({ target }) => {
-      push(identity);
-    };
+      push(identity)
+    }
 
     state.onMouseUp = (event) => {
-      onSelectionChange(event);
-    };
+      onSelectionChange(event)
+    }
 
     state.onKeyUp = (event) => {
-      onSelectionChange(event);
-    };
+      onSelectionChange(event)
+    }
 
     state.onInput = (event) => {
-      targetValue(onQueryChange)(event);
-    };
+      targetValue(onQueryChange)(event)
+    }
 
     state.onTokenRemove = (index) => {
-      onQueryChange(excludeIndex(index, state.tokens).join(" "));
-    };
+      onQueryChange(excludeIndex(index, state.tokens).join(' '))
+    }
 
     state.onSuggestionClick = (token) => (_event) => {
       const [before, after] = indexSplit(
         state.queryInput.selectionStart,
-        state.query,
-      );
+        state.query
+      )
 
-      onQueryChange([...butLast(before.split(" ")), token, after].join(" "));
+      onQueryChange([...butLast(before.split(' ')), token, after].join(' '))
 
-      state.queryInput.focus();
+      state.queryInput.focus()
 
       // TODO: Jump to just behind the newly added token with a space in
       // between.
       // const selectionStart = b;
       // state.queryInput.setSelectionRange(selectionStart, selectionStart);
-    };
+    }
 
     // render
-    render(searchTemplate(state), root);
+    render(searchTemplate(state), root)
 
     // communicate the tokens outside of this module.
-    return state;
-  });
-};
+    return state
+  })
+}
 
 const tokenIcon = byKey(
   {
-    "#": "🏷️",
-    "@": "🧑",
-    '"': "🔎",
-    "/": "📁",
+    '#': '🏷️',
+    '@': '🧑',
+    '"': '🔤',
+    '/': '📁'
   },
-  "🔎",
-);
+  '🔤'
+)
 
 const searchTokenItem = (state, token, index, tokens) => {
-  const { onTokenRemove } = state;
-  const count = state.issuesPerToken[token] || 0;
+  const { onTokenRemove } = state
+  const count = state.issuesPerToken[token] || 0
 
-  if (token === "or") {
-    return html`<li class="issue-search-query-or-item">or</li>`;
+  if (token === 'or') {
+    return html`<li class="issue-search-query-or-item">or</li>`
   }
 
   return html`<li>
@@ -107,23 +107,23 @@ const searchTokenItem = (state, token, index, tokens) => {
       ${tokenIcon(token[0])} ${quoteOnWhitespace(token)}
       <span class="badge badge-primary">${count}</span>
     </button>
-  </li>`;
-};
+  </li>`
+}
 
 const suggestions = (state) => {
-  if (!state.queryInput) return;
+  if (!state.queryInput) return
 
   // How to find the token you are editing? Diff?
   const current = last(
-    indexSplit(state.queryInput.selectionStart, state.query)[0].split(" "),
-  );
+    indexSplit(state.queryInput.selectionStart, state.query)[0].split(' ')
+  )
 
-  const tokens = state.specialTokens.filter((x) => x.startsWith(current));
+  const tokens = state.specialTokens.filter((x) => x.startsWith(current))
 
   // Do not show suggestions when the only matching special token is an exact
   // match with the current token.
   if (isEmpty(current) || (tokens.length === 1 && tokens[0] === current)) {
-    return html`<p class="issue-suggestions"></p>`;
+    return html`<p class="issue-suggestions"></p>`
   }
 
   return html`<p class="issue-suggestions">
@@ -134,17 +134,17 @@ const suggestions = (state) => {
           class="issue-suggestion"
         >
           ${token}
-        </button>`,
+        </button>`
     )}
-  </p>`;
-};
+  </p>`
+}
 
-const inputRef = createRef();
+const inputRef = createRef()
 
 const searchTemplate = (state) => {
-  const { onKeyUp, onMouseUp, onInput, tokens } = state;
+  const { onKeyUp, onMouseUp, onInput, tokens } = state
 
-  state.queryInput = inputRef.value;
+  state.queryInput = inputRef.value
 
   return html`<input
       placeholder="terms..."
@@ -158,7 +158,7 @@ const searchTemplate = (state) => {
     ${suggestions(state)}
     <ul class="issue-search-query-items">
       ${tokens.map(partial(searchTokenItem, state))}
-    </ul>`;
-};
+    </ul>`
+}
 
-export default register;
+export default register

@@ -1,73 +1,124 @@
-import { isNotEmpty, isOdd } from "./helpers.mjs";
-import search from "./search.mjs";
-import issues from "./issues.mjs";
-import state from "./state.mjs";
+import { isNil, intersection, uniq, isNotEmpty, isOdd, call } from './helpers.mjs'
+import search from './search.mjs'
+import issuesFn from './issues.mjs'
+import state from './state.mjs'
 
-const specialTokens = (() => {
-  const directoryTokenRegex = /\/\w+(?=\/)/g;
-  const otherTokensRegex = /[@#]\w+/g;
+const issues = Array.from(document.querySelectorAll('.issue-issues article'))
+const issueElementsByToken = call(() => {
+  const directoryTokenRegex = /\w+(?=\/)/g
+  const otherTokensRegex = /[@#]\w+/g
 
-  const { textContent } = document.querySelector(".issue-issues");
+  return issues.reduce((acc, elem) => {
+    const bookmark = elem.querySelector('.issue-bookmark')
 
-  return Array.from(
-    new Set([
-      ...textContent.match(directoryTokenRegex),
-      ...textContent.match(otherTokensRegex),
-    ]),
-  );
-})();
+    bookmark.textContent.match(directoryTokenRegex)?.forEach((token) => {
+      token = `/${token}`
+
+      acc[token] = acc[token] || []
+      acc[token].push(elem)
+    })
+
+    elem.textContent.match(otherTokensRegex)?.forEach((token) => {
+      acc[token] = acc[token] || []
+      acc[token].push(elem)
+    })
+
+    return acc
+  }, {})
+})
+
+const specialTokens = Object.keys(issueElementsByToken)
 
 const searchTokens = (query) => {
   return query
     .split('"')
     .reduce((acc, value, index) => {
-      if (isOdd(index)) return [...acc, `${value}`];
+      if (isOdd(index)) return [...acc, `${value}`]
 
-      return acc.concat(value.split(" "));
+      return acc.concat(value.split(' '))
     }, [])
-    .filter(isNotEmpty);
-};
+    .filter(isNotEmpty)
+}
 
 const onState = state(() => ({
-  query: getQueryParam("q") || "",
+  query: getQueryParam('q') || '',
   tokens: [],
   issuesPerToken: {},
+  issues,
   specialTokens,
-}));
+  issueElementsByToken
+}))
 
-function getQueryParam(parameterName) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(parameterName);
+function getQueryParam (parameterName) {
+  const urlParams = new URLSearchParams(window.location.search)
+  return urlParams.get(parameterName)
 }
 
-function setQueryParam(parameterName, newValue) {
-  const urlParams = new URLSearchParams(window.location.search);
-  urlParams.set(parameterName, newValue);
+function setQueryParam (parameterName, newValue) {
+  const urlParams = new URLSearchParams(window.location.search)
+  urlParams.set(parameterName, newValue)
 
   const newUrl = `${window.location.pathname}?${urlParams.toString()}${
     window.location.hash
-  }`;
-  history.replaceState({}, document.title, newUrl);
+  }`
+  window.history.replaceState({}, document.title, newUrl)
 }
 
-function deleteQueryParam(parameterName) {
-  const urlParams = new URLSearchParams(window.location.search);
-  urlParams.delete(parameterName);
+function deleteQueryParam (parameterName) {
+  const urlParams = new URLSearchParams(window.location.search)
+  urlParams.delete(parameterName)
 
   const newUrl = `${window.location.pathname}?${urlParams.toString()}${
     window.location.hash
-  }`;
-  history.replaceState({}, document.title, newUrl);
+  }`
+  window.history.replaceState({}, document.title, newUrl)
+}
+
+const tokenIssues = token => {
+  return issueElementsByToken[token] ||
+    issues.filter(issue => issue.textContent.includes(token))
 }
 
 onState((state) => {
   // Keep hash up to date with state.
-  if (state.query) setQueryParam("q", state.query);
-  else deleteQueryParam("q");
+  if (state.query) setQueryParam('q', state.query)
+  else deleteQueryParam('q')
 
-  state.tokens = searchTokens(state.query);
-  return state;
-});
+  state.tokens = searchTokens(state.query)
+  state.issuesPerToken = state.tokens.reduce((acc, token) => {
+    acc[token] = tokenIssues(token).length
 
-search(onState);
-issues(onState);
+    return acc
+  }, {})
+
+  const ors = state.tokens.reduce(
+    (acc, token) => {
+      if (token === 'or') return [[], ...acc]
+
+      acc[0].push(token)
+
+      return acc
+    },
+    [[]]
+  )
+
+  // What to do with things that are not a token?
+  state.matchedIssueElements = state.query
+    ? uniq(
+      ors.flatMap((tokens) => {
+        return (
+          tokens.reduce((acc, token) => {
+            return isNil(acc)
+              ? tokenIssues(token)
+              : intersection(acc, tokenIssues(token))
+          }, null) || []
+        )
+      })
+    )
+    : issues
+
+  return state
+})
+
+search(onState)
+issuesFn(onState)
