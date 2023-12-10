@@ -5,4 +5,5 @@
   omd
   str
   alcotest
-  issue_lib))
+  issue_lib
+  issue_lib_test))
