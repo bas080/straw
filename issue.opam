@@ -6,6 +6,7 @@ depends: [
   "omd"
   "cmdliner"
   "alcotest" {with-test}
+  "ppx_inline_test" {with-test}
 ]
 build: [
   ["dune" "subst"] {pinned}
