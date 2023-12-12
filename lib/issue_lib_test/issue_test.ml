@@ -26,7 +26,9 @@ let%test "title returns the first found text in the file" =
     (* add a few newlines to check they will be ignored*)
     Util.with_test_file path "\n\n\ntesting" (fun path ->
       let issue = Issue.from_path ~root path in
-      String.equal "testing" (Issue.title issue)))
+      Option.fold ~none:false
+        ~some:(fun title -> String.equal "testing" title)
+        (Issue.title issue)))
 
 let%test "title returns a default if no text in file" =
   let root = getcwd () in
@@ -34,7 +36,8 @@ let%test "title returns a default if no text in file" =
     let path = Path.append open_dir "issue.md" in
     Util.with_test_file path "" (fun path ->
       let issue = Issue.from_path ~root path in
-      String.equal "Untitled document" (Issue.title issue)))
+      Option.is_none (Issue.title issue)))
+
 
 (* FIXME: really crap test *)
 let%test "category exists for a valid path" =
@@ -53,7 +56,7 @@ let%test "all_issues returns all issues in a directory" =
     let issues = Issue.all_issues root in
     List.equal String.equal
       ["test"; "test"; "test"]
-      (List.map Issue.title issues)
+      (List.filter_map Issue.title issues)
     && List.equal String.equal
       (List.map Path.to_string files)
       (List.sort String.compare

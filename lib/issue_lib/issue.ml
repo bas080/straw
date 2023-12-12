@@ -41,11 +41,10 @@ let from_title ~root category title =
   ) |> find_unique_filename in
   from_path ~root path
 
+(* FIXME: doesn't handle Text then Code and then Text again properly *)
 let title_from_md doc =
-  doc
-  |> Omd_ext.inline_find_map
-      ~f:(function Omd.Text (_, s) -> Some s | _ -> None)
-  |> Option.value ~default:"Untitled document"
+  Omd_ext.inline_find_map
+    ~f:(function Omd.Text (_, s) -> Some s | _ -> None) doc
 
 let title issue =
   path issue
@@ -109,7 +108,9 @@ let to_html issue =
   (* then turn it into html *)
   let html = Omd.to_html markdown in
   (* generate a link to the current issue *)
-  let issue_link = issue_link (title issue)
+  let issue_link = issue_link
+    (Option.value ~default:"Untitled document"
+      (title issue))
     (Path.to_relative ~root:issue.root path)
   in
   wrap_in_article (issue_link ^ html)

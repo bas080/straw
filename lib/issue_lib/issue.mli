@@ -11,7 +11,7 @@ val from_path : root:Path.t -> Path.t -> t
 (** Return the file path where the issue is stored. *)
 val path : t -> Path.t
 
-val title : t -> string
+val title : t -> string option
 val category : t -> string
 
 val to_html : t -> string

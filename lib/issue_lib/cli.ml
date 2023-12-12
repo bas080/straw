@@ -52,9 +52,11 @@ let open_issue () =
   ignore (File_util.mkdir_p open_dir);
   open_file_with_editor tmpfile;
   (* extract the title from the contents (first line) *)
-  (* FIXME: SHOULDNT BE THE ONE RESPONSIBLE FOR THIS *)
-  match File_util.single_line_of_file tmpfile with
+  let issue = Issue.from_path ~root tmpfile in
+  match Issue.title issue with
   | Some title when not (String.equal title String.empty) ->
+    (* FIXME: I need to regenerate the path here with from_title because
+       otherwise the tmp path is used *)
     let issue = Issue.from_title ~root "open" title in
     let path = Issue.path issue in
     (* check for filename conflicts and find a unique filename *)
