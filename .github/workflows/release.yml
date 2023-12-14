@@ -1,0 +1,60 @@
+name: Build and Release latest OCaml Binary
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          # we'll wait for windows to get v5.x support
+          # - windows-latest
+        ocaml-compiler:
+          # latest version supported by all platforms
+          - "5.1.x"
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          check-latest: true
+
+      - run: npm ci
+        working-directory: browser
+
+      - run: npm run build
+        working-directory: browser
+
+      - name: Cache OPAM
+        uses: actions/cache@v3
+        with:
+          path: ~/.opam
+          key: ${{ runner.os }}-opam-${{ matrix.ocaml-compiler }}-${{ hashFiles('**/*.opam') }}
+          restore-keys: ${{ runner.os }}-opam-${{ matrix.ocaml-compiler }}-
+
+      - name: Setup OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - run: opam install . --deps-only
+      - run: opam exec -- dune build --release
+      - run: mv _build/default/bin/main.exe _build/${{ matrix.os }}.exe
+
+      - name: Create a release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: _build/${{ matrix.os }}.exe
+          tag: master
+          commit: master
+          allowUpdates: true
