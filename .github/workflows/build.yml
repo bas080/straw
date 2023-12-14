@@ -55,4 +55,10 @@ jobs:
 
       - run: opam install . --deps-only --with-test
       - run: opam exec -- dune build --release
+      - run: mv _build/default/bin/main.exe _build/issue
       - run: GITHUB_ACTIONS=1 opam exec -- dune runtest
+
+      - name: Create a release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: _build/issue
