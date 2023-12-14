@@ -1,4 +1,4 @@
-name: Build and Release latest OCaml Binary
+name: Release OCaml Binary and Deploy Github Pages
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-latest
+          # - macos-latest
           - ubuntu-latest
           # we'll wait for windows to get v5.x support
           # - windows-latest
@@ -58,3 +58,12 @@ jobs:
           tag: master
           commit: master
           allowUpdates: true
+
+      - name: Create the issue html index.html
+        run: ./_build/${{ matrix.os }}.exe html > ./issue/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./issue
