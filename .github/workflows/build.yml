@@ -53,7 +53,7 @@ jobs:
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
-      - run: opam install . --deps-only --with-test
+      - run: opam install . --deps-only
       - run: opam exec -- dune build --release
       - run: mv _build/default/bin/main.exe _build/issue
       - run: GITHUB_ACTIONS=1 opam exec -- dune runtest
