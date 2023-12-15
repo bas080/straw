@@ -25,15 +25,91 @@ let project_dir () =
 
 let issue_dir () = Path.append (project_dir ()) "issue"
 
-let list () =
-  let root = issue_dir () in
-  Issue.all_issues root
-  |> List.iter (fun issue ->
-    Path.(
-      Issue.path issue
-      |> to_relative ~root
-      |> to_string
-      |> print_endline))
+let slug_title title =
+  let safe_title =
+    title
+    |> String.trim
+    |> String.lowercase_ascii
+    |> Str.global_replace (Str.regexp "[^A-Za-z0-9.-]") "_"
+  in
+  safe_title ^ ".md"
+
+let title_from_md doc =
+  Omd_ext.inline_find_map
+    ~f:(function Omd.Text (_, s) -> Some s | _ -> None) doc
+
+(* extract the title from the contents (first line) *)
+let title path =
+  path
+  |> File_util.read_entire_file
+  |> Omd.of_string
+  |> title_from_md
+
+let category ~root path =
+  path
+  |> Path.to_relative ~root
+  |> Path.parent
+  |> Path.parts
+  |> String.concat "/"
+
+let path_of_title ~root category title =
+  Path.(
+    concat
+      root
+      (append
+        (of_string category)
+        (slug_title title)))
+
+let all_issues root =
+  File_util.traverse_directory root
+  |> List.filter (Path.has_extension ~ext:"md")
+
+let issue_link title relative_path =
+  Printf.sprintf "<a class='issue-bookmark' id='%s' href='#%s'>🔖 %s</a>" title title
+    (Path.to_string relative_path)
+
+let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
+
+(* split a string, extracting a list of Omd.Link and Omd.Text *)
+let split_links attr (tag, r) text =
+  Str.full_split r text
+  |> List.map (function
+    | Str.Delim (s) ->
+      let label = Omd.Text (attr, s) in
+      let title = Some ("Search " ^ tag ^ " " ^ s) in
+      Omd.Link (
+        [("class", "issue-" ^ tag)],
+        { Omd.title; label; destination = "#" })
+    | Str.Text (s) -> Omd.Text (attr, s))
+
+let mention_regexp = Str.regexp {|@\([A-Za-z0-9]+\)|}
+let hashtag_regexp = Str.regexp {|#\([A-Za-z0-9]+\)|}
+
+let extract_links attr text =
+  split_links attr ("mention", mention_regexp) text
+  |> List.concat_map (
+    function
+    | Omd.Text (attr, s) -> split_links attr ("hashtag", hashtag_regexp) s
+    | _ as x -> [x])
+
+let replace_text_with_links = Omd_ext.inline_map ~f:(function
+  | Omd.Text (attr, s) as t ->
+    let links = extract_links attr s in
+    if List.is_empty links
+    then t
+    else Omd.Concat (attr, links)
+  | _ as x -> x)
+
+let md_to_html ~root path =
+  let doc = Omd.of_string (File_util.read_entire_file path) in
+  let doc = replace_text_with_links doc in
+  let html = Omd.to_html doc in
+  let issue_link =
+    issue_link
+      (Option.value ~default: "Unknown document" (title path))
+      (Path.to_relative ~root path)
+  in
+  wrap_in_article (issue_link ^ html)
 
 let open_file_with_editor path =
   let getenv name default = Option.value ~default (Sys.getenv_opt name) in
@@ -43,27 +119,47 @@ let open_file_with_editor path =
   |> Sys.command
   |> ignore
 
-let open_issue () =
-  (* will create the file *)
+(* the functional implementation of this is much more obtuse *)
+let find_unique_filename path =
+  let path = Path.to_string path in
+  let r = Str.regexp {|\.md|} in
+  let counter = ref 1 in
+  let search = ref path in
+  while Sys.file_exists !search do
+    Printf.printf "Possible duplicate issue found:\t%s\n" !search;
+    let replacement = Printf.sprintf "_%i.md" !counter in
+    search := Str.replace_first r replacement path;
+    counter := !counter + 1
+  done;
+  Path.of_string !search
+
+let list () =
   let root = issue_dir () in
+  all_issues root
+  |> List.iter (fun path ->
+    Path.(
+      path
+      |> to_relative ~root
+      |> to_string
+      |> print_endline))
+
+let open_issue () =
+  let root = issue_dir () in
+  (* will create the file *)
   let tmpfile = Path.temp_file ~dir:root "tmp-" ".md" in
   let open_dir = Path.of_string "issue/open" in
   (* create the issue/open directory if it doesn't exit *)
   ignore (File_util.mkdir_p open_dir);
   open_file_with_editor tmpfile;
-  (* extract the title from the contents (first line) *)
-  (* FIXME: SHOULDNT BE THE ONE RESPONSIBLE FOR THIS *)
-  match File_util.single_line_of_file tmpfile with
-  | Some title when not (String.equal title String.empty) ->
-    let issue = Issue.from_title ~root "open" title in
-    let path = Issue.path issue in
-    (* check for filename conflicts and find a unique filename *)
+  match title tmpfile with
+  | Some title ->
+    let path = path_of_title ~root "open" title |> find_unique_filename in
     Printf.printf "Moving %s to %s\n"
       (Path.to_string tmpfile) (Path.to_string path);
     (* TODO: error handling *)
     ignore (File_util.move ~src:tmpfile ~dest:path);
     Printf.printf "Issue saved at: %s\n" (Path.to_string path)
-  | Some _ | None ->
+  | None ->
     Printf.eprintf "No changes were saved.\n";
     (* cleanup empty tempfile *)
     Sys.remove (Path.to_string tmpfile);
@@ -81,17 +177,20 @@ let search _root = ()
 
 let status () =
   let root = issue_dir () in
-  Issue.all_issues root
+  all_issues root
   |> List.to_seq
   (* group by category *)
   |> Seq.group (fun a b ->
       String.equal
-        (Issue.category a)
-        (Issue.category b))
+        (category ~root a)
+        (category ~root b))
   (* get a count for each category *)
   |> Seq.map (fun s ->
-      let category = s |> List.of_seq |> List.hd |> Issue.category in
+      let category = s |> List.of_seq |> List.hd |> category ~root in
       (category, Seq.length s))
+  |> Seq.filter(fun (c, _) ->
+      (* filter . files *)
+      not (String.equal c Filename.current_dir_name))
   |> Seq.iter (fun (category, count) ->
       Printf.printf "%s\t%i\n" category count)
 
@@ -105,15 +204,15 @@ let split_on_issues content =
 
 let print_html_issues () =
   let root = issue_dir () in
-  Issue.all_issues root
-  |> List.map Issue.to_html
+  all_issues root
+  |> List.map (md_to_html ~root)
   |> List.iter print_endline;
   ()
 
 let html () =
   let template_path = Path.append (issue_dir ()) "template.html" in
   let template =
-    (* if the template path doesn't exist, created it with the bundled
+    (* if the template path doesn't exist, create it with the bundled
        template.html *)
     if not (Path.exists template_path) then begin
       File_util.write_entire_file template_path Template.html
