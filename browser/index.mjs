@@ -1,4 +1,11 @@
-import { isNil, intersection, uniq, isNotEmpty, isOdd, call } from './helpers.mjs'
+import {
+  isNil,
+  intersection,
+  uniq,
+  isNotEmpty,
+  isOdd,
+  call
+} from './helpers.mjs'
 import search from './search.mjs'
 import issuesFn from './issues.mjs'
 import state from './state.mjs'
@@ -40,14 +47,66 @@ const searchTokens = (query) => {
     .filter(isNotEmpty)
 }
 
-const onState = state(() => ({
-  query: getQueryParam('q') || '',
-  tokens: [],
-  issuesPerToken: {},
-  issues,
-  specialTokens,
-  issueElementsByToken
-}))
+const tokenIssues = (token) => {
+  return (
+    issueElementsByToken[token] ||
+    issues.filter((issue) => issue.textContent.includes(token))
+  )
+}
+
+state(
+  () => ({
+    query: getQueryParam('q') || '',
+    tokens: [],
+    issuesPerToken: {},
+    issues,
+    specialTokens,
+    issueElementsByToken
+  }),
+  (state, push) => {
+    // Keep hash up to date with state.
+    if (state.query) setQueryParam('q', state.query)
+    else deleteQueryParam('q')
+
+    state.tokens = searchTokens(state.query)
+    state.issuesPerToken = state.tokens.reduce((acc, token) => {
+      acc[token] = tokenIssues(token).length
+
+      return acc
+    }, {})
+
+    const ors = state.tokens.reduce(
+      (acc, token) => {
+        if (token === 'or') return [[], ...acc]
+
+        acc[0].push(token)
+
+        return acc
+      },
+      [[]]
+    )
+
+    // What to do with things that are not a token?
+    state.matchedIssueElements = state.query
+      ? uniq(
+        ors.flatMap((tokens) => {
+          return (
+            tokens.reduce((acc, token) => {
+              return isNil(acc)
+                ? tokenIssues(token)
+                : intersection(acc, tokenIssues(token))
+            }, null) || []
+          )
+        })
+      )
+      : issues
+
+    search(state, push)
+    issuesFn(state)
+
+    return state
+  }
+)
 
 function getQueryParam (parameterName) {
   const urlParams = new URLSearchParams(window.location.search)
@@ -73,52 +132,3 @@ function deleteQueryParam (parameterName) {
   }`
   window.history.replaceState({}, document.title, newUrl)
 }
-
-const tokenIssues = token => {
-  return issueElementsByToken[token] ||
-    issues.filter(issue => issue.textContent.includes(token))
-}
-
-onState((state) => {
-  // Keep hash up to date with state.
-  if (state.query) setQueryParam('q', state.query)
-  else deleteQueryParam('q')
-
-  state.tokens = searchTokens(state.query)
-  state.issuesPerToken = state.tokens.reduce((acc, token) => {
-    acc[token] = tokenIssues(token).length
-
-    return acc
-  }, {})
-
-  const ors = state.tokens.reduce(
-    (acc, token) => {
-      if (token === 'or') return [[], ...acc]
-
-      acc[0].push(token)
-
-      return acc
-    },
-    [[]]
-  )
-
-  // What to do with things that are not a token?
-  state.matchedIssueElements = state.query
-    ? uniq(
-      ors.flatMap((tokens) => {
-        return (
-          tokens.reduce((acc, token) => {
-            return isNil(acc)
-              ? tokenIssues(token)
-              : intersection(acc, tokenIssues(token))
-          }, null) || []
-        )
-      })
-    )
-    : issues
-
-  return state
-})
-
-search(onState)
-issuesFn(onState)
