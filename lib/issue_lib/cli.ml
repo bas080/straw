@@ -34,9 +34,23 @@ let slug_title title =
   in
   safe_title ^ ".md"
 
+let is_text_empty text = String.(equal empty (trim text))
+let text_or_none text =
+  if is_text_empty text then None else Some text
+
 let title_from_md doc =
-  Omd_ext.inline_find_map
-    ~f:(function Omd.Text (_, s) -> Some s | _ -> None) doc
+  let open Omd in
+  let rec finder = function
+    | Text (_, s) | Code (_, s) -> text_or_none s
+    | Link (_, link) -> finder link.label
+    | Strong (_, inline) | Emph (_, inline) -> finder inline
+    | Concat (_, xs) ->
+      List.filter_map finder xs
+      |> String.concat ""
+      |> text_or_none
+    | _ -> None
+  in
+  Omd_ext.inline_find_map ~concat:false ~f:finder doc
 
 (* extract the title from the contents (first line) *)
 let title path =

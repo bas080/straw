@@ -33,20 +33,31 @@ let extract_links attr text =
   |> List.concat_map (
     function
     | Omd.Text (attr, s) -> split_links attr ("hashtag", hashtag_regexp) s
-    | _ as x -> [x])
+    | x -> [x])
+
+let is_text_empty text = String.(equal empty (trim text))
+let text_or_none text =
+  if is_text_empty text then None else Some text
 
 let title doc =
-  (* use the first text that's found *)
-  let text_opt =
-    (* TODO: concat elements found in a Concat, will break on e.g.
-       "hello [my link](a-link)", returning "hello " *)
-    Omd_ext.inline_find_map doc
-      ~f:(function Omd.Text (_, s) -> Some s | _ -> None)
+  let rec finder = function
+    | Omd.Text (_, s) | Omd.Code (_, s) -> text_or_none s
+    | Omd.Link (_, link) -> finder link.label
+    | Omd.Strong (_, inline) | Omd.Emph (_, inline) -> finder inline
+    | Omd.Concat (_, xs) ->
+      List.filter_map finder xs
+      |> String.concat ""
+      |> text_or_none
+    | _ -> None
   in
+  let text_opt = Omd_ext.inline_find_map doc ~concat:false ~f:finder in
   Option.value text_opt ~default:"Untitled document"
 
 let md_file = {|
-# hello @mike
+#
+# [](https://example.com)
+
+# hello [`@mike`](https://example.com)
 
 hello @joe, hello @mike
 
@@ -64,7 +75,7 @@ let () =
   print_markdown doc;
   Printf.printf "=========== TRANSFORMED ==========\n";
   let title = title doc in
-  Printf.printf "title would be: %s\n" title;
+  Printf.printf "title would be: '%s'\n" title;
   let f = function
   | Omd.Text (attr, s) as t ->
     let links = extract_links attr s in
