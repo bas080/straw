@@ -25,8 +25,6 @@ const once = (fn) => {
   }
 }
 
-const intersection = (xs, ys, equal = equals) =>
-  xs.filter((x) => ys.some((y) => equal(x, y)))
 const complement =
   (fn) =>
     (...args) =>
@@ -46,7 +44,6 @@ const tap =
       return returned
     }
 
-const uniq = (arr) => [...new Set(arr)]
 const isNotNil = complement(isNil)
 const debounce = (milli, fn) => {
   let timeout
@@ -63,9 +60,11 @@ const debounce = (milli, fn) => {
 const string = {
   prepend: (a) => (b) => a + b
 }
+const always = (x) => () => x
 
 export {
   string,
+  always,
   call,
   isNil,
   isNotNil,
@@ -84,7 +83,5 @@ export {
   last,
   indexSplit,
   debounce,
-  once,
-  uniq,
-  intersection
+  once
 }
