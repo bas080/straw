@@ -28,7 +28,17 @@ const inputRef = createRef()
 const root = document.getElementById('issue-search')
 root.innerHTML = ''
 
-const search = (state, push) => {
+const tokenIcon = byKey(
+  {
+    '#': '🏷️',
+    '@': '🧑',
+    '"': '🔤',
+    '/': '📁'
+  },
+  '🔤'
+)
+
+export default function search (state, push) {
   const { specialTokens, issuesPerToken, query, tokens } = state
 
   const queryInput = inputRef.value
@@ -57,11 +67,11 @@ const search = (state, push) => {
   }
 
   const onTokenRemove = (index) => {
-    onQueryChange(excludeIndex(index, state.tokens).join(' '))
+    onQueryChange(excludeIndex(index, tokens).join(' '))
   }
 
   const onSuggestionClick = (token) => (_event) => {
-    const [before, after] = indexSplit(queryInput.selectionStart, state.query)
+    const [before, after] = indexSplit(queryInput.selectionStart, query)
 
     onQueryChange([...butLast(before.split(' ')), token, after].join(' '))
 
@@ -103,24 +113,26 @@ const search = (state, push) => {
   })
 
   const searchTokenItem = (token, index, tokens) => {
-    console.log(token, index, tokens)
     const count = issuesPerToken[token] || 0
 
     if (token === 'or') {
-      return html`<li class="issue-search-query-or-item">or</li>`
+      return html`<li>or</li>`
     }
 
-    return html`<li>
-      <button
-        class="issue-search-query-item"
-        title="Remove ${token}"
-        value="${token}"
-        @click="${partial(onTokenRemove, index)}"
-      >
-        ${tokenIcon(token[0])} ${quoteOnWhitespace(token)}
-        <span class="badge badge-primary">${count}</span>
-      </button>
-    </li>`
+    return [
+      tokens[index - 1] === 'or' || index === 0 ? null : html`<hr />`,
+      html`<li>
+        <button
+          class="issue-search-query-item"
+          title="Remove ${token}"
+          value="${token}"
+          @click="${partial(onTokenRemove, index)}"
+        >
+          ${tokenIcon(token[0])} ${quoteOnWhitespace(token)}
+          <span class="badge badge-primary">${count}</span>
+        </button>
+      </li>`
+    ]
   }
 
   render(
@@ -142,15 +154,3 @@ const search = (state, push) => {
     root
   )
 }
-
-const tokenIcon = byKey(
-  {
-    '#': '🏷️',
-    '@': '🧑',
-    '"': '🔤',
-    '/': '📁'
-  },
-  '🔤'
-)
-
-export default search

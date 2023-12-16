@@ -1,11 +1,4 @@
-import {
-  isNil,
-  intersection,
-  uniq,
-  isNotEmpty,
-  isOdd,
-  call
-} from './helpers.mjs'
+import { isEmpty, always, isNotEmpty, isOdd, call } from './helpers.mjs'
 import search from './search.mjs'
 import issuesFn from './issues.mjs'
 import state from './state.mjs'
@@ -54,6 +47,34 @@ const tokenIssues = (token) => {
   )
 }
 
+const alwaysTrue = always(true)
+const or = (before, token) => (issue) => before(issue) || token(issue)
+const and = (before, token) => (issue) => before(issue) && token(issue)
+const tokenMatches = (token) => {
+  token = token.startsWith('/') ? `${token.slice(1)}/` : token
+  return (issue) => issue.textContent.includes(token)
+}
+
+const issueMatches = (tokens, predicate = alwaysTrue) => {
+  if (isEmpty(tokens)) return predicate
+
+  const [token, ...rest] = tokens
+
+  // Drop or when no token after or
+  if (token === 'or' && isEmpty(rest)) return predicate
+
+  // Drop or if followed by an or (drop empty or)
+  if (token === 'or' && rest[0] === token) return issueMatches(rest, predicate)
+
+  if (token === 'or') {
+    const [next, ...nextRest] = rest
+
+    return issueMatches(nextRest, or(predicate, tokenMatches(next)))
+  }
+
+  return issueMatches(rest, and(predicate, tokenMatches(token)))
+}
+
 state(
   () => ({
     query: getQueryParam('q') || '',
@@ -75,31 +96,8 @@ state(
       return acc
     }, {})
 
-    const ors = state.tokens.reduce(
-      (acc, token) => {
-        if (token === 'or') return [[], ...acc]
-
-        acc[0].push(token)
-
-        return acc
-      },
-      [[]]
-    )
-
     // What to do with things that are not a token?
-    state.matchedIssueElements = state.query
-      ? uniq(
-        ors.flatMap((tokens) => {
-          return (
-            tokens.reduce((acc, token) => {
-              return isNil(acc)
-                ? tokenIssues(token)
-                : intersection(acc, tokenIssues(token))
-            }, null) || []
-          )
-        })
-      )
-      : issues
+    state.matchedIssueElements = issues.filter(issueMatches(state.tokens))
 
     search(state, push)
     issuesFn(state)
