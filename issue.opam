@@ -2,9 +2,10 @@
 opam-version: "2.0"
 depends: [
   "dune" {>= "2.1"}
-  "fpath"
-  "omd"
-  "cmdliner"
+  "ocaml" {>= "5.1.1"}
+  "fpath" {>= "0.7.3"}
+  "omd" {>= "2.0.0~alpha4"}
+  "cmdliner" {>= "1.2.0" & < "2.0.0"}
   "ppx_inline_test" {with-test}
 ]
 build: [
