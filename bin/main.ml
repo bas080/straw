@@ -3,6 +3,12 @@ open Issue_lib.Cli
 
 let working_on_it cmd = Printf.eprintf "Executing '%s' subcommand\n" cmd
 
+let init_cmd =
+  let doc = "Create the issue directory if it doesn't exist" in
+  Cmd.v
+    (Cmd.info "init" ~doc)
+    Term.(const init $ const ())
+
 let list_cmd =
   Cmd.v
     (Cmd.info "list" ~doc:"List the current issues")
@@ -34,6 +40,7 @@ let html_cmd =
     Term.(const html $ const ())
 
 let subcommands = [
+  init_cmd;
   list_cmd;
   open_cmd;
   dir_cmd;

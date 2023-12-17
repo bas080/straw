@@ -20,7 +20,7 @@ let project_dir () =
   | Some x -> x
   | None ->
     failwith (
-      Printf.sprintf "issue directory could not be found. use '%s open' to create issues."
+      Printf.sprintf "issue directory could not be found, use '%s init' to create one."
         Sys.executable_name)
 
 let issue_dir () = Path.append (project_dir ()) "issue"
@@ -99,6 +99,14 @@ let find_unique_filename path =
   done;
   Path.of_string !search
 
+let init () =
+  (* create the issue dir in whatever directory we're in *)
+  let cwd = Path.of_string (Sys.getcwd ()) in
+  let issue_dir = Path.append cwd "issue" in
+  Printf.printf "Creating issue directory in %s\n"
+    (Path.to_string issue_dir);
+  File_util.mkdir_p issue_dir
+
 let list () =
   let root = issue_dir () in
   all_issues root
@@ -115,7 +123,7 @@ let open_issue () =
   let tmpfile = Path.temp_file ~dir:root "tmp-" ".md" in
   let open_dir = Path.of_string "issue/open" in
   (* create the issue/open directory if it doesn't exit *)
-  ignore (File_util.mkdir_p open_dir);
+  ignore (File_util.mkdir open_dir);
   open_file_with_editor tmpfile;
   match title tmpfile with
   | Some title ->
