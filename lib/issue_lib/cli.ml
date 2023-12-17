@@ -34,30 +34,12 @@ let slug_title title =
   in
   safe_title ^ ".md"
 
-let is_text_empty text = String.(equal empty (trim text))
-let text_or_none text =
-  if is_text_empty text then None else Some text
-
-let title_from_md doc =
-  let open Omd in
-  let rec finder = function
-    | Text (_, s) | Code (_, s) -> text_or_none s
-    | Link (_, link) -> finder link.label
-    | Strong (_, inline) | Emph (_, inline) -> finder inline
-    | Concat (_, xs) ->
-      List.filter_map finder xs
-      |> String.concat ""
-      |> text_or_none
-    | _ -> None
-  in
-  Omd_ext.inline_find_map ~concat:false ~f:finder doc
-
 (* extract the title from the contents (first line) *)
 let title path =
   path
   |> File_util.read_entire_file
   |> Omd.of_string
-  |> title_from_md
+  |> Omd_util.title_of_doc
 
 let category ~root path =
   path
@@ -84,39 +66,9 @@ let issue_link title relative_path =
 
 let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
 
-(* split a string, extracting a list of Omd.Link and Omd.Text *)
-let split_links attr (tag, r) text =
-  Str.full_split r text
-  |> List.map (function
-    | Str.Delim (s) ->
-      let label = Omd.Text (attr, s) in
-      let title = Some ("Search " ^ tag ^ " " ^ s) in
-      Omd.Link (
-        [("class", "issue-" ^ tag)],
-        { Omd.title; label; destination = "#" })
-    | Str.Text (s) -> Omd.Text (attr, s))
-
-let mention_regexp = Str.regexp {|@\([A-Za-z0-9]+\)|}
-let hashtag_regexp = Str.regexp {|#\([A-Za-z0-9]+\)|}
-
-let extract_links attr text =
-  split_links attr ("mention", mention_regexp) text
-  |> List.concat_map (
-    function
-    | Omd.Text (attr, s) -> split_links attr ("hashtag", hashtag_regexp) s
-    | _ as x -> [x])
-
-let replace_text_with_links = Omd_ext.inline_map ~f:(function
-  | Omd.Text (attr, s) as t ->
-    let links = extract_links attr s in
-    if List.is_empty links
-    then t
-    else Omd.Concat (attr, links)
-  | _ as x -> x)
-
 let md_to_html ~root path =
   let doc = Omd.of_string (File_util.read_entire_file path) in
-  let doc = replace_text_with_links doc in
+  let doc = Omd_util.replace_text_with_links doc in
   let html = Omd.to_html doc in
   let issue_link =
     issue_link
