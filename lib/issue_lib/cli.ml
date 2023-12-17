@@ -132,13 +132,6 @@ let open_issue () =
     (* exit with non-standard exit code *)
     exit 1
 
-let edit issue_path =
-  let root = issue_dir () in
-  let path = Path.append root issue_path in
-  if Path.exists path
-  then open_file_with_editor path
-  else Printf.eprintf "Issue %s does not exist.\n" issue_path
-
 let search _root = ()
 
 let status () =
@@ -159,8 +152,6 @@ let status () =
       not (String.equal c Filename.current_dir_name))
   |> Seq.iter (fun (category, count) ->
       Printf.printf "%s\t%i\n" category count)
-
-let show _root = ()
 
 let split_on_issues content =
   let r = Str.regexp "<!--issues-->" in

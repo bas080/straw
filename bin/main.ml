@@ -4,7 +4,7 @@ open Issue_lib.Cli
 let working_on_it cmd = Printf.eprintf "Executing '%s' subcommand\n" cmd
 
 let list_cmd =
-  Cmd.v 
+  Cmd.v
     (Cmd.info "list" ~doc:"List the current issues")
     Term.(const list $ const ())
 
@@ -12,14 +12,6 @@ let open_cmd =
   Cmd.v
     (Cmd.info "open" ~doc:"Open a new issue")
     Term.(const open_issue $ const ())
-
-let edit_cmd =
-  let path =
-    Arg.(required & pos 0 (some string) None & info [] ~docv:"PATH" ~doc:"Path to the issue")
-  in
-  Cmd.v
-    (Cmd.info "edit" ~doc:"Edit an issue")
-    Term.(const edit $ path)
 
 let dir_cmd =
   Cmd.v
@@ -44,7 +36,6 @@ let html_cmd =
 let subcommands = [
   list_cmd;
   open_cmd;
-  edit_cmd;
   dir_cmd;
   search_cmd;
   status_cmd;
