@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+echo '# Fake test
+
+Some body' > "$1"

@@ -1,4 +1,6 @@
 _build/
 issue/index.html
 issue/template.html
+browser/index.html
 lib/issue_lib/resources/template.html
+.local.*
