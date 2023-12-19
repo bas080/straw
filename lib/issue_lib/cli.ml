@@ -60,8 +60,11 @@ let all_issues root =
   File_util.traverse_directory root
   |> List.filter (Path.has_extension ~ext:"md")
 
-let issue_link title relative_path =
-  Printf.sprintf "<a class='issue-bookmark' id='%s' href='#%s'>🔖 %s</a>" title title
+let issue_link relative_path =
+  let filename = Path.filename relative_path in
+  Printf.sprintf "<a class='issue-bookmark' id='%s' href='#%s'>🔖 %s</a>"
+    filename
+    filename
     (Path.to_string relative_path)
 
 let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
@@ -71,9 +74,7 @@ let md_to_html ~root path =
   let doc = Omd_util.replace_text_with_links doc in
   let html = Omd.to_html doc in
   let issue_link =
-    issue_link
-      (Option.value ~default: "Unknown document" (title path))
-      (Path.to_relative ~root path)
+    issue_link (Path.to_relative ~root path)
   in
   wrap_in_article (issue_link ^ html)
 
