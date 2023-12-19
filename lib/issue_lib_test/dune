@@ -2,4 +2,4 @@
  (name issue_lib_test)
  (libraries issue_lib)
  (inline_tests (flags -verbose))
- (preprocess (pps ppx_inline_test)))
+ (preprocess (pps ppx_inline_test ppx_expect)))

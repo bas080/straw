@@ -13,8 +13,6 @@ let print_markdown = Omd_ext.inline_iter ~f:print_inline
 
 let mention_regexp = Str.regexp {|@\([A-Za-z0-9]+\)|}
 let hashtag_regexp = Str.regexp {|#\([A-Za-z0-9]+\)|}
-(* FIXME: this regex doesn't work *)
-let directory_regexp = Str.regexp {|\(/[A-Za-z0-9]+\)|}
 
 (* split a string, extracting a list of Omd.Link and Omd.Text *)
 let split_links attr (tag, r) text =

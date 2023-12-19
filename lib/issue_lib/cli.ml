@@ -111,6 +111,7 @@ let list () =
   let root = issue_dir () in
   let cwd = Path.of_string (Sys.getcwd ()) in
   all_issues root
+  |> List.sort Path.compare
   |> List.iter (fun path ->
     Path.(
       path
