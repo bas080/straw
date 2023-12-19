@@ -1,4 +1,5 @@
-(lang dune 2.1)
+(lang dune 2.7)
+(cram enable)
 
 (package
  (name issue)
