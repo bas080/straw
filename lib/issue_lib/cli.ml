@@ -109,11 +109,12 @@ let init () =
 
 let list () =
   let root = issue_dir () in
+  let cwd = Path.of_string (Sys.getcwd ()) in
   all_issues root
   |> List.iter (fun path ->
     Path.(
       path
-      |> to_relative ~root
+      |> to_relative ~root:cwd
       |> to_string
       |> print_endline))
 
