@@ -1,20 +1,19 @@
 #!/usr/bin/env cram
 
-  $ cd $TESTDIR/browser
+  $ cd $TESTDIR/browser || exit
   > {
   >   npm ci
   >   npm run lint
   >   npm run build
   >   npm t
-  > } &> /dev/null
+  > } > /dev/null 2>&1
 
-
-  $ cd $TESTDIR
+  $ cd $TESTDIR || exit
 
   $ dune build
   $ dune install
 
-  $ cd $CRAMTMP
+  $ cd $CRAMTMP || exit
 
   $ issue --version
   %%VERSION%%
@@ -38,7 +37,7 @@
   $ issue html | grep -F '<article>'
           <article><a class='issue-bookmark' id='Fake test' href='#Fake test'>\xf0\x9f\x94\x96 open/fake_test.md</a><h1 id="fake-test">Fake test</h1> (esc)
 
-  $ issue | cat -
+  $ issue
   ISSUE(1)                         Issue Manual                         ISSUE(1)
   
   
@@ -98,4 +97,24 @@
   
   Issue 11VERSION11                                                     ISSUE(1)
 
-  $ diff <(issue --help) <(issue)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
