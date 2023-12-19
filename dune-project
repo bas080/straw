@@ -1,4 +1,4 @@
-(lang dune 2.1)
+(lang dune 3.0)
 
 (package
  (name issue)
@@ -10,6 +10,7 @@
     (and
       (>= "1.2.0")
       (< "2.0.0")))
-  (ppx_inline_test :with-test)))
+  (ppx_inline_test :with-test)
+  (ppx_expect :with-test)))
 
 (generate_opam_files)

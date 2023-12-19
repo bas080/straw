@@ -1,6 +1,5 @@
 (tests
  (names test_issue test_omd)
- (deps (universe))
  (libraries
   omd
   str
