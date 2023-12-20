@@ -1,12 +1,13 @@
 (library
  (name issue_lib)
  (libraries
- ;; path handling
- fpath
- ;; regex
- str
- ;; markdown
- omd))
+  unix
+  ;; path handling
+  fpath
+  ;; regex
+  str
+  ;; markdown
+  omd))
 
 ;; load template.html into binary
 (rule

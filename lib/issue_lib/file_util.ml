@@ -1,7 +1,10 @@
 let move ~src ~dest = Sys.rename (Path.to_string src) (Path.to_string dest)
 
 let mkdir ?(perm = 0o777) (path: Path.t) =
-  Sys.mkdir (Path.to_string path) perm
+  try
+    Unix.mkdir (Path.to_string path) perm
+  with
+  | Unix.Unix_error (Unix.EEXIST, _, _) -> ()
 
 let rec mkdir_p (path : Path.t) =
   if not (Path.exists path) then begin
