@@ -10,7 +10,7 @@ let with_test_file path contents f =
   res
 
 let with_test_dir path f =
-  Sys.mkdir (Path.to_string path) 0o777;
+  File_util.mkdir_p path;
   let res = f path in
   (* cleanup *)
   rm_r path;
