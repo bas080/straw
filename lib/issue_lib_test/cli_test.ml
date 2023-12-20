@@ -53,8 +53,45 @@ let%expect_test "list when there is issues in a directory" =
     (* no extension, is ignored *)
     File_util.write_entire_file (Path.append path "test2") "test2";
     Cli.list ();
-    (* TODO: order is reversed, consider sort *)
     [%expect {|
       issue/test1.md
       issue/test2.md
     |}])
+
+let with_test_editor contents f =
+  let fake_editor =
+    "#!/usr/bin/env sh\n"
+    ^ "echo '" ^ contents ^ "'"
+    ^ "> \"$1\""
+  in
+  Util.with_test_file
+    (Path.of_string "./fake-editor")
+    fake_editor
+    (fun path ->
+      (* add +x to file *)
+      Unix.chmod (Path.to_string path) 0o777;
+      Unix.putenv "EDITOR" (Path.to_string path);
+      let ret = f path in
+      Unix.putenv "EDITOR" "";
+      ret)
+
+let%test_unit "open when there is no issue directory" =
+  (* FIXME: / makes this unix specific *)
+  Util.with_chdir (Path.of_string "/") (fun _ ->
+    assert_failure Cli.open_issue)
+
+let%test_unit "open when there is an issue directory, but no open directory" =
+  with_test_editor "# Fake issue" (fun _ ->
+    Util.with_test_dir (Path.of_string "issue") (fun dir ->
+      let open_dir = Path.append dir "open" in
+      assert (not (Path.exists open_dir));
+      Cli.open_issue ();
+      let issue_path = Path.append open_dir "fake_issue.md" in
+      assert Path.(exists issue_path && is_file issue_path)))
+
+let%test_unit "open when there is an issue/open directory" =
+    with_test_editor ("# Fake issue") (fun _ ->
+      Util.with_test_dir (Path.of_string "issue/open") (fun dir ->
+        Cli.open_issue ();
+        let issue_path = Path.append dir "fake_issue.md" in
+        assert Path.(exists issue_path && is_file issue_path)))
