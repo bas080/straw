@@ -2,11 +2,10 @@
   "name": "issue",
   "version": "0.0.0",
   "description": "Browser code for fancy issue features",
-  "main": "index.mjs",
   "scripts": {
-    "build": "esbuild index.mjs --bundle --outfile=bundle.js",
-    "postbuild": "inline-script-tags template.html ../lib/issue_lib/resources/template.html",
-    "dev": "npm run build -- --watch && cp ../lib/issue_lib/resources/template.html ./browser",
+    "build": "npx parcel build template.html",
+    "postbuild": "cp dist/template.html ../lib/issue_lib/resources/template.html",
+    "dev": "npx parcel serve template.html",
     "lint": "npx standard",
     "lintfix": "npx prettier --write . ; npx standard --fix",
     "test": "tape *.test.mjs"
@@ -15,8 +14,6 @@
     "lit-html": "^3.1.0"
   },
   "devDependencies": {
-    "esbuild": "^0.19.7",
-    "inline-scripts": "^1.7.4",
     "tape": "^5.7.2",
     "tape-check": "^1.0.0-rc.0"
   }
