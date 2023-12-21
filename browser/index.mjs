@@ -130,3 +130,5 @@ function deleteQueryParam (parameterName) {
   }`
   window.history.replaceState({}, document.title, newUrl)
 }
+
+export default null

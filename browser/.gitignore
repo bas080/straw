@@ -1,2 +1,4 @@
-node_modules
+.parcel-cache
 bundle.js
+dist
+node_modules
