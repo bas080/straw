@@ -192,4 +192,6 @@ let html () =
       print_string before;
       print_html_issues ();
       print_string after
-  | None -> Printf.eprintf "Invalid template.html, does not contain <!--issues-->.\n"
+  | None ->
+    Printf.eprintf "Invalid template.html, does not contain <!--issues-->.\n";
+    exit 1
