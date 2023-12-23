@@ -689,7 +689,7 @@
     }
 
     .badge-primary {
-      background-color: var(--bg);
+      background-color: var(--accent-bg);
       border: 1px solid var(--border);
     }
 
@@ -700,7 +700,7 @@
 
     .issue-search-query-items li {
       display: inline-block;
-      margin-right: 1em;
+      margin-right: 0.5rem;
     }
 
     .issue-search-query-item {
@@ -779,8 +779,26 @@
       text-decoration: none;
     }
 
-    hr {
-      margin: 1rem 0 1.5rem 0;
+    .separator {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .separator::before,
+    .separator::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #000;
+    }
+
+    .separator:not(:empty)::before {
+      margin-right: 0.25em;
+    }
+
+    .separator:not(:empty)::after {
+      margin-left: 0.25em;
     }
   </style>
 

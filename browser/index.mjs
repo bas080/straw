@@ -35,7 +35,7 @@ const searchTokens = (query) => {
     .reduce((acc, value, index) => {
       if (isOdd(index)) return [...acc, `${value}`]
 
-      return acc.concat(value.split(' '))
+      return acc.concat(value.split(/\s+/))
     }, [])
     .filter(isNotEmpty)
 }
