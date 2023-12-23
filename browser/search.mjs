@@ -84,7 +84,7 @@ export default function search (state, push) {
   }
 
   const suggestions = call(() => {
-    if (!queryInput) return
+    if (!queryInput) return html`<p></p>`
 
     // How to find the token you are editing? Diff?
     const current = last(
@@ -120,7 +120,9 @@ export default function search (state, push) {
     }
 
     return [
-      tokens[index - 1] === 'or' || index === 0 ? null : html`<hr />`,
+      tokens[index - 1] === 'or' || index === 0
+        ? null
+        : html`<div class="separator">and</div>`,
       html`<li>
         <button
           class="issue-search-query-item"
@@ -137,7 +139,8 @@ export default function search (state, push) {
 
   render(
     html`
-      <input
+      <textarea
+        rows="5"
         placeholder="terms..."
         id="issue-search-input"
         ${ref(inputRef)}
@@ -145,7 +148,7 @@ export default function search (state, push) {
         @keyup=${onKeyUp}
         @mouseup=${onMouseUp}
         @input=${onInput}
-      />
+      ></textarea>
       ${suggestions}
       <ul class="issue-search-query-items">
         ${tokens.map(searchTokenItem)}
