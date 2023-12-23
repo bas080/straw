@@ -1,10 +1,10 @@
 {
-  "name": "issue",
+  "name": "straw",
   "version": "0.0.0",
-  "description": "Browser code for fancy issue features",
+  "description": "Frontend for the straw projects",
   "scripts": {
     "build": "npx parcel build template.html",
-    "postbuild": "cp dist/template.html ../lib/issue_lib/resources/template.html",
+    "postbuild": "cp dist/template.html ../lib/straw_lib/resources/template.html",
     "dev": "npx parcel serve template.html",
     "lint": "npx standard",
     "lintfix": "npx prettier --write . ; npx standard --fix",
