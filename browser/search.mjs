@@ -1,22 +1,18 @@
+// @ts-check
+
+import {
+  parse,
+  stringify,
+  isOrToken,
+  isRightOfOr,
+  removeToken,
+  replaceTokenValue,
+  tokenFromStringIndex,
+  map
+} from './queryan'
 import { html, render } from 'lit-html'
 import { createRef, ref } from 'lit-html/directives/ref.js'
-import {
-  identity,
-  call,
-  isEmpty,
-  indexSplit,
-  butLast,
-  last,
-  byKey,
-  excludeIndex,
-  partial
-} from './helpers.mjs'
-
-const quote = (str) => `"${str}"`
-const whitespaceRegex = /\s/
-const hasWhitespace = (str) => whitespaceRegex.test(str)
-const quoteOnWhitespace = (token) =>
-  hasWhitespace(token) ? quote(token) : token
+import { identity, call, byKey, partial } from './helpers.ts'
 
 const targetValue =
   (fn) =>
@@ -39,7 +35,9 @@ const tokenIcon = byKey(
 )
 
 export default function search (state, push) {
-  const { specialTokens, issuesPerToken, query, tokens } = state
+  const { specialTokens, issuesPerToken, query } = state
+
+  const tokens = parse(query)
 
   const queryInput = inputRef.value
 
@@ -66,14 +64,12 @@ export default function search (state, push) {
     targetValue(onQueryChange)(event)
   }
 
-  const onTokenRemove = (index) => {
-    onQueryChange(excludeIndex(index, tokens).join(' '))
+  const onTokenRemove = (token, tokens) => {
+    onQueryChange(stringify(removeToken(tokens, token)))
   }
 
-  const onSuggestionClick = (token) => (_event) => {
-    const [before, after] = indexSplit(queryInput.selectionStart, query)
-
-    onQueryChange([...butLast(before.split(' ')), token, after].join(' '))
+  const onSuggestionClick = (token, value) => (_event) => {
+    onQueryChange(stringify(replaceTokenValue(tokens, token, value)))
 
     queryInput.focus()
 
@@ -86,24 +82,24 @@ export default function search (state, push) {
   const suggestions = call(() => {
     if (!queryInput) return html`<p></p>`
 
-    // How to find the token you are editing? Diff?
-    const current = last(
-      indexSplit(queryInput.selectionStart, query)[0].split(' ')
+    const currentToken = tokenFromStringIndex(
+      tokens,
+      queryInput.selectionStart
     )
 
-    const tokens = specialTokens.filter((x) => x.startsWith(current))
+    if (currentToken == null) return html`<p class="issue-suggestions"></p>`
 
-    // Do not show suggestions when the only matching special token is an exact
-    // match with the current token.
-    if (isEmpty(current) || (tokens.length === 1 && tokens[0] === current)) {
-      return html`<p class="issue-suggestions"></p>`
-    }
+    const [current] = currentToken
+
+    const startsWith = specialTokens.filter(
+      (x) => x.startsWith(current) && current !== x
+    )
 
     return html`<p class="issue-suggestions">
-      ${tokens.map(
+      ${startsWith.map(
         (token) =>
           html`<button
-            @click=${onSuggestionClick(token)}
+            @click=${onSuggestionClick(currentToken, token)}
             class="issue-suggestion"
           >
             ${token}
@@ -112,25 +108,26 @@ export default function search (state, push) {
     </p>`
   })
 
-  const searchTokenItem = (token, index, tokens) => {
-    const count = issuesPerToken[token] || 0
+  const searchTokenItem = (token, _index, tokens) => {
+    const [value] = token
+    const count = issuesPerToken[value] || 0
 
-    if (token === 'or') {
+    if (isOrToken(token)) {
       return html`<li>or</li>`
     }
 
     return [
-      tokens[index - 1] === 'or' || index === 0
+      isRightOfOr(token, tokens) || token[1] === 0
         ? null
         : html`<div class="separator">and</div>`,
       html`<li>
         <button
           class="issue-search-query-item"
-          title="Remove ${token}"
-          value="${token}"
-          @click="${partial(onTokenRemove, index)}"
+          title="Remove ${value}"
+          value="${value}"
+          @click="${partial(onTokenRemove, token, tokens)}"
         >
-          ${tokenIcon(token[0])} ${quoteOnWhitespace(token)}
+          ${tokenIcon(value[0])} ${value}
           <span class="badge badge-primary">${count}</span>
         </button>
       </li>`
@@ -151,7 +148,7 @@ export default function search (state, push) {
       ></textarea>
       ${suggestions}
       <ul class="issue-search-query-items">
-        ${tokens.map(searchTokenItem)}
+        ${map(searchTokenItem, tokens)}
       </ul>
     `,
     root
