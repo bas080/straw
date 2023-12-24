@@ -1,4 +1,4 @@
-import { notEquals } from './helpers.mjs'
+import { notEquals } from './helpers.js'
 
 const state = (initial, onPush) => {
   let oldState
