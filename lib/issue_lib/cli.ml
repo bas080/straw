@@ -164,8 +164,8 @@ let status () =
   |> Seq.iter (fun (category, count) ->
       Printf.printf "%s\t%i\n" category count)
 
-let split_on_straws content =
-  let r = Str.regexp "<!--straws-->" in
+let split_on_items content =
+  let r = Str.regexp "<!--items-->" in
   match Str.bounded_split r content 2 with
   | [ before; after ] -> Some (before, after)
   | _ -> None
@@ -187,7 +187,7 @@ let html () =
     end;
     File_util.read_entire_file template_path
   in
-  match split_on_straws template with
+  match split_on_items template with
   | Some (before, after) ->
       print_string before;
       print_html_items ();
