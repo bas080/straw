@@ -1,4 +1,4 @@
-open Issue_lib
+open Straw
 
 let rm_r path =
   ignore (Sys.command ("rm -r " ^ (Path.to_string path)) : int)

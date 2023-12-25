@@ -1,4 +1,4 @@
-open Issue_lib
+open Straw
 
 let%test "/ is a root" = Path.(is_root (of_string "/"))
 let%test "/home is not a root" = not Path.(is_root (of_string "/home"))

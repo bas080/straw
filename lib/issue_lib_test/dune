@@ -1,5 +1,5 @@
 (library
- (name issue_lib_test)
- (libraries issue_lib unix)
+ (name straw_test)
+ (libraries straw unix)
  (inline_tests (flags -verbose))
  (preprocess (pps ppx_inline_test ppx_expect)))

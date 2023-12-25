@@ -1,7 +1,7 @@
 (lang dune 3.0)
 
 (package
- (name issue)
+ (name straw)
  (depends
   (ocaml (>= "5.1.1"))
   (fpath (>= "0.7.3"))

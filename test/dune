@@ -3,5 +3,5 @@
  (libraries
   omd
   str
-  issue_lib
-  issue_lib_test))
+  straw
+  straw_test))
