@@ -5,10 +5,10 @@
    (:standard -O2 -ccopt -static -ccopt -s))))
 
 (executable
- (public_name issue)
+ (public_name straw)
  (name main)
  (modes native)
  (libraries
-  issue_lib
+  straw
   ;; CLI argument parsing
   cmdliner))

@@ -1,5 +1,5 @@
 (library
- (name issue_lib)
+ (name straw)
  (libraries
   unix
   ;; path handling
