@@ -1,4 +1,4 @@
 _build/
-issue/index.html
-issue/template.html
-lib/issue_lib/resources/template.html
+straw/index.html
+straw/template.html
+lib/straw/resources/template.html

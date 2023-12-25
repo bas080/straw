@@ -59,11 +59,11 @@ jobs:
           commit: master
           allowUpdates: true
 
-      - name: Create the issue html index.html
-        run: ./_build/${{ matrix.os }}.exe html > ./issue/index.html
+      - name: Create the straw html index.html
+        run: ./_build/${{ matrix.os }}.exe html > ./straw/index.html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./issue
+          publish_dir: ./straw
