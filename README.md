@@ -8,7 +8,7 @@ Because you want something portable and simpel.
 
 ## Usage
 
-`issue --help`
+`straw --help`
 
 ## Releases
 
