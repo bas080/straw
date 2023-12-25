@@ -4,7 +4,7 @@
   "description": "Frontend for the straw projects",
   "scripts": {
     "build": "npx parcel build template.html",
-    "postbuild": "cp dist/template.html ../lib/straw_lib/resources/template.html",
+    "postbuild": "cp dist/template.html ../lib/straw/resources/template.html",
     "dev": "npx parcel serve template.html",
     "lint": "npx standard",
     "lintfix": "npx prettier --write . ; npx standard --fix",
