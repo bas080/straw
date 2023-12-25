@@ -1,5 +1,5 @@
 open Cmdliner
-open Issue_lib.Cli
+open Straw.Cli
 
 let working_on_it cmd = Printf.eprintf "Executing '%s' subcommand\n" cmd
 
@@ -17,12 +17,12 @@ let list_cmd =
 let open_cmd =
   Cmd.v
     (Cmd.info "open" ~doc:"Open a new issue")
-    Term.(const open_issue $ const ())
+    Term.(const open_item $ const ())
 
 let dir_cmd =
   Cmd.v
     (Cmd.info "dir" ~doc:"Show the current issue directory")
-    Term.(const (fun () -> issue_dir () |> Issue_lib.Path.to_string |> print_endline) $ const ())
+    Term.(const (fun () -> straw_dir () |> Straw.Path.to_string |> print_endline) $ const ())
 
 let search_cmd =
   Cmd.v

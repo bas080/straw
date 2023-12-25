@@ -1,4 +1,4 @@
-open Issue_lib;;
+open Straw
 
 let%test_unit "title_of_doc various inlines" =
   let tester test =

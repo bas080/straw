@@ -12,18 +12,18 @@ let rec find_parent_directory_with_file target_file start_dir =
     (* Move one dir up and try again *)
     find_parent_directory_with_file target_file parent
 
-(* Returns the parent of the issue directory, considered the project root. *)
+(* Returns the parent of the straw directory, considered the project root. *)
 let project_dir () =
   let start = Path.of_string (Sys.getcwd ()) in
-  let target = Path.of_string "issue" in
+  let target = Path.of_string "straw" in
   match find_parent_directory_with_file target start with
   | Some x -> x
   | None ->
     failwith (
-      Printf.sprintf "issue directory could not be found, use '%s init' to create one."
+      Printf.sprintf "straw directory could not be found, use '%s init' to create one."
         Sys.executable_name)
 
-let issue_dir () = Path.append (project_dir ()) "issue"
+let straw_dir () = Path.append (project_dir ()) "straw"
 
 let slug_title title =
   let safe_title =
@@ -56,27 +56,27 @@ let path_of_title ~root category title =
         (of_string category)
         (slug_title title)))
 
-let all_issues root =
+let all_items root =
   File_util.traverse_directory root
   |> List.filter (Path.has_extension ~ext:"md")
 
-let issue_link relative_path =
+let item_link relative_path =
   let filename = Path.filename relative_path in
-  Printf.sprintf "<a class='issue-bookmark' id='%s' href='#%s'>🔖 %s</a>"
+  Printf.sprintf "<a class='straw-bookmark' id='%s' href='#%s'>🔖 %s</a>"
     filename
     filename
     (Path.to_string relative_path)
 
-let wrap_in_article issue_html = "<article>" ^ issue_html ^ "</article>"
+let wrap_in_article item_html = "<article>" ^ item_html ^ "</article>"
 
 let md_to_html ~root path =
   let doc = Omd.of_string (File_util.read_entire_file path) in
   let doc = Omd_util.replace_text_with_links doc in
   let html = Omd.to_html doc in
-  let issue_link =
-    issue_link (Path.to_relative ~root path)
+  let item_link =
+    item_link (Path.to_relative ~root path)
   in
-  wrap_in_article (issue_link ^ html)
+  wrap_in_article (item_link ^ html)
 
 let open_file_with_editor path =
   let getenv name default = Option.value ~default (Sys.getenv_opt name) in
@@ -93,7 +93,7 @@ let find_unique_filename path =
   let counter = ref 1 in
   let search = ref path in
   while Sys.file_exists !search do
-    Printf.printf "Possible duplicate issue found:\t%s\n" !search;
+    Printf.printf "Possible duplicate item found:\t%s\n" !search;
     let replacement = Printf.sprintf "_%i.md" !counter in
     search := Str.replace_first r replacement path;
     counter := !counter + 1
@@ -101,17 +101,17 @@ let find_unique_filename path =
   Path.of_string !search
 
 let init () =
-  (* create the issue dir in whatever directory we're in *)
+  (* create the straw dir in whatever directory we're in *)
   let cwd = Path.of_string (Sys.getcwd ()) in
-  let issue_dir = Path.append cwd "issue" in
-  Printf.printf "Creating issue directory in %s\n"
-    (Path.to_string issue_dir);
-  File_util.mkdir_p issue_dir
+  let straw_dir = Path.append cwd "straw" in
+  Printf.printf "Creating straw directory in %s\n"
+    (Path.to_string straw_dir);
+  File_util.mkdir_p straw_dir
 
 let list () =
-  let root = issue_dir () in
+  let root = straw_dir () in
   let cwd = Path.of_string (Sys.getcwd ()) in
-  all_issues root
+  all_items root
   |> List.sort Path.compare
   |> List.iter (fun path ->
     Path.(
@@ -120,22 +120,22 @@ let list () =
       |> to_string
       |> print_endline))
 
-let open_issue () =
-  let root = issue_dir () in
+let open_item () =
+  let root = straw_dir () in
   (* will create the file *)
   let tmpfile = Path.temp_file ~dir:root "tmp-" ".md" in
-  let open_dir = Path.of_string "issue/open" in
-  (* create the issue/open directory if it doesn't exit *)
+  let open_dir = Path.of_string "straw/open" in
+  (* create the straw/open directory if it doesn't exit *)
   ignore (File_util.mkdir open_dir);
   open_file_with_editor tmpfile;
   match title tmpfile with
   | Some title ->
     let path = path_of_title ~root "open" title |> find_unique_filename in
-    Printf.printf "Moving %s to %s\n"
+    Printf.printf "Moving %s to %s.\n"
       (Path.to_string tmpfile) (Path.to_string path);
     (* TODO: error handling *)
     ignore (File_util.move ~src:tmpfile ~dest:path);
-    Printf.printf "Issue saved at: %s\n" (Path.to_string path)
+    Printf.printf "File saved at %s.\n" (Path.to_string path)
   | None ->
     Printf.eprintf "No changes were saved.\n";
     (* cleanup empty tempfile *)
@@ -146,8 +146,8 @@ let open_issue () =
 let search _root = ()
 
 let status () =
-  let root = issue_dir () in
-  all_issues root
+  let root = straw_dir () in
+  all_items root
   |> List.to_seq
   (* group by category *)
   |> Seq.group (fun a b ->
@@ -164,21 +164,21 @@ let status () =
   |> Seq.iter (fun (category, count) ->
       Printf.printf "%s\t%i\n" category count)
 
-let split_on_issues content =
-  let r = Str.regexp "<!--issues-->" in
+let split_on_straws content =
+  let r = Str.regexp "<!--straws-->" in
   match Str.bounded_split r content 2 with
   | [ before; after ] -> Some (before, after)
   | _ -> None
 
-let print_html_issues () =
-  let root = issue_dir () in
-  all_issues root
+let print_html_items () =
+  let root = straw_dir () in
+  all_items root
   |> List.map (md_to_html ~root)
   |> List.iter print_endline;
   ()
 
 let html () =
-  let template_path = Path.append (issue_dir ()) "template.html" in
+  let template_path = Path.append (straw_dir ()) "template.html" in
   let template =
     (* if the template path doesn't exist, create it with the bundled
        template.html *)
@@ -187,11 +187,11 @@ let html () =
     end;
     File_util.read_entire_file template_path
   in
-  match split_on_issues template with
+  match split_on_straws template with
   | Some (before, after) ->
       print_string before;
-      print_html_issues ();
+      print_html_items ();
       print_string after
   | None ->
-    Printf.eprintf "Invalid template.html, does not contain <!--issues-->.\n";
+    Printf.eprintf "Invalid template.html, does not contain <!--straws-->.\n";
     exit 1
