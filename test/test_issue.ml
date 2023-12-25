@@ -1,2 +1,0 @@
-(* TODO: integration tests *)
-let () = ()

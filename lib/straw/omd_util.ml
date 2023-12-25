@@ -24,7 +24,7 @@ let split_links attr (tag, r) text =
       let label = Omd.Text (attr, s) in
       let title = Some ("Search " ^ tag ^ " " ^ s) in
       Omd.Link (
-        [("class", "issue-" ^ tag)],
+        [("class", "straw-" ^ tag)],
         { Omd.title; label; destination = "#" })
     | Str.Text (s) -> Omd.Text (attr, s))
 
