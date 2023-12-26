@@ -590,8 +590,8 @@
 
   <body>
     <main>
-      <label for="issue-search-input">Filter</label>
-      <div id="issue-search">
+      <label for="straw-search-input">Filter</label>
+      <div id="straw-search">
         <p>
           <noscript>
             Please enable JavaScript for the filter function:
@@ -631,9 +631,9 @@
           </dd>
         </dl>
       </details>
-      <p id="issue-search-count"></p>
+      <p id="straw-search-count"></p>
 
-      <div class="issue-issues">
+      <div class="straw-issues">
         <!--items-->
       </div>
     </main>
@@ -666,7 +666,7 @@
       overflow: hidden;
     }
 
-    #issue-search {
+    #straw-search {
       border: 1px solid var(--border);
       border-radius: var(--standard-border-radius);
       background-color: var(--accent-bg);
@@ -674,11 +674,11 @@
       margin: 1em 0;
     }
 
-    #issue-search ul {
+    #straw-search ul {
       margin: min(1em, 4vw) 0 0 0;
     }
 
-    .issue-bookmark {
+    .straw-bookmark {
       word-break: break-all;
     }
 
@@ -693,17 +693,17 @@
       border: 1px solid var(--border);
     }
 
-    .issue-search-query-items {
+    .straw-search-query-items {
       list-style-type: none;
       padding-left: 0;
     }
 
-    .issue-search-query-items li {
+    .straw-search-query-items li {
       display: inline-block;
       margin-right: 0.5rem;
     }
 
-    .issue-search-query-item {
+    .straw-search-query-item {
       display: inline-block;
       border: 1px solid var(--border);
       padding-left: 1ex;
@@ -713,42 +713,42 @@
       color: var(--text);
     }
 
-    .issue-search-query-or-item {
+    .straw-search-query-or-item {
       width: 100%;
       margin-bottom: 0.5rem;
       margin-left: 0;
       text-align: center;
     }
 
-    .issue-search-mention,
-    .issue-search-directory,
-    .issue-search-hashtag {
+    .straw-search-mention,
+    .straw-search-directory,
+    .straw-search-hashtag {
       color: var(--code);
     }
 
-    .issue-issues {
+    .straw-issues {
       display: flex;
       flex-flow: column;
     }
 
-    .issue-issues > article {
+    .straw-issues > article {
       opacity: 1;
       order: 1;
       transition: opacity 0.5s ease;
     }
 
-    .issue-issues > article.disabled {
+    .straw-issues > article.disabled {
       opacity: 0.1;
       pointer-events: none;
       order: 2;
     }
 
-    .issue-hash {
+    .straw-hash {
       color: var(--code);
       font-weight: bold;
     }
 
-    .issue-hash {
+    .straw-hash {
     }
 
     details {
@@ -764,18 +764,18 @@
       opacity: 1;
     }
 
-    #issue-search-input {
+    #straw-search-input {
       width: 100%;
     }
 
-    .issue-suggestion {
+    .straw-suggestion {
       background: none;
       color: var(--accent);
       border: none;
       text-decoration: underline;
     }
 
-    .issue-suggestion:hover {
+    .straw-suggestion:hover {
       text-decoration: none;
     }
 

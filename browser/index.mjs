@@ -6,13 +6,13 @@ import search from './search.mjs'
 import issuesFn from './issues.mjs'
 import state from './state.mjs'
 
-const issues = Array.from(document.querySelectorAll('.issue-issues article'))
+const issues = Array.from(document.querySelectorAll('.straw-issues article'))
 const issueElementsByToken = call(() => {
   const directoryTokenRegex = /\w+(?=\/)/g
   const otherTokensRegex = /[@#]\w+/g
 
   return issues.reduce((acc, elem) => {
-    const bookmark = elem.querySelector('.issue-bookmark')
+    const bookmark = elem.querySelector('.straw-bookmark')
 
     uniq(bookmark.textContent.match(directoryTokenRegex)).forEach((token) => {
       token = `/${token}`

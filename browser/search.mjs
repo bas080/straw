@@ -21,7 +21,7 @@ const targetValue =
 
 // consider an init vs state push thing.
 const inputRef = createRef()
-const root = document.getElementById('issue-search')
+const root = document.getElementById('straw-search')
 root.innerHTML = ''
 
 const tokenIcon = byKey(
@@ -87,7 +87,7 @@ export default function search (state, push) {
       queryInput.selectionStart
     )
 
-    if (currentToken == null) return html`<p class="issue-suggestions"></p>`
+    if (currentToken == null) return html`<p class="straw-suggestions"></p>`
 
     const [current] = currentToken
 
@@ -95,12 +95,12 @@ export default function search (state, push) {
       (x) => x.startsWith(current) && current !== x
     )
 
-    return html`<p class="issue-suggestions">
+    return html`<p class="straw-suggestions">
       ${startsWith.map(
         (token) =>
           html`<button
             @click=${onSuggestionClick(currentToken, token)}
-            class="issue-suggestion"
+            class="straw-suggestion"
           >
             ${token}
           </button>`
@@ -122,7 +122,7 @@ export default function search (state, push) {
         : html`<div class="separator">and</div>`,
       html`<li>
         <button
-          class="issue-search-query-item"
+          class="straw-search-query-item"
           title="Remove ${value}"
           value="${value}"
           @click="${partial(onTokenRemove, token, tokens)}"
@@ -139,7 +139,7 @@ export default function search (state, push) {
       <textarea
         rows="5"
         placeholder="terms..."
-        id="issue-search-input"
+        id="straw-search-input"
         ${ref(inputRef)}
         .value="${query}"
         @keyup=${onKeyUp}
@@ -147,7 +147,7 @@ export default function search (state, push) {
         @input=${onInput}
       ></textarea>
       ${suggestions}
-      <ul class="issue-search-query-items">
+      <ul class="straw-search-query-items">
         ${map(searchTokenItem, tokens)}
       </ul>
     `,
