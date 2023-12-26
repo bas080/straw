@@ -19,7 +19,7 @@ export default function issues (state) {
     }
   })
 
-  document.getElementById('issue-search-count').innerText =
+  document.getElementById('straw-search-count').innerText =
     `Matched ${state.matchedIssueElements.length} / ${state.issues.length}`
 
   return state
