@@ -9,7 +9,7 @@ import state from './state.mjs'
 const issues = Array.from(document.querySelectorAll('.straw-issues article'))
 const issueElementsByToken = call(() => {
   const directoryTokenRegex = /\w+(?=\/)/g
-  const otherTokensRegex = /[@#]\w+/g
+  const otherTokensRegex = /[@#]\S+/g
 
   return issues.reduce((acc, elem) => {
     const bookmark = elem.querySelector('.straw-bookmark')
