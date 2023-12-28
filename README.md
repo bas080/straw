@@ -4,7 +4,7 @@ Simple issues/notes using markdown files and a thin CLI wrapper.
 
 ## Reasoning
 
-Because you want something portable and simpel.
+Because you want something portable and simple.
 
 ## Usage
 
