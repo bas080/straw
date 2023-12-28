@@ -1,5 +1,0 @@
-EXCLUDE_QUERY_DIR
-B ../_build/default/bin/.main.eobjs/byte
-B ../_build/default/lib/.issue.objs/byte
-S .
-FLG -w -40
