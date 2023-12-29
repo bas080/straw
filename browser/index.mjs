@@ -1,7 +1,7 @@
 // @ts-check
 
 import { predicate, parse } from './queryan.js'
-import { call, string, uniq } from './helpers.js'
+import { call, string } from './helpers.js'
 import search from './search.mjs'
 import issuesFn from './issues.mjs'
 import state from './state.mjs'
@@ -9,21 +9,25 @@ import state from './state.mjs'
 const issues = Array.from(document.querySelectorAll('.straw-issues article'))
 const issueElementsByToken = call(() => {
   const directoryTokenRegex = /\w+(?=\/)/g
-  const otherTokensRegex = /[@#]\S+/g
 
   return issues.reduce((acc, elem) => {
     const bookmark = elem.querySelector('.straw-bookmark')
 
-    uniq(bookmark.textContent.match(directoryTokenRegex)).forEach((token) => {
-      token = `/${token}`
+    if (bookmark?.textContent == null) return {};
 
-      acc[token] = acc[token] || []
-      acc[token].push(elem)
+    (bookmark.textContent.match(directoryTokenRegex) || []).forEach((token) => {
+      token = `/${token}`
+      acc[token] ??= []
+      if (!acc[token].includes(token)) acc[token].push(elem)
     })
 
-    uniq(elem.textContent.match(otherTokensRegex)).forEach((token) => {
-      acc[token] = acc[token] || []
-      acc[token].push(elem)
+    Array.from(
+      elem.querySelectorAll('.straw-mention, .straw-hashtag') || []
+    ).forEach(({ textContent: token }) => {
+      if (!token) return
+
+      acc[token] ??= []
+      if (!acc[token].includes(token)) acc[token].push(elem)
     })
 
     return acc
@@ -41,7 +45,7 @@ const specialTokens = Object.keys(issueElementsByToken)
 const tokenIssues = (token) => {
   return (
     issueElementsByToken[token] ||
-    issues.filter((issue) => issue.textContent.includes(token))
+    issues.filter((issue) => issue?.textContent?.includes(token))
   )
 }
 
