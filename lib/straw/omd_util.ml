@@ -28,8 +28,8 @@ let split_links attr (tag, r) text =
         { Omd.title; label; destination = "#" })
     | Str.Text (s) -> Omd.Text (attr, s))
 
-let mention_regexp = Str.regexp {|@\([^@ .,;:!?	$]+\)|}
-let hashtag_regexp = Str.regexp {|#\([^@ .,;:!?	$]+\)|}
+let mention_regexp = Str.regexp "@\\([^@# .,;:!?\t\n]+\\)"
+let hashtag_regexp = Str.regexp "#\\([^@# .,;:!?\t\n]+\\)"
 
 let extract_links attr text =
   split_links attr ("mention", mention_regexp) text
