@@ -1,7 +1,8 @@
 import { complement, isEmpty, remove } from "./helpers.js";
 
-type Token = [string, number];
-type Tokens = Token[];
+export type Token = [string, number];
+export type Tokens = Token[];
+type Predicate = (_: any) => boolean;
 
 // Add to stop TS from complaining.
 const T = (...args: any) => true;
@@ -10,7 +11,7 @@ const isOrToken = (token: Token): boolean =>
 const isNotToken = (token: Token): boolean =>
   Boolean(token && token[0] === "not");
 const isWhitespaceToken = ([token]: Token): boolean => /^\s/.test(token);
-const isTextToken = complement(isWhitespaceToken);
+const isTextToken = complement(isWhitespaceToken) as (token: Token) => boolean;
 const isLeftOfOr = ([, index]: Token, tokens: Tokens): boolean =>
   isOrToken(tokens[index + 2]);
 const isRightOfOr = ([, index]: Token, tokens: Tokens): boolean =>
@@ -107,8 +108,6 @@ function removeToken(tokens: Tokens, token: Token): Tokens {
 function stringify(tokens: Tokens): string {
   return tokens.map(tokenValue).join("");
 }
-
-type Predicate = (_: any) => boolean;
 
 const or = (before: Predicate, token: Predicate) => (issue: string) =>
   before(issue) || token(issue);
