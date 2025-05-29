@@ -8,8 +8,8 @@ type Predicate = (_: any) => boolean;
 const T = (...args: any) => true;
 const isOrToken = (token: Token): boolean =>
   Boolean(token && token[0] === "or");
-const isNotToken = (token: Token): boolean =>
-  Boolean(token && token[0] === "not");
+const isNegated = (token: Token): boolean =>
+  Boolean(token && tokenValue(token)[0] === '-')
 const isWhitespaceToken = ([token]: Token): boolean => /^\s/.test(token);
 const isTextToken = complement(isWhitespaceToken) as (token: Token) => boolean;
 const isLeftOfOr = ([, index]: Token, tokens: Tokens): boolean =>
@@ -20,6 +20,15 @@ const isPartOfOrToken = (token: Token, tokens: Tokens): boolean =>
   isLeftOfOr(token, tokens) || isRightOfOr(token, tokens);
 const tokenIndex = ([, index]: Token) => index;
 const tokenValue = ([value]: Token) => value;
+
+const withoutNegation = (token: Token): Token => {
+  const without = tokenValue(token).slice(1)
+
+  return [
+    without,
+    tokenIndex(token) + 1
+  ]
+}
 
 function parse(input: string): Tokens {
   // Regular expression to match:
@@ -132,9 +141,12 @@ const predicate =
 
       if (isWhitespaceToken(token)) return passes(rest, predicate)
 
-      if (isNotToken(token)) {
-        const [, next, ...nextRest] = rest
-        return passes(nextRest, complement(matches(next)))
+      if (isNegated(token)) {
+        const without = withoutNegation(token)
+
+        // Maybe should not interfere with the tokens here.
+        // Instead wrap the matches to do complement without the -
+        return passes(rest, complement(passes([without], predicate)))
       }
 
       // Don't change the predicate
@@ -177,7 +189,7 @@ export {
   stringify,
   isWhitespaceToken,
   isOrToken,
-  isNotToken,
+  isNegated,
   replaceTokenValue,
   isRightOfOr,
   removeToken,

@@ -56,7 +56,9 @@ test('predicate', (t) => {
 
   t.deepEqual(query('a or e', items), ['abc', 'abcd'], 'a or e')
 
-  t.deepEqual(query('not a', items), ['bcd'], 'not')
+  t.deepEqual(query('-a', items), ['bcd'], '- (negate)')
+  t.deepEqual(query('-a or a', items), items)
+  t.deepEqual(query('-a or a -b or b', items), items)
 
   t.end()
 })
