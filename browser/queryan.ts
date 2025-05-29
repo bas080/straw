@@ -7,6 +7,8 @@ type Tokens = Token[];
 const T = (...args: any) => true;
 const isOrToken = (token: Token): boolean =>
   Boolean(token && token[0] === "or");
+const isNotToken = (token: Token): boolean =>
+  Boolean(token && token[0] === "not");
 const isWhitespaceToken = ([token]: Token): boolean => /^\s/.test(token);
 const isTextToken = complement(isWhitespaceToken);
 const isLeftOfOr = ([, index]: Token, tokens: Tokens): boolean =>
@@ -112,6 +114,8 @@ const or = (before: Predicate, token: Predicate) => (issue: string) =>
   before(issue) || token(issue);
 const and = (before: Predicate, token: Predicate) => (issue: string) =>
   before(issue) && token(issue);
+const not = (before: Predicate, token: Predicate) => (issue: string) =>
+  !token(issue)
 
 const predicate =
   <T>(matcher: (token: Token, value: T) => boolean) =>
@@ -127,8 +131,16 @@ const predicate =
 
       const [token, ...rest] = tokens;
 
+      if (isWhitespaceToken(token)) return passes(rest, predicate)
+
+      if (isNotToken(token)) {
+        const [, next, ...nextRest] = rest
+        return passes(nextRest, complement(matches(next)))
+      }
+
       // Don't change the predicate
-      if (isOrToken(token) || isWhitespaceToken(token))
+      // TODO: Consider writing this simpler by deconstructing to get left of or, the or token and the right of or in one go.
+      if (isOrToken(token))
         return passes(rest, predicate);
 
       if (isRightOfOr(token, queryTokens)) {
@@ -166,6 +178,7 @@ export {
   stringify,
   isWhitespaceToken,
   isOrToken,
+  isNotToken,
   replaceTokenValue,
   isRightOfOr,
   removeToken,
