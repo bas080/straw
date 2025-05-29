@@ -147,7 +147,7 @@ const predicate =
         return passes(rest, and(
           predicate,
           complement(matches(without))
-        )
+        ))
       }
 
       // TODO: Consider writing this simpler by deconstructing to get left of or, the or token and the right of or in one go.
