@@ -139,21 +139,17 @@ const predicate =
 
       const [token, ...rest] = tokens;
 
-      if (isWhitespaceToken(token)) return passes(rest, predicate)
+      if (isOrToken(token) || isWhitespaceToken(token)) return passes(rest, predicate)
 
       if (isNegated(token)) {
         const without = withoutNegation(token)
 
         // Maybe should not interfere with the tokens here.
         // Instead wrap the matches to do complement without the -
-        return passes(rest, complement(passes([without], predicate)))
+        return passes(rest, complement(matches(without)))
       }
 
-      // Don't change the predicate
       // TODO: Consider writing this simpler by deconstructing to get left of or, the or token and the right of or in one go.
-      if (isOrToken(token))
-        return passes(rest, predicate);
-
       if (isRightOfOr(token, queryTokens)) {
         return passes(rest, or(predicate, matches(token)));
       }
