@@ -8,7 +8,19 @@ Because you want something portable and simple.
 
 ## Usage
 
-`straw --help`
+```sh
+straw --help
+```
+
+## Build
+
+> Requires `opam` to be installed.
+
+```sh
+opam install . --deps-only --with-test
+opam exec -- dune build --release
+opam exec -- dune runtest
+```
 
 ## Releases
 
