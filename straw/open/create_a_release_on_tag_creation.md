@@ -8,6 +8,12 @@ using some git changelog tool. An option for such a tool could be
 
 @rage has done this before and shared his [previous work and experience][1].
 
+## Requirements
+
+- The commits since last release do not contain fixup or wip commits messages.
+- Update the changelog with a git log to changelog tool.
+- Creates a github release with the cli build for that specific tag version.
+
 author:@bas080
 priority:medium
 
