@@ -155,6 +155,10 @@ const predicate =
         return passes(rest, or(predicate, matches(token)));
       }
 
+      if (isLeftOfOr(token, queryTokens)) {
+        return and(predicate, passes(rest, matches(token)));
+      }
+
       return passes(rest, and(predicate, matches(token)));
     };
 
