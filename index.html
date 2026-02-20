@@ -185,6 +185,26 @@ generate the issue html.</p>
 </article>
 <article><a class='straw-bookmark' id='support_key_value_feature.md' href='#support_key_value_feature.md'>🔖 open/support_key_value_feature.md</a><h1 id="support-key-value-term-in-issue-markdown">Support Key value term in issue markdown</h1>
 <p>In the issue you can define key value things to later query on them.</p>
+<p>We'll use the <code>?</code> at the start of a key value. This is inspired by url query params.</p>
+<p><code>?author=@bas080</code></p>
+<p>Here we can see that it is allowed to use other special tokens as the value.</p>
+<p>The underlying markup created is.</p>
+<pre><code class="language-html">&lt;span class=&quot;straw-keyvalue&quot;&gt;
+  &lt;a ?author=&lt;/a&gt;&lt;a&gt;@bas080&lt;/a&gt;
+&lt;/span&gt;
+</code></pre>
+<p>The user can either interact with the key value token by clicking the first anchor;
+or by clicking on the mention token.</p>
+<p>Note</p>
+<ul>
+<li>The anchors are not nested in eachother.
+</li>
+<li>The class on the span is how the code interops with browser code.
+</li>
+</ul>
+<p>These changes require both <a href="#" title="Search hashtag #browser" class="straw-hashtag">#browser</a> and <a href="#" title="Search hashtag #cli" class="straw-hashtag">#cli</a> changes. For the cli changes
+we could ?assign=<a href="#" title="Search mention @rage" class="straw-mention">@rage</a>.</p>
+<h2 id="older-suggestsions">Older suggestsions</h2>
 <p><strong>Candidates</strong></p>
 <ul>
 <li>key:value
@@ -199,7 +219,8 @@ generate the issue html.</p>
 <li>priority:1
 </li>
 </ul>
-<p><a href="#" title="Search hashtag #feature" class="straw-hashtag">#feature</a></p>
+<p><a href="#" title="Search hashtag #feature" class="straw-hashtag">#feature</a>
+?assign=<a href="#" title="Search mention @bas080" class="straw-mention">@bas080</a></p>
 </article>
 <article><a class='straw-bookmark' id='fix_directory_filter_to_not_include_issue_filepaths.md' href='#fix_directory_filter_to_not_include_issue_filepaths.md'>🔖 open/fix_directory_filter_to_not_include_issue_filepaths.md</a><h1 id="fix-directory-filter-to-not-include-issue-filepaths">Fix directory filter to not include issue filepaths</h1>
 <p>The <code>/&lt;directory&gt;</code> should only work on directories and should not find issue
