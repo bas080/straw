@@ -13,11 +13,12 @@
     <style>
       ::backdrop,
       :root {
-        --sans-font: -apple-system, BlinkMacSystemFont, "Avenir Next", Avenir,
+        --sans-font:
+          -apple-system, BlinkMacSystemFont, "Avenir Next", Avenir,
           "Nimbus Sans L", Roboto, "Noto Sans", "Segoe UI", Arial, Helvetica,
           "Helvetica Neue", sans-serif;
-        --mono-font: Consolas, Menlo, Monaco, "Andale Mono", "Ubuntu Mono",
-          monospace;
+        --mono-font:
+          Consolas, Menlo, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
         --standard-border-radius: 5px;
         --bg: #fff;
         --accent-bg: #f5f7ff;
@@ -382,11 +383,8 @@
         width: 100%;
       }
       select:not([multiple]) {
-        background-image: linear-gradient(
-            45deg,
-            transparent 49%,
-            var(--text) 51%
-          ),
+        background-image:
+          linear-gradient(45deg, transparent 49%, var(--text) 51%),
           linear-gradient(135deg, var(--text) 51%, transparent 49%);
         background-position: calc(100% - 15px), calc(100% - 10px);
         background-size:
@@ -632,8 +630,8 @@
 
           <dt><code>-token</code></dt>
           <dd>
-            You can negate any token to exclude it from your results.
-            e.g. Handy to hide closed items.
+            You can negate any token to exclude it from your results. e.g. Handy
+            to hide closed items.
           </dd>
         </dl>
       </details>

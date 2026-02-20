@@ -61,6 +61,5 @@ test('predicate', (t) => {
   t.deepEqual(query('-a or a -b or b', items), items)
   t.deepEqual(query('-a -b', items), [])
 
-
   t.end()
 })

@@ -9,7 +9,7 @@ const T = (...args: any) => true;
 const isOrToken = (token: Token): boolean =>
   Boolean(token && token[0] === "or");
 const isNegated = (token: Token): boolean =>
-  Boolean(token && tokenValue(token)[0] === '-')
+  Boolean(token && tokenValue(token)[0] === "-");
 const isWhitespaceToken = ([token]: Token): boolean => /^\s/.test(token);
 const isTextToken = complement(isWhitespaceToken) as (token: Token) => boolean;
 const isLeftOfOr = ([, index]: Token, tokens: Tokens): boolean =>
@@ -22,13 +22,10 @@ const tokenIndex = ([, index]: Token) => index;
 const tokenValue = ([value]: Token) => value;
 
 const withoutNegation = (token: Token): Token => {
-  const without = tokenValue(token).slice(1)
+  const without = tokenValue(token).slice(1);
 
-  return [
-    without,
-    tokenIndex(token) + 1
-  ]
-}
+  return [without, tokenIndex(token) + 1];
+};
 
 function parse(input: string): Tokens {
   // Regular expression to match:
@@ -123,7 +120,7 @@ const or = (before: Predicate, token: Predicate) => (issue: string) =>
 const and = (before: Predicate, token: Predicate) => (issue: string) =>
   before(issue) && token(issue);
 const not = (before: Predicate, token: Predicate) => (issue: string) =>
-  !token(issue)
+  !token(issue);
 
 const predicate =
   <T>(matcher: (token: Token, value: T) => boolean) =>
@@ -139,15 +136,13 @@ const predicate =
 
       const [token, ...rest] = tokens;
 
-      if (isOrToken(token) || isWhitespaceToken(token)) return passes(rest, predicate)
+      if (isOrToken(token) || isWhitespaceToken(token))
+        return passes(rest, predicate);
 
       if (isNegated(token)) {
-        const without = withoutNegation(token)
+        const without = withoutNegation(token);
 
-        return passes(rest, and(
-          predicate,
-          complement(matches(without))
-        ))
+        return passes(rest, and(predicate, complement(matches(without))));
       }
 
       // TODO: Consider writing this simpler by deconstructing to get left of or, the or token and the right of or in one go.
