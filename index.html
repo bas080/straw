@@ -273,11 +273,17 @@ should allow for the state to stabilize.</p>
 <p><a href="#" title="Search mention @bas080" class="straw-mention">@bas080</a> is trying to get this working.</p>
 </article>
 <article><a class='straw-bookmark' id='add_link_to_jump_to_file_in_github.md' href='#add_link_to_jump_to_file_in_github.md'>🔖 open/add_link_to_jump_to_file_in_github.md</a><h1 id="add-link-to-jump-to-file-in-github">Add link to jump to file in github</h1>
+<p>This requires the defining of a source path. The source path in the case of github would be.</p>
+<p><code>https://github.com/bas080/straw/blob/master/straw/</code></p>
+<p>It will then append the path of the issue file to that source path.</p>
+<p>When generating the straw html; one has to define the SOURCE_URL environment variable.</p>
+<p>Work can be started on the html template. ?assigned=<a href="#" title="Search mention @bas080" class="straw-mention">@bas080</a> to get this going.</p>
+<p>An anchor with the word <code>source</code>. <code>&lt;a href=&quot;${SOURCE_URL}/${PATH}&quot;&gt;source&lt;/a&gt;</code></p>
+<h2 id="outdated">Outdated</h2>
 <p>For now just supporting github is fine because we are using github.</p>
 <p>Besides, this is configured in the template. The template at some point will be
 configurable by the user.</p>
-<p>suggested-by: <a href="#" title="Search mention @rage" class="straw-mention">@rage</a></p>
-<p><a href="#" title="Search hashtag #feature" class="straw-hashtag">#feature</a> <a href="#" title="Search hashtag #github" class="straw-hashtag">#github</a></p>
+<p>?suggested-by=<a href="#" title="Search mention @rage" class="straw-mention">@rage</a> <a href="#" title="Search hashtag #feature" class="straw-hashtag">#feature</a> <a href="#" title="Search hashtag #github" class="straw-hashtag">#github</a> <a href="#" title="Search hashtag #cli" class="straw-hashtag">#cli</a> <a href="#" title="Search hashtag #browser" class="straw-hashtag">#browser</a></p>
 </article>
 <article><a class='straw-bookmark' id='support_passing_a--templatetoissue_html_.md' href='#support_passing_a--templatetoissue_html_.md'>🔖 open/support_passing_a--templatetoissue_html_.md</a><h1 id="support-passing-a---template-to-issue-html">Support passing a <code>--template</code> to <code>issue html</code></h1>
 <pre><code class="language-bash">issue html --template=./issue/template.html
