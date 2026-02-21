@@ -92,7 +92,7 @@ export default function search (state, push) {
     const [current] = currentToken
 
     const startsWith = specialTokens.filter(
-      (x) => x.includes(current) && current !== x
+      (x) => x.toLowerCase().includes(current.toLowerCase()) && current !== x
     )
 
     return html`<p class="straw-suggestions">
